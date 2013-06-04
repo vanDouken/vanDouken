@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/camera_preview_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+    <com.stellar.fragments.Preview
+            android:id="@+id/camera_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+
+</RelativeLayout>
