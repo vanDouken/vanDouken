@@ -413,7 +413,7 @@ struct steerer
 
         void print_info()
         {
-            while(!finished_future.is_ready())
+            while(!finished_future.ready())
             {
                 hpx::this_thread::suspend(5000);
                 LOG("GUI @ " << fps.fps() << " FPS\n");

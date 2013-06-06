@@ -7,41 +7,29 @@
 package hpx.android;
 
 public final class R {
-	public static final class id {
-		public static final int yValue = 0x7f070015;
-		public static final int xValue = 0x7f070014;
-		public static final int counter_view_list = 0x7f07000b;
-		public static final int add = 0x7f070016;
-		public static final int counter_view_frame = 0x7f07000c;
-		public static final int performance_counters = 0x7f07000a;
-		public static final int chart = 0x7f070017;
-		public static final int new_series = 0x7f070018;
+	public static final class drawable {
+		public static final int ic_launcher = 0x7f020001;
 	}
-	public static final class string {
-		public static final int perf_counter_threads_pending = 0x7f040009;
-		public static final int perf_counter_threads_suspended = 0x7f04000a;
-		public static final int button_run = 0x7f040006;
-		public static final int add_values = 0x7f040001;
-		public static final int back = 0x7f04000e;
-		public static final int perf_counter_title = 0x7f040007;
-		public static final int add = 0x7f040004;
-		public static final int app_name = 0x7f040000;
-		public static final int perf_counter_threads_terminated = 0x7f04000b;
-		public static final int perf_counter_threads_active = 0x7f040008;
-		public static final int menu_settings = 0x7f04000f;
-		public static final int empty = 0x7f04000d;
-		public static final int new_series = 0x7f040005;
-		public static final int y = 0x7f040003;
-		public static final int disabled = 0x7f04000c;
-		public static final int x = 0x7f040002;
+	public static final class id {
+		public static final int counter_view_frame = 0x7f08000c;
+		public static final int counter_view_list = 0x7f08000b;
+		public static final int performance_counters = 0x7f08000a;
 	}
 	public static final class layout {
-		public static final int xy_chart = 0x7f030009;
-		public static final int performance_counter_view = 0x7f030006;
 		public static final int activity_main = 0x7f030000;
+		public static final int performance_counter_view = 0x7f030006;
 	}
-	public static final class drawable {
-		public static final int ic_launcher = 0x7f020002;
-		public static final int achartengine = 0x7f020000;
+	public static final class string {
+		public static final int app_name = 0x7f050000;
+		public static final int back = 0x7f050009;
+		public static final int button_run = 0x7f050001;
+		public static final int disabled = 0x7f050007;
+		public static final int empty = 0x7f050008;
+		public static final int menu_settings = 0x7f05000a;
+		public static final int perf_counter_threads_active = 0x7f050003;
+		public static final int perf_counter_threads_pending = 0x7f050004;
+		public static final int perf_counter_threads_suspended = 0x7f050005;
+		public static final int perf_counter_threads_terminated = 0x7f050006;
+		public static final int perf_counter_title = 0x7f050002;
 	}
 }

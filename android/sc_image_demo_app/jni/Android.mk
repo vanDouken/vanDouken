@@ -13,15 +13,15 @@ LOCAL_PATH := $(THIS_PATH)
 include $(CLEAR_VARS)
 LOCAL_MODULE:=hpiif_android
 LOCAL_SRC_FILES:=main.cpp
-LOCAL_SRC_FILES+=../../../../hpiif/flowingcanvas_collector.cpp
-LOCAL_SRC_FILES+=../../../../hpiif/flowingcanvas_component.cpp
-LOCAL_SRC_FILES+=../../../../hpiif/flowingcanvas_gui.cpp
-LOCAL_SRC_FILES+=../../../../hpiif/flowingcanvas_simulator.cpp
-LOCAL_SRC_FILES+=../../../../hpiif/flowingcanvas_updategroup.cpp
+LOCAL_SRC_FILES+=../../../flowingcanvas_collector.cpp
+LOCAL_SRC_FILES+=../../../flowingcanvas_component.cpp
+LOCAL_SRC_FILES+=../../../flowingcanvas_gui.cpp
+LOCAL_SRC_FILES+=../../../flowingcanvas_simulator.cpp
+LOCAL_SRC_FILES+=../../../flowingcanvas_updategroup.cpp
 
 LOCAL_C_INCLUDES:=$(HPX_INCLUDES)
-LOCAL_C_INCLUDES+=$(realpath ../../../hpiif)
-LOCAL_C_INCLUDES+=$(realpath ../../../hpiif/model_test)
+LOCAL_C_INCLUDES+=$(realpath ../..)
+LOCAL_C_INCLUDES+=$(realpath ../../model_test)
 LOCAL_C_INCLUDES+=$(LIBGEODECOMP_INCLUDE_DIR)
 
 LOCAL_CPPFLAGS:=$(HPX_CPPFLAGS)

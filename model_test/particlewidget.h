@@ -388,8 +388,8 @@ public:
         particles_size = particles_size - (particles_size % N);
 
         for (std::size_t i = 0; i < particles_size; i+=N) {
-            std::size_t n = (std::min)(i + N, particles_size);
             /*
+            std::size_t n = (std::min)(i + N, particles_size);
             std::size_t n = std::min(i + N, particles_size);
             std::size_t n_triangles = n -i;
             */

@@ -217,7 +217,7 @@ namespace LibGeoDecomp { namespace HiParSimulator { namespace server {
         unsigned step = init_->startStep();
         for(std::size_t i = 0; i < update_groups.size(); ++i)
         {
-            if(init_futures[i].is_ready())
+            if(init_futures[i].ready())
             {
                 unsigned cur_step = update_groups[i].current_step().get().first;
                 step = (std::max)(cur_step, step);

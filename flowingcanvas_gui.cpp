@@ -56,7 +56,7 @@ namespace server {
     }
 
     flowingcanvas_gui::flowingcanvas_gui()
-        : step_finished_future(hpx::lcos::make_future())
+        : step_finished_future(hpx::lcos::make_ready_future())
         , steps_finished(0)
     {
         LOG("flowingcanvas_gui construction...\n");
@@ -84,7 +84,7 @@ namespace server {
 #else
         ParticleWidget *flow = new ParticleWidget(*this, LibGeoDecomp::Coord<2>(320, 240));
         hpiif().flow = flow;
-        flow_future = hpx::lcos::make_future(flow);
+        flow_future = hpx::lcos::make_ready_future(flow);
         hpiif().finished_promise = boost::make_shared<hpx::lcos::promise<void> >();
         finished_future = hpiif().finished_promise->get_future();
 #endif
@@ -223,7 +223,7 @@ namespace server {
     void flowingcanvas_gui::step_finished()
     {
 //#if 0
-        if(finished_future.is_ready()) return;
+        if(finished_future.ready()) return;
         //LOG("step finished " << step << " \n");
 
 

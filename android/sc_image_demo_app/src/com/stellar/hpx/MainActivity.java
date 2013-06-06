@@ -93,9 +93,10 @@ public class MainActivity extends FragmentActivity {
                 "--hpx:threads=2"
               , "--hpx:config=" + getFilesDir().getPath().toString() + "/flowingcanvas_client.ini"
               , "--hpx:run-hpx-main"
-              , "--hpx:connect"
+              //, "--hpx:connect"
               , "--hpx:hpx=" + String.format("%d.%d.%d.%d", (ip & 0xff), (ip >> 8 & 0xff),  (ip >> 16 & 0xff),  (ip >> 24 & 0xff))
-              , "--hpx:agas=192.168.0.1"
+              , "--standalone"
+              //, "--hpx:agas=192.168.0.1"
               //, "-Ihpx.logging.level=5"
             };
             runtime.init(args);

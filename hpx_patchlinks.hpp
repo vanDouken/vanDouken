@@ -32,7 +32,7 @@ namespace LibGeoDecomp { namespace HiParSimulator {
             , region_(region)
             , this_rank_(this_rank)
             , dest_group_(dest_group)
-            , sent_future(hpx::lcos::make_future())
+            , sent_future(hpx::lcos::make_ready_future())
             , mtx(m)
         {}
 
@@ -105,7 +105,7 @@ namespace LibGeoDecomp { namespace HiParSimulator {
             , region_(region)
             , buffer_future_(buffer_promise_.get_future())
             , recv_future_(recv_promise_.get_future())
-            , get_future_(hpx::lcos::make_future())
+            , get_future_(hpx::lcos::make_ready_future())
             , mtx(m)
         {
             BOOST_ASSERT(!buffer_promise_.is_ready());

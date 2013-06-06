@@ -37,6 +37,7 @@
 #include <cstdlib>
 #include <cmath>
 
+#if !defined(LOG)
 #if !defined(__ANDROID__) || !defined(ANDROID)
 #define LOG(x...) std::cout << x;
 #else
@@ -47,6 +48,7 @@
     __android_log_print(ANDROID_LOG_INFO, "hpiif_android", "%s", sstr.str().c_str());            \
 }                                                                               \
 /**/
+#endif
 #endif
 
 /*

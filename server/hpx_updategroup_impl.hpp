@@ -87,8 +87,8 @@ namespace LibGeoDecomp { namespace HiParSimulator { namespace server {
             {
                 int halfWidth = 320/2;
                 int halfHeight = 240/2;
-                float posX = (0.20 / 1.5) * (particle.pos[0] - halfWidth);
-                float posY = (0.20 / 1.5) * (particle.pos[1] - halfHeight);
+                float posX = (0.20f / 1.5f) * (particle.pos[0] - halfWidth);
+                float posY = (0.20f / 1.5f) * (particle.pos[1] - halfHeight);
                         
                 float depthOffset = 0;
                 if (particle.lifetime < FADE_IN_OUT) {
@@ -99,7 +99,7 @@ namespace LibGeoDecomp { namespace HiParSimulator { namespace server {
                     depthOffset = particle.lifetime - DEFAULT_PARTICLE_LIFETIME + FADE_IN_OUT;
                 }
 
-                float posZ = -100 + particle.pos[2] - 0.01 * depthOffset;;
+                float posZ = -100 + particle.pos[2] - 0.01f * depthOffset;;
                 float angle = ForcePrimitives::angle(particle.vel[0], particle.vel[1]);
                 particles.setParticle(i, posX, posY, posZ, angle, particle.color);
                 //return Particle(posX, posY, posZ, angle, particle.color);
@@ -280,7 +280,7 @@ namespace LibGeoDecomp { namespace HiParSimulator { namespace server {
 
                 for(typename std::vector<steer_future_type>::iterator i = steer_futures.begin(); i != steer_futures.end();)
                 {
-                    if(i->is_ready())
+                    if(i->ready())
                     {
                         steerer_type s = i->get();
                         if(s)
