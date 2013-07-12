@@ -7,6 +7,8 @@
 #ifndef VANDOUKEN_CANVASCELL_HPP
 #define VANDOUKEN_CANVASCELL_HPP
 
+#include "config.hpp"
+
 #include <stdio.h>
 #include <libgeodecomp/misc/cellapitraits.h>
 #include <libgeodecomp/misc/floatcoord.h>
@@ -84,9 +86,9 @@ public:
 
     static const int MAX_PARTICLES = 5;
     static const int MAX_SPAWN_COUNTDOWN = DEFAULT_PARTICLE_LIFETIME;
-    typedef Topologies::Cube<2>::Topology Topology;
-    typedef Stencils::Moore<2, 1> Stencil;
-    class API : public CellAPITraits::Fixed
+    typedef LibGeoDecomp::Topologies::Cube<2>::Topology Topology;
+    typedef LibGeoDecomp::Stencils::Moore<2, 1> Stencil;
+    class API : public LibGeoDecomp::CellAPITraits::Fixed
     {};
 
     static inline unsigned nanoSteps()
@@ -94,7 +96,7 @@ public:
         return 2;
     }
     // fixme: clean up constructors
-    CanvasCell()
+    Cell()
       : backgroundPixel(0x00ff0000),
         spawnCountdown(0),
         numParticles(0),
@@ -109,11 +111,11 @@ public:
         forceSet = false;
     }
 
-    CanvasCell(
+    Cell(
         const unsigned& _backgroundPixel,
-        const Coord<2>& _pos,
+        const LibGeoDecomp::Coord<2>& _pos,
         const bool& _forceSet = false,
-        const FloatCoord<2>& _forceFixed = FloatCoord<2>(),
+        const LibGeoDecomp::FloatCoord<2>& _forceFixed = LibGeoDecomp::FloatCoord<2>(),
         const int& _spawnCountdown = 0) :
         backgroundPixel(_backgroundPixel),
         spawnCountdown(_spawnCountdown),
@@ -135,7 +137,7 @@ public:
         //std::cout << numParticles << " start update\n";
         if (nanoStep == (nanoSteps() - 1)) {
             // fixme: can we avoid this?
-            *this = hood[FixedCoord<0,0>()];
+            *this = hood[LibGeoDecomp::FixedCoord<0,0>()];
             moveParticles(hood);
             return;
         }
@@ -201,20 +203,20 @@ private:
     void moveParticles(const COORD_MAP& hood)
     {
         numParticles = 0;
-        addParticles(hood[FixedCoord<-1, -1>()]);
-        addParticles(hood[FixedCoord< 0, -1>()]);
-        addParticles(hood[FixedCoord< 1, -1>()]);
+        addParticles(hood[LibGeoDecomp::FixedCoord<-1, -1>()]);
+        addParticles(hood[LibGeoDecomp::FixedCoord< 0, -1>()]);
+        addParticles(hood[LibGeoDecomp::FixedCoord< 1, -1>()]);
 
-        addParticles(hood[FixedCoord<-1,  0>()]);
-        addParticles(hood[FixedCoord< 0,  0>()]);
-        addParticles(hood[FixedCoord< 1,  0>()]);
+        addParticles(hood[LibGeoDecomp::FixedCoord<-1,  0>()]);
+        addParticles(hood[LibGeoDecomp::FixedCoord< 0,  0>()]);
+        addParticles(hood[LibGeoDecomp::FixedCoord< 1,  0>()]);
 
-        addParticles(hood[FixedCoord<-1,  1>()]);
-        addParticles(hood[FixedCoord< 0,  1>()]);
-        addParticles(hood[FixedCoord< 1,  1>()]);
+        addParticles(hood[LibGeoDecomp::FixedCoord<-1,  1>()]);
+        addParticles(hood[LibGeoDecomp::FixedCoord< 0,  1>()]);
+        addParticles(hood[LibGeoDecomp::FixedCoord< 1,  1>()]);
     }
 
-    void addParticles(const CanvasCell& cell)
+    void addParticles(const Cell& cell)
     {
         for (int i = 0; i < cell.numParticles; ++i) {
             const Particle& particle = cell.particles[i];
@@ -261,7 +263,7 @@ private:
     template<typename COORD_MAP>
     void updateForces(const COORD_MAP& hood, const unsigned& nanoStep)
     {
-        const CanvasCell& oldSelf = hood[FixedCoord<0, 0>()];
+        const Cell& oldSelf = hood[LibGeoDecomp::FixedCoord<0, 0>()];
 
         backgroundPixel = oldSelf.backgroundPixel;
         spawnCountdown = oldSelf.spawnCountdown;
@@ -271,28 +273,28 @@ private:
         // forceVario[1] = oldSelf.forceVario[1];
 
         float forceVarioDecay = 0.985;
-        forceVario[0] = (hood[FixedCoord< 0, -1>()].forceVario[0] +
-                         hood[FixedCoord<-1,  0>()].forceVario[0] +
-                         hood[FixedCoord< 1,  0>()].forceVario[0] +
-                         hood[FixedCoord< 0,  1>()].forceVario[0]) * 0.25f * forceVarioDecay;
-        forceVario[1] = (hood[FixedCoord< 0, -1>()].forceVario[1] +
-                         hood[FixedCoord<-1,  0>()].forceVario[1] +
-                         hood[FixedCoord< 1,  0>()].forceVario[1] +
-                         hood[FixedCoord< 0,  1>()].forceVario[1]) * 0.25f * forceVarioDecay;
+        forceVario[0] = (hood[LibGeoDecomp::FixedCoord< 0, -1>()].forceVario[0] +
+                         hood[LibGeoDecomp::FixedCoord<-1,  0>()].forceVario[0] +
+                         hood[LibGeoDecomp::FixedCoord< 1,  0>()].forceVario[0] +
+                         hood[LibGeoDecomp::FixedCoord< 0,  1>()].forceVario[0]) * 0.25f * forceVarioDecay;
+        forceVario[1] = (hood[LibGeoDecomp::FixedCoord< 0, -1>()].forceVario[1] +
+                         hood[LibGeoDecomp::FixedCoord<-1,  0>()].forceVario[1] +
+                         hood[LibGeoDecomp::FixedCoord< 1,  0>()].forceVario[1] +
+                         hood[LibGeoDecomp::FixedCoord< 0,  1>()].forceVario[1]) * 0.25f * forceVarioDecay;
 
         forceSet = oldSelf.forceSet;
         if (forceSet) {
             forceFixed[0] = oldSelf.forceFixed[0];
             forceFixed[1] = oldSelf.forceFixed[1];
         } else {
-            forceFixed[0] = (hood[FixedCoord< 0, -1>()].forceFixed[0] +
-                             hood[FixedCoord<-1,  0>()].forceFixed[0] +
-                             hood[FixedCoord< 1,  0>()].forceFixed[0] +
-                             hood[FixedCoord< 0,  1>()].forceFixed[0]) * 0.25f;
-            forceFixed[1] = (hood[FixedCoord< 0, -1>()].forceFixed[1] +
-                             hood[FixedCoord<-1,  0>()].forceFixed[1] +
-                             hood[FixedCoord< 1,  0>()].forceFixed[1] +
-                             hood[FixedCoord< 0,  1>()].forceFixed[1]) * 0.25f;
+            forceFixed[0] = (hood[LibGeoDecomp::FixedCoord< 0, -1>()].forceFixed[0] +
+                             hood[LibGeoDecomp::FixedCoord<-1,  0>()].forceFixed[0] +
+                             hood[LibGeoDecomp::FixedCoord< 1,  0>()].forceFixed[0] +
+                             hood[LibGeoDecomp::FixedCoord< 0,  1>()].forceFixed[0]) * 0.25f;
+            forceFixed[1] = (hood[LibGeoDecomp::FixedCoord< 0, -1>()].forceFixed[1] +
+                             hood[LibGeoDecomp::FixedCoord<-1,  0>()].forceFixed[1] +
+                             hood[LibGeoDecomp::FixedCoord< 1,  0>()].forceFixed[1] +
+                             hood[LibGeoDecomp::FixedCoord< 0,  1>()].forceFixed[1]) * 0.25f;
         }
 
         numParticles = oldSelf.numParticles;
@@ -320,7 +322,7 @@ private:
 };
 }
 
-//BOOST_IS_BITWISE_SERIALIZABLE(LibGeoDecomp::CanvasCell)
-BOOST_IS_BITWISE_SERIALIZABLE(LibGeoDecomp::CanvasCell::Particle)
+//BOOST_IS_BITWISE_SERIALIZABLE(LibGeoDecomp::Cell)
+BOOST_IS_BITWISE_SERIALIZABLE(vandouken::Cell::Particle)
 
 #endif
