@@ -1,10 +1,10 @@
-PIMPF - Preview
+vanDouken
 =====
 
 Parallel Image Particle Flow
 
 This is a preview of the source code formerly known as HPPIF.
-We will release a refactored and cleaned up version under the PIMPF name soon.
+We will release a refactored and cleaned up version under the name "vanDouken" soon.
 
 Android App Build Instructions
 =====
@@ -18,16 +18,16 @@ Prerequesites:
   * LibGeoDecomp: https://bitbucket.org/sithhell/libgeodecomp
 
 Instructions:
-First, patch boost with this patch: https://github.com/PIMPF/PIMPF/blob/master/boost_android_1_53_0.patch
+First, patch boost with this patch: https://github.com/vandouken/vandouken/blob/master/boost_android_1_53_0.patch
 
-    cd /path/to/PIMPF/android/sc_image_demo_app
+    cd /path/to/vandouken/android/sc_image_demo_app
     export PATH=$PATH:/path/to/android-ndk-r8e:/path/to/android-sdk-linux/tools:/path/to/android-sdk-linux/platform-tools
-    android update project --target <target-id> --path . --name PIMPF
+    android update project --target <target-id> --path . --name vandouken
     export NDK_MODULE_PATH=/path/to/HPXAndroid/modules
     export HPX_SRC_ROOT=/path/to/hpx
     export BOOST_SRC_ROOT=/path/to/boost/1_53_0
     export LIBGEODECOMP_INCLUDE_DIR=/path/to/libgeodecomp/src/
-    ndk-build 
+    ndk-build
     ant debug
 
-You can now use bin/PIMPF-debug.apk at your pleasure
+You can now use bin/vandouken-debug.apk at your pleasure

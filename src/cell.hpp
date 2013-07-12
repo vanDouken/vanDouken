@@ -1,5 +1,11 @@
-#ifndef _libgeodecomp_examples_flowingcanvas_canvascell_h_
-#define _libgeodecomp_examples_flowingcanvas_canvascell_h_
+//  Copyright (c) 2012-2013 Thomas Heller
+//  Copyright (c) 2012-2013 Andreas Schaefer
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
+//  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+#ifndef VANDOUKEN_CANVASCELL_HPP
+#define VANDOUKEN_CANVASCELL_HPP
 
 #include <stdio.h>
 #include <libgeodecomp/misc/cellapitraits.h>
@@ -19,9 +25,9 @@
 #define DEFAULT_PARTICLE_LIFETIME 300
 #define FADE_IN_OUT 40
 
-namespace LibGeoDecomp {
+namespace vandouken {
 
-class CanvasCell
+class Cell
 {
     friend class CanvasWriter;
 public:
@@ -198,7 +204,7 @@ private:
         addParticles(hood[FixedCoord<-1, -1>()]);
         addParticles(hood[FixedCoord< 0, -1>()]);
         addParticles(hood[FixedCoord< 1, -1>()]);
-        
+
         addParticles(hood[FixedCoord<-1,  0>()]);
         addParticles(hood[FixedCoord< 0,  0>()]);
         addParticles(hood[FixedCoord< 1,  0>()]);
@@ -238,7 +244,7 @@ private:
                 unsigned color = backgroundPixel & 0x0ffffff;
                 particles[0] = Particle(pos[0], pos[1], 0.001 * (rand() % 1000), texture | color);
             }
-            
+
         } else {
             --spawnCountdown;
         }
@@ -256,7 +262,7 @@ private:
     void updateForces(const COORD_MAP& hood, const unsigned& nanoStep)
     {
         const CanvasCell& oldSelf = hood[FixedCoord<0, 0>()];
-        
+
         backgroundPixel = oldSelf.backgroundPixel;
         spawnCountdown = oldSelf.spawnCountdown;
         pos[0] = oldSelf.pos[0];
@@ -295,7 +301,7 @@ private:
         }
 
         // float gradientLimit = 0.001;
-        
+
         // if ((gradientX > gradientLimit) || (gradientX < -gradientLimit)) {
         //     forceVario[0] = (std::min)(1.0, 0.01 / gradientX);
         // } else {
