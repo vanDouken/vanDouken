@@ -10,6 +10,7 @@
 #include "config.hpp"
 
 #include <libgeodecomp/misc/coord.h>
+#include <libgeodecomp/misc/floatcoord.h>
 
 #if defined(_MSC_VER) && !defined(M_PI)
 #define M_PI 3.141592653589793238462643383279502884
@@ -47,11 +48,18 @@ namespace vandouken {
                 FloatCoordType *result,
                 bool *setForce,
                 const CoordType& pos) = 0;
+
+            template<typename ARCHIVE>
+            void serialize(ARCHIVE& ar, unsigned)
+            {
+            }
         };
 
         class Circle : public Base
         {
         public:
+            Circle() {}
+
             Circle(const CoordType& center, int radius, double force) :
                 center(center),
                 radius(radius),
@@ -87,6 +95,15 @@ namespace vandouken {
                 }
             }
 
+            template<typename ARCHIVE>
+            void serialize(ARCHIVE& ar, unsigned)
+            {
+                ar & boost::serialization::base_object<Base>(*this);
+                ar & center;
+                ar & radius;
+                ar & force;
+            }
+
         private:
             CoordType center;
             int radius;
@@ -96,6 +113,8 @@ namespace vandouken {
         class Line : public Base
         {
         public:
+            Line() {}
+
             Line(const CoordType& start, const CoordType& end, const FloatCoordType& force) :
                 start(start),
                 end(end),
@@ -110,6 +129,15 @@ namespace vandouken {
                 const CoordType& pos)
             {}
 
+            template<typename ARCHIVE>
+            void serialize(ARCHIVE& ar, unsigned)
+            {
+                ar & boost::serialization::base_object<Base>(*this);
+                ar & start;
+                ar & end;
+                ar & force;
+            }
+
         private:
             CoordType start;
             CoordType end;
@@ -117,5 +145,7 @@ namespace vandouken {
         };
     };
 }
+
+
 
 #endif

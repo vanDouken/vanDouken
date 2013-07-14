@@ -1,6 +1,38 @@
-#ifndef _particlewidget_h_
-#define _particlewidget_h_
 
+#ifndef VANDOUKEN_PARTICLEWIDGET_HPP
+#define VANDOUKEN_PARTICLEWIDGET_HPP
+
+#if !defined(__ANDROID__) || !defined(ANDROID)
+#include <QtGui>
+#include <QtOpenGL/QGLWidget>
+#include <QtOpenGL/QGLFunctions>
+#include <QtOpenGL/QGLShaderProgram>
+//#include <GL/glu.h>
+#else
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#include <android/log.h>
+#endif
+
+namespace vandouken {
+
+    class ParticleWidget
+#if !defined(__ANDROID__) || !defined(ANDROID)
+        : public QGLWidget, protected QGLFunctions
+    {
+        Q_OBJECT
+#else
+    {
+#endif
+
+    };
+
+}
+
+#endif
+
+
+#if 0
 #if defined(HPX_BUILD_TYPE)
 #include <hpx/hpx_fwd.hpp>
 #endif
@@ -60,7 +92,7 @@ public:
                    , QColor backgroundColor = Qt::black, QWidget *parent = 0) :
         QGLWidget(parent),
         dimensions(dim),
-        backgroundColor(backgroundColor), 
+        backgroundColor(backgroundColor),
         gui(gui),
         globalOffset(0, 0, 0),
         frameCounter(0),
@@ -80,7 +112,7 @@ public:
         return QSize(400, 200);
     }
 #else
-        ) : 
+        ) :
         dimensions(dim),
         gui(gui),
         frameCounter(0),
@@ -118,13 +150,13 @@ public:
                 glDeleteShader(shader);
                 shader = 0;
             }
-            
+
         }
         return shader;
     }
-    
+
 protected:
-    
+
     GLuint createProgram()
     {
         static const char * vertexShaderSrc =
@@ -185,7 +217,7 @@ protected:
         if(fragmentShader == 0) return 0;
 
         GLuint program = glCreateProgram();
-        
+
         if(program != 0)
         {
             glAttachShader(program, vertexShader);
@@ -246,7 +278,7 @@ public:
 #else
         texture = texture_;
 #endif
-        
+
         program = createProgram();
         if(program == 0) return;
 
@@ -261,13 +293,13 @@ public:
                      scale * +3, scale * +1, scale * -1
                     };
         */
-        
+
         static const float
             triangle[] = {
                 scale * +3, scale * -1, scale * -1,
                 scale * -3, scale * -1, scale * -1,
                 scale * -3, scale * +1, scale * -1,
-                
+
                 scale * +3, scale * -1, scale * -1,
                 scale * -3, scale * +1, scale * -1,
                 scale * +3, scale * +1, scale * -1,
@@ -283,7 +315,7 @@ public:
                 0.0f, 0.0f,
                 1.0f, 0.0f,
             };
-        
+
         glGenBuffers(3, buffers);
 
         coords.reserve(N * 6 * 3);
@@ -297,7 +329,7 @@ public:
             {
                 coords.push_back(triangle[j]);
             }
-            
+
             for(std::size_t j = 0; j < sizeof(triangleTexCoords)/sizeof(float); ++j)
             {
                 texCoords.push_back(triangleTexCoords[j]);
@@ -311,31 +343,31 @@ public:
 
         glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
         glBufferData(GL_ARRAY_BUFFER, coords.size() * sizeof(float), &coords[0], GL_STREAM_DRAW);
-        
+
         GLuint vertexLocation = glGetAttribLocation(program, "vertex");
         glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(vertexLocation);
-        
+
         glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
         glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), &texCoords[0], GL_STREAM_DRAW);
-        
+
         GLuint texCoordLocation = glGetAttribLocation(program, "texCoord");
         glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(texCoordLocation);
-            
+
         glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
         glBufferData(GL_ARRAY_BUFFER, indices.size() * sizeof(float), &indices[0], GL_STREAM_DRAW);
-        
+
         GLuint indexLocation = glGetAttribLocation(program, "index");
         glVertexAttribPointer(indexLocation, 1, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(indexLocation);
-            
-        
+
+
         dataLocation = glGetUniformLocation(program, "data");
         matrixLocation = glGetUniformLocation(program, "matrix");
         colorLocation  = glGetUniformLocation(program, "color");
         textureLocation  = glGetUniformLocation(program, "texture");
-        
+
 
         glUseProgram(program);
         glActiveTexture(GL_TEXTURE0);
@@ -372,13 +404,13 @@ public:
 #if !defined(__ANDROID__) || !defined(ANDROID)
         qglClearColor(Qt::black);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+
         /*
         QTime t;
         t.start();
         */
 #endif
-        
+
         glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &matrix[0]);
 
 
@@ -406,10 +438,10 @@ public:
             }
 
             //LOG("paintGL " << i << " " << n_data << " " << particles->posAngle.size());
-            
+
             glUniform4fv(dataLocation,  n_data, data_ptr);
             glUniform4fv(colorLocation, n_data, &colors[0]);
-        
+
             glDrawArrays(GL_TRIANGLES, 0, 6 * N);
             data_ptr += n_data;
             color_ptr += N;
@@ -509,7 +541,7 @@ public:
         }
         if (event->buttons() & Qt::RightButton) {
             lastPanPos = event->pos();
-        }        
+        }
     }
 
     void mouseMoveEvent(QMouseEvent *event)
@@ -534,7 +566,7 @@ public:
 
             QVector2D modelDelta(modelPos.x() - lastSweepPos.x(), modelPos.y() - lastSweepPos.y());
 
-            // std::cout << "add force (" << modelPos.x() << ", " << modelPos.y() 
+            // std::cout << "add force (" << modelPos.x() << ", " << modelPos.y()
             //           << ") -> "       << modelDelta.x() << ", " << modelDelta.y() << "\n";
 
             gui.forceRecorded(modelPos, modelDelta);
@@ -548,7 +580,7 @@ public:
             double factorY = factor *  500.0 / height();
 
             QPoint delta = event->pos() - lastPanPos;
-            
+
             globalOffset.setX(globalOffset.x() + factorX * delta.x());
             globalOffset.setY(globalOffset.y() + factorY * delta.y());
             // std::cout << "globalOffset(" << globalOffset.x() << ", " << globalOffset.y() << ")\n";
@@ -603,15 +635,15 @@ private:
         pmvMatrix.setToIdentity();
         pmvMatrix.frustum(-1.0, 1.0, ratio, -ratio, 5, 1000);
         pmvMatrix.translate(
-            globalOffset.x(), 
-            globalOffset.y(), 
+            globalOffset.x(),
+            globalOffset.y(),
             globalOffset.z());
-        
+
         mapMatrix.setToIdentity();
         mapMatrix.ortho(0, dimensions.x(), 0, dimensions.y(), 0, 1);
         mapMatrix.translate(
-            globalOffset.x(), 
-            globalOffset.y(), 
+            globalOffset.x(),
+            globalOffset.y(),
             globalOffset.z());
 
         for(std::size_t i = 0; i < 16; ++i)

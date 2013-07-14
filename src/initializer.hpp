@@ -12,6 +12,7 @@
 #include "forceprimitives.hpp"
 
 #include <boost/serialization/export.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include <libgeodecomp/io/simpleinitializer.h>
 #include <libgeodecomp/misc/supervector.h>
 
@@ -26,8 +27,8 @@ namespace vandouken {
 
         Initializer(const CoordType& dim) :
             SimpleInitializer<Cell>(
-                dim,
-                (std::numeric_limits<unsigned>::max)())
+                dim, 100)
+                //(std::numeric_limits<unsigned>::max)())
         {}
 
         void grid(GridType *ret);
@@ -55,7 +56,5 @@ namespace vandouken {
         {}
     };
 }
-
-BOOST_CLASS_EXPORT_KEY2(vandouken::Initializer, "vandoukenInitializer");
 
 #endif

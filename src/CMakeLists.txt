@@ -3,12 +3,18 @@ add_subdirectory(components)
 
 set(
     VANDOUKEN_COMPONENT_SOURCES
+    forceprimitives.cpp
+    initializer.cpp
     component.cpp
+    singletracer.cpp
     simulator.cpp
     simulationcontrollerserver.cpp
 )
 set(
     VANDOUKEN_COMPONENT_HEADERS
+    forceprimitives.hpp
+    initializer.hpp
+    singletracer.hpp
     simulator.hpp
     simulationcontrollerserver.hpp
 )
@@ -24,18 +30,31 @@ add_hpx_component(
 )
 
 set(
+    VANDOUKEN_LIBRARY_MOC_HEADERS
+    particlewidget.hpp
+)
+
+QT4_WRAP_CPP(
+    VANDOUKEN_LIBRARY_MOC_SOURCES
+    ${VANDOUKEN_LIBRARY_MOC_HEADERS}
+    OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED
+)
+
+set(
     VANDOUKEN_LIBRARY_SOURCES
-    initializer.cpp
     parameters.cpp
+    startgui.cpp
     simulation.cpp
     simulationcontroller.cpp
+    ${VANDOUKEN_LIBRARY_MOC_SOURCES}
 )
 set(
     VANDOUKEN_LIBRARY_HEADERS
-    initializer.hpp
     parameters.hpp
     simulation.hpp
     simulationcontroller.hpp
+    startgui.hpp
+    ${VANDOUKEN_LIBRARY_MOC_HEADERS}
 )
 
 add_hpx_library(
@@ -69,4 +88,25 @@ add_hpx_executable(
         ${QT_LIBRARIES}
         vandouken_lib
     FOLDER "vanDouken Server Application"
+)
+
+set(
+    VANDOUKEN_GUI_SOURCES
+    gui.cpp
+)
+#set(
+#    VANDOUKEN_GUI_HEADERS
+#    parameters.hpp
+#)
+
+add_hpx_executable(
+    vandouken_gui
+    ESSENTIAL
+    SOURCES ${VANDOUKEN_GUI_SOURCES}
+    #HEADERS ${VANDOUKEN_GUI_HEADERS}
+    DEPENDENCIES
+        ${LOCAL_LIBGEODECOMP_LINK_LIB}
+        ${QT_LIBRARIES}
+        vandouken_lib
+    FOLDER "vanDouken GUI Application"
 )

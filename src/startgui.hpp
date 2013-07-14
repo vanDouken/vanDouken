@@ -4,16 +4,20 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef VANDOUKEN_CONFIG_HPP
-#define VANDOUKEN_CONFIG_HPP
+#ifndef VANDOUKEN_STARTGUI_HPP
+#define VANDOUKEN_STARTGUI_HPP
 
-#define HPX_LIMIT 10
+#include "config.hpp"
+//#include "simulationcontroller.hpp"
 
 #include <libgeodecomp/config.h>
 #include <hpx/config.hpp>
 
-#define VANDOUKEN_SIMULATION_CONTROLLER_NAME "vanDoukenSimulator"
-#define VANDOUKEN_GUI_SINK_NAME "vanDoukenGUISink"
-#define VANDOUKEN_INITIALIZER_IMG "starry_night.jpg"
+#include <boost/program_options/variables_map.hpp>
+
+namespace vanDouken
+{
+    void startGUI(boost::program_options::variables_map& vm);
+}
 
 #endif

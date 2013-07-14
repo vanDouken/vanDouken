@@ -5,7 +5,6 @@
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include "simulation.hpp"
-#include "initializer.hpp"
 #include <boost/program_options.hpp>
 
 namespace vandouken {
@@ -15,14 +14,5 @@ namespace vandouken {
             vm["dimX"].as<int>(),
             vm["dimY"].as<int>());
         return SimulationController(simulationDim, vm["overcommitFactor"].as<std::size_t>());
-        /*
-        Simulator sim(
-            new Initializer(simulationDim),
-            vm["overcommitFactor"].as<std::size_t>(),
-            0, // Balancer
-            1, // Balancing Period
-            1  //ghostzoneWidth
-        );
-        */
     }
 }

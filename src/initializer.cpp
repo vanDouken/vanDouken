@@ -6,6 +6,9 @@
 
 #include "initializer.hpp"
 
+#include <hpx/util/portable_binary_iarchive.hpp>
+#include <hpx/util/portable_binary_oarchive.hpp>
+
 #include <boost/shared_ptr.hpp>
 
 #if !defined(__ANDROID__) || !defined(ANDROID)
@@ -19,7 +22,7 @@ namespace vandouken {
     {
         using LibGeoDecomp::CoordBox;
         using LibGeoDecomp::FloatCoord;
-
+//#if 0
 #if !defined(__ANDROID__) || !defined(ANDROID)
         const char * filename = VANDOUKEN_DATA_DIR VANDOUKEN_INITIALIZER_IMG;
         QImage img = QImage(filename).scaled(gridDimensions().x(), gridDimensions().y());
@@ -45,8 +48,10 @@ namespace vandouken {
             unsigned pixel = 0xff000000 + img.pixel(i->x(), i->y());
             ret->at(*i) = Cell(pixel, *i, setForce, force, rand() % Cell::MAX_SPAWN_COUNTDOWN);
         }
+        std::cout << "done ...\n";
 #endif
+//#endif
     }
 }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(vandouken::Initializer);
+BOOST_CLASS_EXPORT_GUID(vandouken::Initializer, "vandoukenInitializer");

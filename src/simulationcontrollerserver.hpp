@@ -10,6 +10,7 @@
 #include "simulator.hpp"
 
 #include <libgeodecomp/misc/coord.h>
+#include <libgeodecomp/io/hpxwritercollector.h>
 
 namespace vandouken {
     class SimulationControllerServer :
@@ -37,5 +38,9 @@ namespace vandouken {
 HPX_REGISTER_ACTION_DECLARATION(
     vandouken::SimulationControllerServer::CreateComponentAction,
     vandoukenSimulationControllerServerCreateComponentAction)
+
+LIBGEODECOMP_REGISTER_HPX_WRITER_COLLECTOR_DECLARATION(
+    LibGeoDecomp::HpxWriterCollector<vandouken::Cell>,
+    vandoukenHpxWriterCollector)
 
 #endif

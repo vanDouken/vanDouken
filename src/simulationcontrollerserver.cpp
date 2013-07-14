@@ -6,6 +6,11 @@
 
 #include "simulationcontrollerserver.hpp"
 #include "initializer.hpp"
+#include "singletracer.hpp"
+
+LIBGEODECOMP_REGISTER_HPX_WRITER_COLLECTOR(
+    LibGeoDecomp::HpxWriterCollector<vandouken::Cell>,
+    vandoukenHpxWriterCollector)
 
 namespace vandouken {
     SimulationControllerServer::SimulationControllerServer() :
@@ -29,6 +34,22 @@ namespace vandouken {
             1  //ghostzoneWidth
         )
     {
+        LibGeoDecomp::HpxWriterCollector<Cell>::SinkType tracerSink(
+            new SingleTracer(10 /*period*/),
+            simulator.numUpdateGroups());
+
+        simulator.addWriter(
+            new LibGeoDecomp::HpxWriterCollector<Cell>(
+                tracerSink));
+
+        LibGeoDecomp::HpxWriterCollector<Cell>::SinkType guiSink(
+            1,
+            simulator.numUpdateGroups(),
+            VANDOUKEN_GUI_SINK_NAME);
+
+        simulator.addWriter(
+            new LibGeoDecomp::HpxWriterCollector<Cell>(
+                guiSink));
 
         simulator.run();
     }
