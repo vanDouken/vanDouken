@@ -17,16 +17,21 @@ namespace vandouken {
     {
         content.setupUi(this);
         QLayout *layout = content.visualizationTab->layout();
-        ParticleWidget * widget =
+        particleWidget =
             new ParticleWidget(
                 gridProvider,
                 dim,
                 Qt::black,
                 content.visualizationTab);
 
-        layout->addWidget(widget);
-        QObject::connect(&paintTimer, SIGNAL(timeout()), widget, SLOT(updateGL()));
+        layout->addWidget(particleWidget);
+        QObject::connect(&paintTimer, SIGNAL(timeout()), particleWidget, SLOT(updateGL()));
 
-        paintTimer.start(10);
+        paintTimer.start(1);
+    }
+
+    void MainWindow::keyPressEvent(QKeyEvent * event)
+    {
+        particleWidget->keyPressEvent(event);
     }
 }

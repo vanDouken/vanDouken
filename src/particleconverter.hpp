@@ -30,6 +30,7 @@ namespace vandouken {
             int halfHeight(globalDimensions.y() / 2);
 
             particles.resize(cell.numParticles);
+            std::size_t pos = 0;
             for(int i = 0; i < cell.numParticles; ++i)
             {
                 const Cell::Particle& particle = cell.particles[i];
@@ -47,7 +48,10 @@ namespace vandouken {
 
                 float posZ = -100 + particle.pos[2] - 0.01 * depthOffset;;
                 float angle = ForcePrimitives::angle(particle.vel[0], particle.vel[1]);
-                particles.addParticle(i, Particle(posX, posY, posZ, angle, particle.color));
+                if(particles.addParticle(pos, Particle(posX, posY, posZ, angle, particle.color)))
+                {
+                    ++pos;
+                }
             }
 
             return particles;

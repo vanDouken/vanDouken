@@ -14,6 +14,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <hpx/util/high_resolution_timer.hpp>
+
 #include <QtGui>
 #include <QtOpenGL/QGLWidget>
 #include <QtOpenGL/QGLFunctions>
@@ -42,7 +44,7 @@ namespace vandouken {
         Q_OBJECT
     public:
         typedef LibGeoDecomp::Grid<Particles> GridType;
-        static const std::size_t N = 140;
+        static const std::size_t N = 240;
 
         ParticleWidget(
             GridProvider *gridProvider,
@@ -54,7 +56,8 @@ namespace vandouken {
             backgroundColor(backgroundColor),
             globalOffset(0, 0, 0),
             //frameCounter(0),
-            colors(N*4)
+            colors(N*4),
+            frames(0)
         {}
 
         ~ParticleWidget()
@@ -72,9 +75,9 @@ namespace vandouken {
 
         void initializeGL();
 
+        void keyPressEvent(QKeyEvent * event);
     protected:
         void resizeGL(int width, int height);
-        void keyPressEvent(QKeyEvent * event);
         void mousePressEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
         void wheelEvent(QWheelEvent *event);
@@ -114,6 +117,9 @@ namespace vandouken {
 
         LibGeoDecomp::SuperVector<float> posAngle;
         LibGeoDecomp::SuperVector<float> color;
+
+        std::size_t frames;
+        hpx::util::high_resolution_timer timer;
         void resetProjection();
         GLuint createProgram();
         GLuint loadShader(GLenum type, const char * src);

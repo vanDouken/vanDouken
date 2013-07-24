@@ -10,6 +10,9 @@
 #include <libgeodecomp/misc/supervector.h>
 #include <libgeodecomp/misc/topologies.h>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
+
 #if !defined(__ANDROID__) || !defined(ANDROID)
 #include <QColor>
 #else
@@ -60,25 +63,36 @@ namespace vandouken {
     public:
         typedef LibGeoDecomp::Topologies::Cube<2>::Topology Topology;
 
-        void addParticle(std::size_t i, const Particle& particle)
-        {
-            posAngle[i * 4 + 0] = std::ceil(particle.posX * 100.f);
-            posAngle[i * 4 + 1] = std::ceil(particle.posY * 100.f);
-            posAngle[i * 4 + 2] = std::ceil(particle.posZ * 100.f);
-            posAngle[i * 4 + 3] = std::ceil(particle.angle * 100.f);
+        Particles() :
+            posAngle(boost::make_shared<LibGeoDecomp::SuperVector<float> >()),
+            colors(boost::make_shared<LibGeoDecomp::SuperVector<boost::uint32_t> >())
+        {}
 
-            colors[i] = particle.color;
+        bool addParticle(std::size_t i, const Particle& particle)
+        {
+            /*
+            if(qAlpha(particle.color) < 229)
+                return false;
+            */
+
+            (*posAngle)[i * 4 + 0] = std::ceil(particle.posX * 100.f);
+            (*posAngle)[i * 4 + 1] = std::ceil(particle.posY * 100.f);
+            (*posAngle)[i * 4 + 2] = std::ceil(particle.posZ * 100.f);
+            (*posAngle)[i * 4 + 3] = std::ceil(particle.angle * 100.f);
+
+            (*colors)[i] = particle.color;
+            return true;
         }
 
         void resize(std::size_t size)
         {
-            posAngle.resize(size * 4);
-            colors.resize(size);
+            posAngle->resize(size * 4);
+            colors->resize(size);
         }
 
         std::size_t size()
         {
-            return posAngle.size() / 4;
+            return posAngle->size() / 4;
         }
 
         template<typename ARCHIVE>
@@ -88,8 +102,8 @@ namespace vandouken {
             ar & colors;
         }
 
-        LibGeoDecomp::SuperVector<float> posAngle;
-        LibGeoDecomp::SuperVector<boost::uint32_t> colors;
+        boost::shared_ptr<LibGeoDecomp::SuperVector<float> > posAngle;
+        boost::shared_ptr<LibGeoDecomp::SuperVector<boost::uint32_t> > colors;
     };
 }
 BOOST_IS_BITWISE_SERIALIZABLE(vandouken::Particle)

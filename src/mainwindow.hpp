@@ -16,6 +16,8 @@
 
 namespace vandouken {
     class GridProvider;
+    class ParticleWidget;
+
     class MainWindow : public QMainWindow
     {
         Q_OBJECT;
@@ -26,9 +28,13 @@ namespace vandouken {
             GridProvider *gridProvider,
             QWidget *parent=0);
 
+    protected:
+        void keyPressEvent(QKeyEvent * event);
+
     private:
         Ui_MainWindow content;
         QTimer paintTimer;
+        ParticleWidget * particleWidget;
     };
 }
 

@@ -8,6 +8,7 @@ set(VANDOUKEN_COMPONENT_SOURCES
     singletracer.cpp
     simulator.cpp
     simulationcontrollerserver.cpp
+    gridcollectorserver.cpp
 )
 set(VANDOUKEN_COMPONENT_HEADERS
     forceprimitives.hpp
@@ -15,6 +16,7 @@ set(VANDOUKEN_COMPONENT_HEADERS
     singletracer.hpp
     simulator.hpp
     simulationcontrollerserver.hpp
+    gridcollectorserver.hpp
 )
 
 add_hpx_component(
@@ -49,6 +51,7 @@ QT4_WRAP_UI(
 
 set(VANDOUKEN_LIBRARY_SOURCES
     gridprovider.cpp
+    gridcollector.cpp
     parameters.cpp
     particlewidget.cpp
     mainwindow.cpp
@@ -59,6 +62,7 @@ set(VANDOUKEN_LIBRARY_SOURCES
 )
 set(VANDOUKEN_LIBRARY_HEADERS
     gridprovider.hpp
+    gridcollector.hpp
     parameters.hpp
     simulation.hpp
     simulationcontroller.hpp

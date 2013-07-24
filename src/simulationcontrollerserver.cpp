@@ -6,7 +6,9 @@
 
 #include "simulationcontrollerserver.hpp"
 #include "initializer.hpp"
-#include "singletracer.hpp"
+#include "gridcollector.hpp"
+
+#include <hpx/hpx_fwd.hpp>
 
 LIBGEODECOMP_REGISTER_HPX_WRITER_COLLECTOR(
     LibGeoDecomp::HpxWriterCollector<vandouken::Cell>,
@@ -33,28 +35,19 @@ namespace vandouken {
     SimulationControllerServer::SimulationControllerServer(const LibGeoDecomp::Coord<2>& simulationDim, std::size_t overcommitFactor) :
         simulator(
             createInitializer(simulationDim),
-            overcommitFactor,
+            boost::lexical_cast<float>(hpx::get_config_entry("vandouken.overcommitfactor", "1.0")),
             0, // Balancer
             1, // Balancing Period
             1  //ghostzoneWidth
         )
     {
-        LibGeoDecomp::HpxWriterCollector<Cell>::SinkType sink(
-            new SingleTracer(10 /*period*/),
+        LibGeoDecomp::HpxWriterCollector<Cell, ParticleConverter>::SinkType sink(
+            new GridCollector(1 /*period*/),
             simulator.numUpdateGroups());
 
         simulator.addWriter(
-            new LibGeoDecomp::HpxWriterCollector<Cell>(
-                sink));
-
-        LibGeoDecomp::HpxWriterCollector<Cell, ParticleConverter>::SinkType guiSink(
-            1,
-            simulator.numUpdateGroups(),
-            VANDOUKEN_GUI_SINK_NAME);
-
-        simulator.addWriter(
             new LibGeoDecomp::HpxWriterCollector<Cell, ParticleConverter>(
-                guiSink));
+                sink));
     }
 
     boost::shared_ptr<LibGeoDecomp::Initializer<Cell> > SimulationControllerServer::getInitializer()

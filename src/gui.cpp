@@ -49,20 +49,22 @@ int main(int argc, char **argv)
     Ui_Dialog dialog;
     dialog.setupUi(&qDialog);
     dialog.numThreads->setMaximum(hpx::threads::hardware_concurrency());
-    qDialog.show();
-    app.exec();
+    if(qDialog.exec() == QDialog::Rejected)
+        return -1;
 
     standalone = dialog.runLocalCheck->isChecked();
 
     std::string agasHost = dialog.host->displayText().toStdString();
     std::string agasPort = dialog.port->displayText().toStdString();
     std::string numThreads = boost::lexical_cast<std::string>(dialog.numThreads->value());
+    std::string overcommitFactor = boost::lexical_cast<std::string>(dialog.overcommitFactor->value());
 
     boost::program_options::options_description
         commandLineParameters("Usage: " HPX_APPLICATION_STRING " [options]");
 
     using namespace boost::assign;
     std::vector<std::string> cfg;
+    cfg += "vandouken.overcommitfactor!=" + overcommitFactor;
     cfg += "hpx.os_threads=" + numThreads;
     if(standalone) {
         vandouken::setupParameters(commandLineParameters, "standalone");

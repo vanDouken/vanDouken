@@ -36,8 +36,8 @@ namespace vandouken {
 
         glEnable(GL_DEPTH_TEST);
 
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_TEXTURE_2D);
 
         QPixmap map(VANDOUKEN_DATA_DIR "/brushstrokes.png");
@@ -174,6 +174,12 @@ namespace vandouken {
 
     void ParticleWidget::paintGL()
     {
+        if(frames == 0) timer.restart();
+        if((frames % 20 == 0))
+        {
+            std::cout << "View FPS: " << frames/timer.elapsed() << "\n";
+        }
+        ++frames;
         //counter.incFrames();
         /*
         if ((counter.getFrames() % 20) == 0)
@@ -200,9 +206,9 @@ namespace vandouken {
             for(int y = 0; y < dimensions.y(); ++y) {
                 LibGeoDecomp::Coord<2> coord(x, y);
                 Particles particles = (*grid)[coord];
-                posAngle.insert(posAngle.end(), particles.posAngle.begin(), particles.posAngle.end());
+                posAngle.insert(posAngle.end(), particles.posAngle->begin(), particles.posAngle->end());
 
-                BOOST_FOREACH(boost::uint32_t c, particles.colors) {
+                BOOST_FOREACH(boost::uint32_t c, *particles.colors) {
                     color.push_back(qRed  (c));
                     color.push_back(qGreen(c));
                     color.push_back(qBlue (c));
@@ -214,9 +220,9 @@ namespace vandouken {
 
         float * data_ptr = &posAngle[0];
         float * color_ptr = &color[0];
-        particles_size = particles_size - (particles_size % N);
+        //particles_size = particles_size - (particles_size % N);
 
-        for (std::size_t i = 0; i < particles_size; i+=N) {
+        for (std::size_t i = 0; i < particles_size; i = (std::min)(i + N, particles_size)) {
             /*
             std::size_t n = (std::min)(i + N, particles_size);
             std::size_t n = std::min(i + N, particles_size);
@@ -255,6 +261,7 @@ namespace vandouken {
                 }
                 else
                 {
+                    std::cout << "got key ...\n";
                     showFullScreen();
                 }
                 break;
@@ -418,7 +425,7 @@ namespace vandouken {
             "    vec2 realTex = vec2(tex.x, tex.y * (1.0 / 40.0)) + delta * vec2(0, c.w * 100.0);\n"
             "    realColor.w = 255.0;\n"
             "    vec4 baseColor = (realColor * fac) * texture2D(myTexture, realTex);\n"
-            "    if(baseColor.a < 0.9) discard;\n"
+            "    if(baseColor.a < 0.9) discard;\n"//baseColor = baseColor * vec4(0.0,1.0,1.0,1.0);\n"
             "    gl_FragColor = baseColor;\n"
             "}\n"
             ;
