@@ -18,11 +18,16 @@
 #include <fstream>
 
 namespace vandouken {
+    Initializer::Initializer(const CoordType& dim) :
+        SimpleInitializer<Cell>(
+            dim,
+            (std::numeric_limits<unsigned>::max)())
+    {}
+
     void Initializer::grid(LibGeoDecomp::GridBase<Cell, 2> *ret)
     {
         using LibGeoDecomp::CoordBox;
         using LibGeoDecomp::FloatCoord;
-//#if 0
 #if !defined(__ANDROID__) || !defined(ANDROID)
         const char * filename = VANDOUKEN_DATA_DIR VANDOUKEN_INITIALIZER_IMG;
         QImage img = QImage(filename).scaled(gridDimensions().x(), gridDimensions().y());
@@ -50,7 +55,57 @@ namespace vandouken {
         }
         std::cout << "done ...\n";
 #endif
-//#endif
+    }
+
+    Initializer *createInitializer(const Initializer::CoordType& dim)
+    {
+        Initializer *init(new Initializer(dim));
+        using LibGeoDecomp::Coord;
+
+        try {
+            init->addShape(
+                ForcePrimitives::Circle(
+                    Coord<2>(0.25 * 1160, 0.25 * 188), 0.25 * 90, 0.4 ));
+            init->addShape(
+                ForcePrimitives::Circle(
+                    Coord<2>(0.25 * 904, 0.25 * 240) , 0.25 * 44, 0.3 ));
+            init->addShape(
+                ForcePrimitives::Circle(
+                    Coord<2>(0.25 * 778, 0.25 * 92)  , 0.25 * 30, 0.2 ));
+            init->addShape(
+                ForcePrimitives::Circle(
+                    Coord<2>(0.25 * 526, 0.25 * 72)  , 0.25 * 20, 0.15));
+            init->addShape(
+                ForcePrimitives::Circle(
+                    Coord<2>(0.25 * 444, 0.25 * 44)  , 0.25 * 10, 0.15 ));
+            init->addShape(
+                ForcePrimitives::Circle(
+                    Coord<2>(0.25 * 296, 0.25 * 34)  , 0.25 * 6 , 0.1 ));
+            init->addShape(
+                    ForcePrimitives::Circle(
+                        Coord<2>(0.25 * 302, 0.25 * 180) , 0.25 * 20, 0.25 ));
+            init->addShape(
+                    ForcePrimitives::Circle(
+                        Coord<2>(0.25 * 138, 0.25 * 46)  , 0.25 * 10, 0.2 ));
+            init->addShape(
+                    ForcePrimitives::Circle(
+                        Coord<2>(0.25 * 416, 0.25 * 328) , 0.25 *  4, 0.1 ));
+            init->addShape(
+                    ForcePrimitives::Circle(
+                        Coord<2>(0.25 * 456, 0.25 * 538) , 0.25 * 68, 0.4 ));
+            init->addShape(
+                    ForcePrimitives::Circle(
+                        Coord<2>(0.25 * 170, 0.25 * 492) , 0.25 *  6, 0.1 ));
+            init->addShape(
+                    ForcePrimitives::Circle(
+                        Coord<2>(0.25 * 58 , 0.25 * 460) , 0.25 *  4, 0.1 ));
+        }
+        catch(...)
+        {
+            delete init;
+            init = 0;
+        }
+        return init;
     }
 }
 

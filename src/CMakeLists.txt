@@ -1,8 +1,7 @@
 
 add_subdirectory(components)
 
-set(
-    VANDOUKEN_COMPONENT_SOURCES
+set(VANDOUKEN_COMPONENT_SOURCES
     forceprimitives.cpp
     initializer.cpp
     component.cpp
@@ -10,8 +9,7 @@ set(
     simulator.cpp
     simulationcontrollerserver.cpp
 )
-set(
-    VANDOUKEN_COMPONENT_HEADERS
+set(VANDOUKEN_COMPONENT_HEADERS
     forceprimitives.hpp
     initializer.hpp
     singletracer.hpp
@@ -29,9 +27,9 @@ add_hpx_component(
     FOLDER "vanDouken Components"
 )
 
-set(
-    VANDOUKEN_LIBRARY_MOC_HEADERS
+set(VANDOUKEN_LIBRARY_MOC_HEADERS
     particlewidget.hpp
+    mainwindow.hpp
 )
 
 QT4_WRAP_CPP(
@@ -40,21 +38,33 @@ QT4_WRAP_CPP(
     OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED
 )
 
-set(
-    VANDOUKEN_LIBRARY_SOURCES
+set(VANDOUKEN_UI_SOURCES
+    ui/startdialog.ui
+    ui/main.ui)
+
+QT4_WRAP_UI(
+    VANDOUKEN_UI_HEADERS
+    ${VANDOUKEN_UI_SOURCES})
+
+
+set(VANDOUKEN_LIBRARY_SOURCES
+    gridprovider.cpp
     parameters.cpp
+    particlewidget.cpp
+    mainwindow.cpp
     startgui.cpp
     simulation.cpp
     simulationcontroller.cpp
     ${VANDOUKEN_LIBRARY_MOC_SOURCES}
 )
-set(
-    VANDOUKEN_LIBRARY_HEADERS
+set(VANDOUKEN_LIBRARY_HEADERS
+    gridprovider.hpp
     parameters.hpp
     simulation.hpp
     simulationcontroller.hpp
     startgui.hpp
     ${VANDOUKEN_LIBRARY_MOC_HEADERS}
+    ${VANDOUKEN_UI_HEADERS}
 )
 
 add_hpx_library(
@@ -64,13 +74,13 @@ add_hpx_library(
     HEADERS ${VANDOUKEN_LIBRARY_HEADERS}
     DEPENDENCIES
         ${LOCAL_LIBGEODECOMP_LINK_LIB}
+        GLU
     COMPONENT_DEPENDENCIES
         vandouken_component
     FOLDER "vanDouken Library"
 )
 
-set(
-    VANDOUKEN_SERVER_SOURCES
+set(VANDOUKEN_SERVER_SOURCES
     server.cpp
 )
 #set(
@@ -90,20 +100,18 @@ add_hpx_executable(
     FOLDER "vanDouken Server Application"
 )
 
-set(
-    VANDOUKEN_GUI_SOURCES
+set(VANDOUKEN_GUI_SOURCES
     gui.cpp
 )
-#set(
-#    VANDOUKEN_GUI_HEADERS
-#    parameters.hpp
-#)
+set(
+    VANDOUKEN_GUI_HEADERS
+)
 
 add_hpx_executable(
     vandouken_gui
     ESSENTIAL
     SOURCES ${VANDOUKEN_GUI_SOURCES}
-    #HEADERS ${VANDOUKEN_GUI_HEADERS}
+    HEADERS ${VANDOUKEN_GUI_HEADERS}
     DEPENDENCIES
         ${LOCAL_LIBGEODECOMP_LINK_LIB}
         ${QT_LIBRARIES}

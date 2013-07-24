@@ -12,6 +12,11 @@ LIBGEODECOMP_REGISTER_HPX_WRITER_COLLECTOR(
     LibGeoDecomp::HpxWriterCollector<vandouken::Cell>,
     vandoukenHpxWriterCollector)
 
+
+LIBGEODECOMP_REGISTER_HPX_WRITER_COLLECTOR(
+    vandouken::ConverterSinkType,
+    vandoukenHpxWriterConverterCollector)
+
 namespace vandouken {
     SimulationControllerServer::SimulationControllerServer() :
         simulator(
@@ -27,37 +32,52 @@ namespace vandouken {
 
     SimulationControllerServer::SimulationControllerServer(const LibGeoDecomp::Coord<2>& simulationDim, std::size_t overcommitFactor) :
         simulator(
-            new Initializer(simulationDim),
+            createInitializer(simulationDim),
             overcommitFactor,
             0, // Balancer
             1, // Balancing Period
             1  //ghostzoneWidth
         )
     {
-        LibGeoDecomp::HpxWriterCollector<Cell>::SinkType tracerSink(
+        LibGeoDecomp::HpxWriterCollector<Cell>::SinkType sink(
             new SingleTracer(10 /*period*/),
             simulator.numUpdateGroups());
 
         simulator.addWriter(
             new LibGeoDecomp::HpxWriterCollector<Cell>(
-                tracerSink));
+                sink));
 
-        LibGeoDecomp::HpxWriterCollector<Cell>::SinkType guiSink(
+        LibGeoDecomp::HpxWriterCollector<Cell, ParticleConverter>::SinkType guiSink(
             1,
             simulator.numUpdateGroups(),
             VANDOUKEN_GUI_SINK_NAME);
 
         simulator.addWriter(
-            new LibGeoDecomp::HpxWriterCollector<Cell>(
+            new LibGeoDecomp::HpxWriterCollector<Cell, ParticleConverter>(
                 guiSink));
+    }
 
-        simulator.run();
+    boost::shared_ptr<LibGeoDecomp::Initializer<Cell> > SimulationControllerServer::getInitializer()
+    {
+        return simulator.getInitializer();
     }
 }
 
 HPX_REGISTER_ACTION(
     vandouken::SimulationControllerServer::CreateComponentAction,
     vandoukenSimulationControllerServerCreateComponentAction)
+
+HPX_REGISTER_ACTION(
+    vandouken::SimulationControllerServer::GetInitializerAction,
+    vandoukenSimulationControllerServerGetInitializerAction)
+
+HPX_REGISTER_ACTION(
+    vandouken::SimulationControllerServer::RunAction,
+    vandoukenSimulationControllerServerRunAction)
+
+HPX_REGISTER_ACTION(
+    vandouken::SimulationControllerServer::StopAction,
+    vandoukenSimulationControllerServerStopAction)
 
 HPX_REGISTER_MINIMAL_COMPONENT_FACTORY(
     hpx::components::managed_component<vandouken::SimulationControllerServer>,

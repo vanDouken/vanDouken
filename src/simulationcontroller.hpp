@@ -8,9 +8,11 @@
 #define VANDOUKEN_SIMULATIONCONTROLLER_HPP
 
 #include "config.hpp"
+#include "cell.hpp"
 
 #include <hpx/runtime/naming/name.hpp>
 #include <libgeodecomp/misc/coord.h>
+#include <libgeodecomp/io/initializer.h>
 
 namespace vandouken {
     class SimulationControllerServer;
@@ -25,6 +27,12 @@ namespace vandouken {
 
         SimulationController(const LibGeoDecomp::Coord<2>& simulationDim, std::size_t overcommitFactor);
 
+        ~SimulationController();
+
+        boost::shared_ptr<LibGeoDecomp::Initializer<Cell> > getInitializer() const;
+
+        hpx::future<void> run() const;
+        void stop() const;
     private:
         hpx::naming::id_type thisId;
     };

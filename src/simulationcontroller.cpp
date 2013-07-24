@@ -28,4 +28,24 @@ namespace vandouken {
         thisId = hpx::components::new_<ComponentType>(hpx::find_here(), simulationDim, overcommitFactor).get();
         hpx::agas::register_name(VANDOUKEN_SIMULATION_CONTROLLER_NAME, thisId);
     }
+
+    SimulationController::~SimulationController()
+    {
+        thisId = hpx::naming::invalid_id;
+    }
+
+    boost::shared_ptr<LibGeoDecomp::Initializer<Cell> > SimulationController::getInitializer() const
+    {
+        return ComponentType::GetInitializerAction()(thisId);
+    }
+
+    hpx::future<void> SimulationController::run() const
+    {
+        return hpx::async<ComponentType::RunAction>(thisId);
+    }
+
+    void SimulationController::stop() const
+    {
+        ComponentType::StopAction()(thisId);
+    }
 }

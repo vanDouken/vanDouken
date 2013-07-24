@@ -19,10 +19,10 @@ namespace vandouken {
                  boost::program_options::value<std::size_t>()->default_value(1),
                  "Number of update groups to create. On each locality: #threads * overcommitFactor (default: 1)")
                 ("dimX",
-                 boost::program_options::value<int>()->default_value(300),
+                 boost::program_options::value<int>()->default_value(320),
                  "Dimension of Simulation in X direction (default: 300)")
                 ("dimY",
-                 boost::program_options::value<int>()->default_value(150),
+                 boost::program_options::value<int>()->default_value(240),
                  "Dimension of Simulation in Y direction (default: 150)")
                 ;
         }

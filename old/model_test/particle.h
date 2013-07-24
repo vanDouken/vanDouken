@@ -1,30 +1,6 @@
 #ifndef _particle_h_
 #define _particle_h_
 
-#if !defined(__ANDROID__) || !defined(ANDROID)
-#include <QColor>
-#else
-inline int qRed(unsigned int rgb)
-{
-    return ((rgb >> 16) & 0xff); 
-}
-
-inline int qGreen(unsigned int rgb)
-{
-    return ((rgb >> 8) & 0xff); 
-}
-
-inline int qBlue(unsigned int rgb)
-{
-    return (rgb & 0xff); 
-}
-
-inline int qAlpha(unsigned int rgb)
-{
-    return rgb >> 24; 
-}
-#endif
-
 
 struct Particles
 {
@@ -73,7 +49,7 @@ public:
 
     float posX_;
     float posY_;
-    float posZ_;  
+    float posZ_;
     float angle_;
     // coding: AARRGGBB, use color for color multiply of texture and alpha for texture index?
     unsigned color;

@@ -8,16 +8,19 @@
 #define VANDOUKEN_STARTGUI_HPP
 
 #include "config.hpp"
-//#include "simulationcontroller.hpp"
+#include "simulationcontroller.hpp"
 
 #include <libgeodecomp/config.h>
 #include <hpx/config.hpp>
 
 #include <boost/program_options/variables_map.hpp>
 
-namespace vanDouken
-{
-    void startGUI(boost::program_options::variables_map& vm);
+namespace vandouken {
+    class GridProvider;
+    void startGUI(
+        boost::program_options::variables_map& vm,
+        const SimulationController& simulation,
+        GridProvider *gridProvider);
 }
 
 #endif

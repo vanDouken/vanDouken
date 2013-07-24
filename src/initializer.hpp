@@ -25,11 +25,7 @@ namespace vandouken {
         typedef LibGeoDecomp::GridBase<Cell, 2> GridType;
         typedef LibGeoDecomp::Coord<2> CoordType;
 
-        Initializer(const CoordType& dim) :
-            SimpleInitializer<Cell>(
-                dim, 100)
-                //(std::numeric_limits<unsigned>::max)())
-        {}
+        Initializer(const CoordType& dim);
 
         void grid(GridType *ret);
 
@@ -55,6 +51,8 @@ namespace vandouken {
                 (std::numeric_limits<unsigned>::max)())
         {}
     };
+
+    Initializer *createInitializer(const Initializer::CoordType& dim);
 }
 
 #endif

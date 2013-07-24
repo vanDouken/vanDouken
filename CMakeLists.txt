@@ -55,6 +55,7 @@ if(QT_FOUND)
 endif()
 
 include_directories(src)
+include_directories(${CMAKE_BINARY_DIR}/src)
 include_directories(${HPX_INCLUDE_DIR})
 include_directories(${LIBGEODECOMP_INCLUDE_DIR})
 
