@@ -11,11 +11,6 @@
 #include <hpx/hpx_fwd.hpp>
 
 LIBGEODECOMP_REGISTER_HPX_WRITER_COLLECTOR(
-    LibGeoDecomp::HpxWriterCollector<vandouken::Cell>,
-    vandoukenHpxWriterCollector)
-
-
-LIBGEODECOMP_REGISTER_HPX_WRITER_COLLECTOR(
     vandouken::ConverterSinkType,
     vandoukenHpxWriterConverterCollector)
 

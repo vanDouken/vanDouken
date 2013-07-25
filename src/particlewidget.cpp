@@ -34,7 +34,7 @@ namespace vandouken {
         modelview[14] = 0.0;
         modelview[15] = 1.0;
 
-        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -388,8 +388,8 @@ namespace vandouken {
             "attribute float index;\n"
             "varying vec2 tex;\n"
             "varying vec4 c;\n"
-            "uniform vec4 data[140];\n"
-            "uniform vec4 color[140];\n"
+            "uniform vec4 data[240];\n"
+            "uniform vec4 color[240];\n"
             "uniform mat4 matrix;\n"
             "const float fac = 0.01/180.0 * 3.14;\n"
             "void main(void)\n"
@@ -425,7 +425,7 @@ namespace vandouken {
             "    vec2 realTex = vec2(tex.x, tex.y * (1.0 / 40.0)) + delta * vec2(0, c.w * 100.0);\n"
             "    realColor.w = 255.0;\n"
             "    vec4 baseColor = (realColor * fac) * texture2D(myTexture, realTex);\n"
-            "    if(baseColor.a < 0.9) discard;\n"//baseColor = baseColor * vec4(0.0,1.0,1.0,1.0);\n"
+            "    if(baseColor.a < 0.9) baseColor.a = 0.0;\n"//baseColor = baseColor * vec4(0.0,1.0,1.0,1.0);\n"
             "    gl_FragColor = baseColor;\n"
             "}\n"
             ;

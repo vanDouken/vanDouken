@@ -83,10 +83,6 @@ HPX_REGISTER_ACTION_DECLARATION(
     vandoukenSimulationControllerServerStopAction)
 
 LIBGEODECOMP_REGISTER_HPX_WRITER_COLLECTOR_DECLARATION(
-    LibGeoDecomp::HpxWriterCollector<vandouken::Cell>,
-    vandoukenHpxWriterCollector)
-
-LIBGEODECOMP_REGISTER_HPX_WRITER_COLLECTOR_DECLARATION(
     vandouken::ConverterSinkType,
     vandoukenHpxWriterConverterCollector)
 
