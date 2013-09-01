@@ -5,6 +5,8 @@ set(VANDOUKEN_COMPONENT_SOURCES
     forceprimitives.cpp
     initializer.cpp
     component.cpp
+    particlesteerer.cpp
+    particlesteererserver.cpp
     singletracer.cpp
     simulator.cpp
     simulationcontrollerserver.cpp
@@ -13,6 +15,8 @@ set(VANDOUKEN_COMPONENT_SOURCES
 set(VANDOUKEN_COMPONENT_HEADERS
     forceprimitives.hpp
     initializer.hpp
+    particlesteerer.hpp
+    particlesteererserver.hpp
     singletracer.hpp
     simulator.hpp
     simulationcontrollerserver.hpp
@@ -30,8 +34,12 @@ add_hpx_component(
 )
 
 set(VANDOUKEN_LIBRARY_MOC_HEADERS
-    particlewidget.hpp
+    camerapreview.hpp
+    forcecontrol.hpp
+    forceview.hpp
     mainwindow.hpp
+    maincontrol.hpp
+    particlewidget.hpp
 )
 
 QT4_WRAP_CPP(
@@ -50,20 +58,32 @@ QT4_WRAP_UI(
 
 
 set(VANDOUKEN_LIBRARY_SOURCES
+    camerapreview.cpp
+    forcecontrol.cpp
+    forceview.cpp
+    framegrabber.cpp
     gridprovider.cpp
     gridcollector.cpp
     parameters.cpp
     particlewidget.cpp
+    maincontrol.cpp
     mainwindow.cpp
     startgui.cpp
+    steeringprovider.cpp
     simulation.cpp
     simulationcontroller.cpp
     ${VANDOUKEN_LIBRARY_MOC_SOURCES}
 )
 set(VANDOUKEN_LIBRARY_HEADERS
+    camerapreview.hpp
+    forcecontrol.hpp
+    forceview.hpp
+    framegrabber.hpp
     gridprovider.hpp
     gridcollector.hpp
+    maincontrol.hpp
     parameters.hpp
+    steeringprovider.hpp
     simulation.hpp
     simulationcontroller.hpp
     startgui.hpp
@@ -79,6 +99,8 @@ add_hpx_library(
     DEPENDENCIES
         ${LOCAL_LIBGEODECOMP_LINK_LIB}
         GLU
+        opencv_core
+        opencv_highgui
     COMPONENT_DEPENDENCIES
         vandouken_component
     FOLDER "vanDouken Library"
@@ -101,6 +123,8 @@ add_hpx_executable(
         ${LOCAL_LIBGEODECOMP_LINK_LIB}
         ${QT_LIBRARIES}
         vandouken_lib
+        mpi
+        mpi_cxx
     FOLDER "vanDouken Server Application"
 )
 
@@ -120,5 +144,7 @@ add_hpx_executable(
         ${LOCAL_LIBGEODECOMP_LINK_LIB}
         ${QT_LIBRARIES}
         vandouken_lib
+        mpi
+        mpi_cxx
     FOLDER "vanDouken GUI Application"
 )

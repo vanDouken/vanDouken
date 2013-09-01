@@ -25,7 +25,7 @@ namespace vandouken {
 
         SimulationController();
 
-        SimulationController(const LibGeoDecomp::Coord<2>& simulationDim, std::size_t overcommitFactor);
+        SimulationController(const LibGeoDecomp::Coord<2>& simulationDim);
 
         ~SimulationController();
 
@@ -33,6 +33,8 @@ namespace vandouken {
 
         hpx::future<void> run() const;
         void stop() const;
+
+        std::size_t numUpdateGroups() const;
     private:
         hpx::naming::id_type thisId;
     };

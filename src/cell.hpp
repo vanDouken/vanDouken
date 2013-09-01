@@ -91,6 +91,11 @@ public:
     class API : public LibGeoDecomp::CellAPITraits::Fixed
     {};
 
+    static double speed()
+    {
+        return 1.0;
+    }
+
     static inline unsigned nanoSteps()
     {
         return 2;
@@ -158,8 +163,8 @@ public:
         forceVario[1] = forceY;
     }
 
-private:
     unsigned backgroundPixel;
+private:
     unsigned spawnCountdown;
     float pos[2];
     bool forceSet;

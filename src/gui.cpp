@@ -5,6 +5,7 @@
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include "gridprovider.hpp"
+#include "steeringprovider.hpp"
 #include "startgui.hpp"
 #include "simulation.hpp"
 #include "simulationcontroller.hpp"
@@ -27,16 +28,18 @@ int hpx_main(boost::program_options::variables_map& vm)
     if(standalone) {
         vandouken::SimulationController simulation = vandouken::runSimulation(vm);
         hpx::future<void> runFuture = simulation.run();
-        vandouken::GridProvider gridProvider;
-        vandouken::startGUI(vm, simulation, &gridProvider);
+        vandouken::GridProvider gridProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
+        vandouken::SteeringProvider steererProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
+        vandouken::startGUI(vm, simulation, &gridProvider, &steererProvider);
         simulation.stop();
         hpx::wait(runFuture);
         return hpx::finalize();
     }
     else {
         vandouken::SimulationController simulation;
-        vandouken::GridProvider gridProvider;
-        vandouken::startGUI(vm, simulation, &gridProvider);
+        vandouken::GridProvider gridProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
+        vandouken::SteeringProvider steererProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
+        vandouken::startGUI(vm, simulation, &gridProvider, &steererProvider);
         return hpx::disconnect();
     }
 }
@@ -44,7 +47,8 @@ int hpx_main(boost::program_options::variables_map& vm)
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-
+    app.setOverrideCursor(QCursor(Qt::BlankCursor));
+    /*
     QDialog qDialog;
     Ui_Dialog dialog;
     dialog.setupUi(&qDialog);
@@ -58,19 +62,28 @@ int main(int argc, char **argv)
     std::string agasPort = dialog.port->displayText().toStdString();
     std::string numThreads = boost::lexical_cast<std::string>(dialog.numThreads->value());
     std::string overcommitFactor = boost::lexical_cast<std::string>(dialog.overcommitFactor->value());
+    */
 
     boost::program_options::options_description
         commandLineParameters("Usage: " HPX_APPLICATION_STRING " [options]");
 
+    /*
     using namespace boost::assign;
     std::vector<std::string> cfg;
     cfg += "vandouken.overcommitfactor!=" + overcommitFactor;
     cfg += "hpx.os_threads=" + numThreads;
-    if(standalone) {
+    */
+    standalone = true;
+    //if(standalone) 
+    {
         vandouken::setupParameters(commandLineParameters, "standalone");
+        /*
         cfg += "hpx.agas.port=" + agasPort;
         return hpx::init(commandLineParameters, argc, argv, cfg);
+        */
+        return hpx::init(commandLineParameters, argc, argv);
     }
+    /*
     else {
         vandouken::setupParameters(commandLineParameters, "gui");
         cfg += "hpx.runtime_mode=connect";
@@ -84,4 +97,5 @@ int main(int argc, char **argv)
             HPX_STD_FUNCTION<void()>(),
             hpx::runtime_mode_connect);
     }
+    */
 }

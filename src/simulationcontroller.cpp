@@ -23,9 +23,9 @@ namespace vandouken {
         }
     }
 
-    SimulationController::SimulationController(const LibGeoDecomp::Coord<2>& simulationDim, std::size_t overcommitFactor)
+    SimulationController::SimulationController(const LibGeoDecomp::Coord<2>& simulationDim)
     {
-        thisId = hpx::components::new_<ComponentType>(hpx::find_here(), simulationDim, overcommitFactor).get();
+        thisId = hpx::components::new_<ComponentType>(hpx::find_here(), simulationDim).get();
         hpx::agas::register_name(VANDOUKEN_SIMULATION_CONTROLLER_NAME, thisId);
     }
 
@@ -47,5 +47,10 @@ namespace vandouken {
     void SimulationController::stop() const
     {
         ComponentType::StopAction()(thisId);
+    }
+        
+    std::size_t SimulationController::numUpdateGroups() const
+    {
+        return ComponentType::NumUpdateGroupsAction()(thisId);
     }
 }

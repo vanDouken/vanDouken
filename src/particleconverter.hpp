@@ -17,20 +17,18 @@ namespace vandouken {
     class ParticleConverter
     {
     public:
-        typedef Particles CellType;
-
-        CellType operator()(
-            const Cell& cell,
-            const LibGeoDecomp::Coord<2>& globalDimensions,
-            unsigned step,
-            std::size_t rank)
+        template <typename BUFFER>
+        void operator()(const Cell& cell,
+            const LibGeoDecomp::Coord<2>& globalDimensions, BUFFER& buffer)
         {
-            CellType particles;
             int halfWidth(globalDimensions.x() / 2);
             int halfHeight(globalDimensions.y() / 2);
 
-            particles.resize(cell.numParticles);
-            std::size_t pos = 0;
+            if(buffer.capacity() < buffer.size() + cell.numParticles)
+            {
+                buffer.reserve(buffer.size() + cell.numParticles);
+            }
+
             for(int i = 0; i < cell.numParticles; ++i)
             {
                 const Cell::Particle& particle = cell.particles[i];
@@ -43,18 +41,15 @@ namespace vandouken {
                 }
 
                 if ((DEFAULT_PARTICLE_LIFETIME - particle.lifetime) < FADE_IN_OUT) {
-                    depthOffset = particle.lifetime - DEFAULT_PARTICLE_LIFETIME + FADE_IN_OUT;
+                    depthOffset
+                        = particle.lifetime - DEFAULT_PARTICLE_LIFETIME + FADE_IN_OUT;
                 }
 
                 float posZ = -100 + particle.pos[2] - 0.01 * depthOffset;;
                 float angle = ForcePrimitives::angle(particle.vel[0], particle.vel[1]);
-                if(particles.addParticle(pos, Particle(posX, posY, posZ, angle, particle.color)))
-                {
-                    ++pos;
-                }
+                buffer.addParticle(
+                    Particle(posX, posY, posZ, angle, particle.color));
             }
-
-            return particles;
         }
     private:
     };

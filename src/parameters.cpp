@@ -16,7 +16,7 @@ namespace vandouken {
         {
             parameters.add_options()
                 ("overcommitFactor",
-                 boost::program_options::value<std::size_t>()->default_value(1),
+                 boost::program_options::value<float>()->default_value(1),
                  "Number of update groups to create. On each locality: #threads * overcommitFactor (default: 1)")
                 ("dimX",
                  boost::program_options::value<int>()->default_value(320),

@@ -8,6 +8,7 @@
 #define VANDOUKEN_GRIDCOLLECTOR_HPP
 
 #include "config.hpp"
+#include "cell.hpp"
 #include "particle.hpp"
 
 #include <hpx/runtime/naming/name.hpp>
@@ -15,32 +16,50 @@
 #include <hpx/util/high_resolution_timer.hpp>
 
 #include <boost/serialization/access.hpp>
-#include <libgeodecomp/io/writer.h>
+#include <libgeodecomp/io/parallelwriter.h>
 
 namespace vandouken {
-    class GridCollector : public LibGeoDecomp::Writer<Particles>
+    class GridCollector : public LibGeoDecomp::ParallelWriter<Cell>
     {
         friend class boost::serialization::access;
 
+    public:
+        typedef boost::shared_ptr<Particles> BufferType;
+
+        static const int DIM = Cell::Topology::DIM;
+        typedef Cell::Topology Topology;
+        using LibGeoDecomp::ParallelWriter<Cell>::GridType;
+        typedef LibGeoDecomp::Region<Topology::DIM> RegionType;
+        typedef LibGeoDecomp::Coord<Topology::DIM> CoordType;
+
         typedef
-        std::map<
-            std::size_t,
             std::map<
                 unsigned,
-                boost::shared_ptr<GridType>
+                BufferType
             >
-        > GridMap;
+            BufferMap;
 
         typedef hpx::lcos::local::spinlock Mutex;
-    public:
         GridCollector(unsigned period);
 
-        void stepFinished(const GridType& grid, unsigned step, LibGeoDecomp::WriterEvent event);
+        ParallelWriter<Cell> *clone()
+        {
+            return new GridCollector(ParallelWriter<Cell>::period);
+        }
+
+        void stepFinished(
+            const GridType& grid,
+            const RegionType& validRegion,
+            const CoordType& globalDimensions,
+            unsigned step,
+            LibGeoDecomp::WriterEvent event,
+            std::size_t rank,
+            bool lastCall);
 
         std::size_t addGridConsumer();
         void removeGridConsumer(std::size_t);
 
-        boost::shared_ptr<GridType> getNextGrid(std::size_t id);
+        BufferType getNextBuffer(std::size_t id);
     private:
         GridCollector()
         {}
@@ -48,17 +67,18 @@ namespace vandouken {
         template<typename ARCHIVE>
         void serialize(ARCHIVE& ar, unsigned)
         {
-            ar & boost::serialization::base_object<LibGeoDecomp::Writer<Particles> >(*this);
+            ar & boost::serialization::base_object<LibGeoDecomp::ParallelWriter<Cell> >(*this);
         }
 
         std::size_t nextId;
         std::set<std::size_t> ids;
-        GridMap grids;
+        BufferMap buffers;
 
         hpx::util::high_resolution_timer timer;
 
         hpx::naming::id_type collectorServerId;
         Mutex mutex;
+        Mutex bufferMutex;
     };
 }
 

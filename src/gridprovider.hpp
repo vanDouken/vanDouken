@@ -12,8 +12,10 @@
 #include "particle.hpp"
 
 #include <hpx/lcos/future.hpp>
+#include <hpx/util/high_resolution_timer.hpp>
 
 #include <libgeodecomp/misc/grid.h>
+#include <libgeodecomp/misc/region.h>
 
 #include <boost/serialization/shared_ptr.hpp>
 
@@ -23,23 +25,31 @@ namespace vandouken {
     class GridProvider
     {
     public:
-        typedef LibGeoDecomp::Grid<Particles> GridType;
+        typedef
+            boost::shared_ptr<Particles>
+            BufferType;
 
-        GridProvider();
+        GridProvider(std::size_t numUpdateGroups, const LibGeoDecomp::Coord<2>& dim);
 
         ~GridProvider();
 
-        boost::shared_ptr<GridType> nextGrid();
+        BufferType nextGrid();
 
     private:
 
-        void setNextGrid(hpx::future<boost::shared_ptr<GridType> > gridFuture);
+        void setNextGrid(hpx::future<std::vector<hpx::future<BufferType> > >& buffersFuture);
+
+        typedef hpx::lcos::local::spinlock MutexType;
+        MutexType mutex;
+        hpx::util::high_resolution_timer timer;
+
+        LibGeoDecomp::Coord<2> dim;
 
         hpx::future<void> collectingFuture;
         boost::atomic<bool> stopped;
-        boost::shared_ptr<GridType> grid;
-        std::size_t consumerId;
-        hpx::id_type collectorId;
+        BufferType grid;
+        std::vector<std::size_t> consumerIds;
+        std::vector<hpx::id_type> collectorIds;
     };
 }
 

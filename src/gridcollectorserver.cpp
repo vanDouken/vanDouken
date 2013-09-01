@@ -18,9 +18,10 @@ namespace vandouken {
         collector->removeGridConsumer(id);
     }
 
-    boost::shared_ptr<GridCollector::GridType> GridCollectorServer::getNextGrid(std::size_t id)
+    GridCollector::BufferType
+    GridCollectorServer::getNextBuffer(std::size_t id)
     {
-        return collector->getNextGrid(id);
+        return collector->getNextBuffer(id);
     }
 }
 
@@ -33,8 +34,8 @@ HPX_REGISTER_ACTION(
     vandoukenGridCollectorServerRemoveGridConsumerAction)
 
 HPX_REGISTER_ACTION(
-    vandouken::GridCollectorServer::GetNextGridAction,
-    vandoukenGridCollectorServerGetNextGridAction)
+    vandouken::GridCollectorServer::GetNextBufferAction,
+    vandoukenGridCollectorServerGetNextBufferAction)
 
 
 HPX_REGISTER_MINIMAL_COMPONENT_FACTORY(

@@ -11,6 +11,7 @@
 #include "particle.hpp"
 
 #include <libgeodecomp/misc/grid.h>
+#include <libgeodecomp/misc/region.h>
 
 #include <hpx/include/components.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -37,8 +38,9 @@ namespace vandouken
         void removeGridConsumer(std::size_t);
         HPX_DEFINE_COMPONENT_ACTION(GridCollectorServer, removeGridConsumer, RemoveGridConsumerAction);
 
-        boost::shared_ptr<LibGeoDecomp::Grid<Particles> > getNextGrid(std::size_t id);
-        HPX_DEFINE_COMPONENT_ACTION(GridCollectorServer, getNextGrid, GetNextGridAction);
+        boost::shared_ptr<Particles>
+        getNextBuffer(std::size_t id);
+        HPX_DEFINE_COMPONENT_ACTION(GridCollectorServer, getNextBuffer, GetNextBufferAction);
 
     private:
         GridCollector *collector;
@@ -54,7 +56,7 @@ HPX_REGISTER_ACTION_DECLARATION(
     vandoukenGridCollectorServerRemoveGridConsumerAction)
 
 HPX_REGISTER_ACTION_DECLARATION(
-    vandouken::GridCollectorServer::GetNextGridAction,
-    vandoukenGridCollectorServerGetNextGridAction)
+    vandouken::GridCollectorServer::GetNextBufferAction,
+    vandoukenGridCollectorServerGetNextBufferAction)
 
 #endif

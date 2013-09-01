@@ -6,56 +6,120 @@
 
 #include "gridprovider.hpp"
 #include "gridcollectorserver.hpp"
+#include <libgeodecomp/parallelization/hiparsimulator/gridvecconv.h>
+
+#include <hpx/lcos/broadcast.hpp>
 
 namespace vandouken {
-    GridProvider::GridProvider() :
-        stopped(false)
+    GridProvider::GridProvider(std::size_t numUpdateGroups, const LibGeoDecomp::Coord<2>& dim) :
+        dim(dim),
+        stopped(false),
+        consumerIds(numUpdateGroups),
+        collectorIds(numUpdateGroups)
     {
-        std::size_t retry = 0;
-        while(collectorId == hpx::naming::invalid_id)
+        for(std::size_t i = 0; i < numUpdateGroups; ++i)
         {
-            hpx::agas::resolve_name(VANDOUKEN_GRIDCOLLECTOR_NAME, collectorId);
-            if(retry > 10) {
-                throw std::logic_error("Could not connect to simulation");
+            std::size_t retry = 0;
+            std::string name(VANDOUKEN_GRIDCOLLECTOR_NAME);
+            name += "/";
+            name += boost::lexical_cast<std::string>(i);
+            while(collectorIds[i] == hpx::naming::invalid_id)
+            {
+                hpx::agas::resolve_name(name, collectorIds[i]);
+                if(retry > 10) {
+                    throw std::logic_error("Could not connect to simulation");
+                }
+                if(!collectorIds[i])
+                {
+                    hpx::this_thread::suspend(boost::posix_time::seconds(1));
+                }
+                ++retry;
             }
-            ++retry;
+            std::cout << "resolved: " << name << "\n";
+            consumerIds[i] = GridCollectorServer::AddGridConsumerAction()(collectorIds[i]);
         }
-        consumerId = GridCollectorServer::AddGridConsumerAction()(collectorId);
-        collectingFuture =
-            hpx::async<GridCollectorServer::GetNextGridAction>(collectorId, consumerId).then(
-                HPX_STD_BIND(
-                    &GridProvider::setNextGrid,
-                    this,
-                    HPX_STD_PLACEHOLDERS::_1
-                )
+
+        timer.restart();
+        std::vector<hpx::future<BufferType> > futures;
+        futures.reserve(collectorIds.size());
+        for(std::size_t i = 0; i < collectorIds.size(); ++i)
+        {
+            futures.push_back(
+                hpx::async<GridCollectorServer::GetNextBufferAction>(collectorIds[i], consumerIds[i])
             );
+        }
+
+        collectingFuture = hpx::when_all(futures).then(
+            HPX_STD_BIND(
+                &GridProvider::setNextGrid,
+                this,
+                HPX_STD_PLACEHOLDERS::_1
+            )
+        );
     }
 
     GridProvider::~GridProvider()
     {
         stopped = true;
         hpx::wait(collectingFuture);
-        GridCollectorServer::RemoveGridConsumerAction()(collectorId, consumerId);
-    }
-
-    void GridProvider::setNextGrid(hpx::future<boost::shared_ptr<GridType> > gridFuture)
-    {
-        grid = gridFuture.move();
-        if(!stopped)
+        for(std::size_t i = 0; i < collectorIds.size(); ++i)
         {
-            collectingFuture =
-                hpx::async<GridCollectorServer::GetNextGridAction>(collectorId, consumerId).then(
-                    HPX_STD_BIND(
-                        &GridProvider::setNextGrid,
-                        this,
-                        HPX_STD_PLACEHOLDERS::_1
-                    )
-                );
+            GridCollectorServer::RemoveGridConsumerAction()(collectorIds[i], consumerIds[i]);
         }
     }
 
-    boost::shared_ptr<GridProvider::GridType> GridProvider::nextGrid()
+    void GridProvider::setNextGrid(
+        hpx::future<std::vector<hpx::future<BufferType> > >& buffersFuture)
     {
-        return grid;
+        std::vector<hpx::future<BufferType> > buffers = buffersFuture.move();
+        BufferType res;
+
+        BOOST_FOREACH(hpx::future<BufferType>& bufferFuture, buffers)
+        {
+            BufferType buffer = bufferFuture.move();
+            if(!res)
+            {
+                res = buffer;
+                continue;
+            }
+            if(!buffer) continue;
+            res->posAngle.insert(res->posAngle.end(), buffer->posAngle.begin(), buffer->posAngle.end());
+            res->colors.insert(res->colors.end(), buffer->colors.begin(), buffer->colors.end());
+        }
+
+        {
+            MutexType::scoped_lock l(mutex);
+            if(res && res->size() > 0)
+                grid = res;
+        }
+
+        if(!stopped)
+        {
+            timer.restart();
+            std::vector<hpx::future<BufferType> > futures;
+            futures.reserve(collectorIds.size());
+            for(std::size_t i = 0; i < collectorIds.size(); ++i)
+            {
+                futures.push_back(
+                    hpx::async<GridCollectorServer::GetNextBufferAction>(collectorIds[i], consumerIds[i])
+                );
+            }
+
+            collectingFuture = hpx::when_all(futures).then(
+                HPX_STD_BIND(
+                    &GridProvider::setNextGrid,
+                    this,
+                    HPX_STD_PLACEHOLDERS::_1
+                )
+            );
+        }
+    }
+
+    GridProvider::BufferType GridProvider::nextGrid()
+    {
+        MutexType::scoped_lock l(mutex);
+        BufferType res = grid;
+        grid.reset();
+        return res;
     }
 }

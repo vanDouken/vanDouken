@@ -12,7 +12,6 @@
 #include <libgeodecomp/misc/coord.h>
 #include <libgeodecomp/io/hpxwritercollector.h>
 #include <libgeodecomp/io/initializer.h>
-#include "particleconverter.hpp"
 
 namespace vandouken {
     class SimulationControllerServer :
@@ -22,15 +21,14 @@ namespace vandouken {
         typedef LibGeoDecomp::Coord<2> CoordType;
 
         typedef
-            hpx::components::server::create_component_action2<
+            hpx::components::server::create_component_action1<
                 SimulationControllerServer,
-                const CoordType,
-                std::size_t>
+                const CoordType>
             CreateComponentAction;
 
         SimulationControllerServer();
 
-        SimulationControllerServer(const CoordType& simulationDim, std::size_t overcommitFactor);
+        SimulationControllerServer(const CoordType& simulationDim);
 
         void run()
         {
@@ -59,11 +57,19 @@ namespace vandouken {
             getInitializer,
             GetInitializerAction);
 
+        std::size_t numUpdateGroups()
+        {
+            return simulator.numUpdateGroups();
+        }
+
+        HPX_DEFINE_COMPONENT_ACTION(
+            SimulationControllerServer,
+            numUpdateGroups,
+            NumUpdateGroupsAction);
+
     private:
         Simulator simulator;
     };
-
-    typedef LibGeoDecomp::HpxWriterCollector<vandouken::Cell, ParticleConverter> ConverterSinkType;
 }
 
 HPX_REGISTER_ACTION_DECLARATION(
@@ -82,8 +88,14 @@ HPX_REGISTER_ACTION_DECLARATION(
     vandouken::SimulationControllerServer::StopAction,
     vandoukenSimulationControllerServerStopAction)
 
+HPX_REGISTER_ACTION_DECLARATION(
+    vandouken::SimulationControllerServer::NumUpdateGroupsAction,
+    vandoukenSimulationControllerNumUpdateGroupsAction)
+
+/*
 LIBGEODECOMP_REGISTER_HPX_WRITER_COLLECTOR_DECLARATION(
     vandouken::ConverterSinkType,
     vandoukenHpxWriterConverterCollector)
+*/
 
 #endif

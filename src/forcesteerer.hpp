@@ -9,36 +9,91 @@
 
 #include "cell.hpp"
 
+#include <libgeodecomp/misc/floatcoord.h>
+#include <libgeodecomp/misc/region.h>
+#include <libgeodecomp/misc/gridbase.h>
+
+#include <QVector2D>
+
 namespace vandouken {
 
-    class ForceSteerer : public LibGeoDecomp::Steerer<Cell>
+    using LibGeoDecomp::Coord;
+    using LibGeoDecomp::FloatCoord;
+    using LibGeoDecomp::Region;
+    using LibGeoDecomp::Streak;
+
+    class ForceSteerer
     {
     public:
-        ForceSteerer(unsigned period);
+        ForceSteerer() {}
 
-        ~ForceSteerer();
+        ForceSteerer(QVector2D origin, QVector2D delta)
+          : qOrigin(origin)
+          , qDelta(delta)
+        {}
 
-        void ForceSteerer::nextStep(
-            ForceSteerer::GridType *grid,
-            const ForceSteerer::RegionType& validRegion,
-            const ForceSteerer::CoordType& globalDimensions,
-            unsigned step,
-            LibGeoDecomp::SteererEvent event,
-            std::size_t rank,
-            bool lastCall);
+        void operator()(
+                LibGeoDecomp::GridBase<Cell, 2> *grid,
+                const LibGeoDecomp::Region<2>& validRegion,
+                const LibGeoDecomp::Coord<2>& globalDimensions,
+                unsigned)
+        {
+            Region<2> lastRenderedRegion;
+            Coord<2> origin(qOrigin.x(), qOrigin.y());
+            FloatCoord<2> delta(qDelta.x(), qDelta.y());
+            double length = sqrt(delta[0] * delta[0] + delta[1] * delta[1]);
+            FloatCoord<2> force = delta * (1.0 / length);
+            
+            if (abs(delta[0]) > abs(delta[1])) {
+                if (delta[0] < 0) {
+                    origin = origin + Coord<2>(delta[0], delta[1]);
+                    delta = delta * -1;
+                }
+                for (int x = 0; x <= delta[0]; ++x) {
+                    int y = origin[1] + x * delta[1] / (delta[0] + 1);
+                    renderForce(origin[0] + x, y, force, grid, validRegion, &lastRenderedRegion);
+                }
+            } else {
+                if (delta[1] < 0) {
+                    origin = origin + Coord<2>(delta[0], delta[1]);
+                    delta = delta * -1;
+                }
+                for (int y = 0; y <= delta[1]; ++y) {
+                    int x = origin[0] + y * delta[0] / (delta[1] + 1);
+                    renderForce(x, origin[1] + y, force, grid, validRegion, &lastRenderedRegion);
+                }
+            }
+        }
 
-        void addForce(std::vector<CoordType> const &o, );
-        void removeSteerer(hpx::id_type id);
-    private:
-        void setNextForces(
-            hpx::future<
-                std::pair<
-                    std::vector<CoordType>,
-                    std::vector<LibGeoDecomp::FloatCoord<2> >
-                >
-            > forceFuture);
+        void renderForce(int posX, int posY, const FloatCoord<2>& force, LibGeoDecomp::GridBase<Cell, 2> *grid, const Region<2>& validRegion, Region<2> *lastRenderedRegion)
+        {
+            int size = 10;
+            Region<2> newRegion;
+            for (int y = -size; y < size; ++y) {
+                newRegion << Streak<2>(Coord<2>(posX - size, posY + y), posX + size);
+            }
 
-        std::vector<hpx::id_type> providerIds;
+            Region<2> relevantRegion = newRegion & *lastRenderedRegion & validRegion;
+
+            for (Region<2>::StreakIterator i = relevantRegion.beginStreak(); 
+                 i != relevantRegion.endStreak(); 
+                 ++i) {
+                for (Coord<2> c = i->origin; c.x() < i->endX; ++c.x()) {
+                    grid->at(c).setForceVario(force[0], force[1]);
+                }
+            }
+            
+            *lastRenderedRegion = newRegion;
+        }
+
+        template <typename ARCHIVE>
+        void serialize(ARCHIVE& ar, unsigned)
+        {
+            throw "implement me!";
+        }
+
+        QVector2D qOrigin;
+        QVector2D qDelta;
     };
 }
 

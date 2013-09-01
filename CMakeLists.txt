@@ -46,7 +46,7 @@ else()
     set(LOCAL_LIBGEODECOMP_LINK_LIB geodecomp)
 endif()
 
-find_package(Qt4 COMPONENTS QtOpenGL QtGui QtCore)
+find_package(Qt4 COMPONENTS QtOpenGL QtGui QtCore QtSvg)
 
 if(QT_FOUND)
   include(${QT_USE_FILE})

@@ -17,10 +17,12 @@
 
 namespace vandouken {
     class GridProvider;
+    class SteeringProvider;
     void startGUI(
         boost::program_options::variables_map& vm,
         const SimulationController& simulation,
-        GridProvider *gridProvider);
+        GridProvider *gridProvider,
+        SteeringProvider *steeringProvider);
 }
 
 #endif

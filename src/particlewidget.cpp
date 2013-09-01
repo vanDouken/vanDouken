@@ -5,7 +5,9 @@
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include "gridprovider.hpp"
+#include "steeringprovider.hpp"
 #include "particlewidget.hpp"
+#include "forcesteerer.hpp"
 
 #include <GL/glu.h>
 
@@ -34,10 +36,10 @@ namespace vandouken {
         modelview[14] = 0.0;
         modelview[15] = 1.0;
 
-        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
 
-        glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
         glEnable(GL_TEXTURE_2D);
 
         QPixmap map(VANDOUKEN_DATA_DIR "/brushstrokes.png");
@@ -137,14 +139,11 @@ namespace vandouken {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
         glUniform1iv(textureLocation, 1, &texture);
-
-        posAngle.reserve(Cell::MAX_PARTICLES * dimensions.prod() * 4);
-        color.reserve(Cell::MAX_PARTICLES * dimensions.prod() * 4);
     }
 
     void ParticleWidget::resizeGL(int width, int height)
     {
-        float screenRatio = float(width)/height;
+        float screenRatio = float(width)/(height);
         float worldRatio = float(dimensions.x())/dimensions.y();
         if(worldRatio > screenRatio)
         {
@@ -172,6 +171,12 @@ namespace vandouken {
         resetProjection();
     }
 
+    void ParticleWidget::paintEvent(QPaintEvent *event)
+    {
+        hpx::util::spinlock::scoped_lock lk(mutex);
+        QGLWidget::paintEvent(event);
+    }
+
     void ParticleWidget::paintGL()
     {
         if(frames == 0) timer.restart();
@@ -180,93 +185,39 @@ namespace vandouken {
             std::cout << "View FPS: " << frames/timer.elapsed() << "\n";
         }
         ++frames;
-        //counter.incFrames();
-        /*
-        if ((counter.getFrames() % 20) == 0)
-            std::cout << "view FPS: " << counter.fps() << "\n";
-        */
-        boost::shared_ptr<GridType> newGrid = gridProvider->nextGrid();
-        if(newGrid) {
-            grid = newGrid;
+
+        boost::shared_ptr<Particles> newParticles = gridProvider->nextGrid();
+        if(newParticles) {
+            particles = newParticles;
         }
-        if(!grid) return;
-
-        LibGeoDecomp::Coord<2> dimensions = grid->getDimensions();
-
+        if(!particles) return;
 
         qglClearColor(Qt::black);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &matrix[0]);
 
-        posAngle.clear();
-        color.clear();
-        std::size_t particles_size = 0;
-        for(int x = 0; x < dimensions.x(); ++x) {
-            for(int y = 0; y < dimensions.y(); ++y) {
-                LibGeoDecomp::Coord<2> coord(x, y);
-                Particles particles = (*grid)[coord];
-                posAngle.insert(posAngle.end(), particles.posAngle->begin(), particles.posAngle->end());
+        float * data_ptr = &particles->posAngle[0];
+        float * color_ptr = &particles->colors[0];
 
-                BOOST_FOREACH(boost::uint32_t c, *particles.colors) {
-                    color.push_back(qRed  (c));
-                    color.push_back(qGreen(c));
-                    color.push_back(qBlue (c));
-                    color.push_back(qAlpha(c));
-                }
-                particles_size += particles.size();
+        for (std::size_t i = 0; i < particles->size(); i += N) {
+            std::size_t n = 0;
+            if(i + N > particles->size() - 1)
+            {
+                n = (particles->size() - i);
             }
-        }
-
-        float * data_ptr = &posAngle[0];
-        float * color_ptr = &color[0];
-        //particles_size = particles_size - (particles_size % N);
-
-        for (std::size_t i = 0; i < particles_size; i = (std::min)(i + N, particles_size)) {
-            /*
-            std::size_t n = (std::min)(i + N, particles_size);
-            std::size_t n = std::min(i + N, particles_size);
-            std::size_t n_triangles = n -i;
-            */
-            const std::size_t n_data = N * 4;
-
-            //LOG("paintGL " << i << " " << n_data << " " << particles->posAngle.size());
+            else
+            {
+                n = N;
+            }
+            const std::size_t n_data = n * 4;
 
             glUniform4fv(dataLocation,  n_data, data_ptr);
             glUniform4fv(colorLocation, n_data, color_ptr);
 
-            glDrawArrays(GL_TRIANGLES, 0, 6 * N);
+            glDrawArrays(GL_TRIANGLES, 0, 6 * n);
             data_ptr += n_data;
             color_ptr += n_data;
-        }
-
-        // record/capture screen:
-        // QPixmap shot = QPixmap::grabWindow(winId());
-        // QString fileName = QString("foo%1.png").arg(++frameCounter);
-        // std::cout << fileName.toStdString() << "\n";
-        // shot.save(fileName);
-    }
-
-    void ParticleWidget::keyPressEvent(QKeyEvent * event)
-    {
-        switch(event->key())
-        {
-            case Qt::Key_F5:
-                //gui.reset();
-                break;
-            case Qt::Key_F:
-                if(isFullScreen())
-                {
-                    showNormal();
-                }
-                else
-                {
-                    std::cout << "got key ...\n";
-                    showFullScreen();
-                }
-                break;
-            default:
-                break;
         }
     }
 
@@ -293,37 +244,45 @@ namespace vandouken {
             lastPanPos = event->pos();
         }
     }
-
-    void ParticleWidget::mouseMoveEvent(QMouseEvent *event)
+    
+    void ParticleWidget::mouseReleaseEvent(QMouseEvent *event)
     {
-        /*
+    }
+    
+    QVector2D ParticleWidget::getModelPos(const QPoint& pos)
+    {
         double x = 0.0;
         double y = 0.0;
         double z = 0.0;
+        gluUnProject(
+            pos.x()
+          , pos.y()
+          , 0.0
+          , modelview
+          , mapMatrix.constData()
+          , viewport
+          , &x
+          , &y
+          , &z
+        );
 
+        return QVector2D(x, y);
+    }
+
+    void ParticleWidget::mouseMoveEvent(QMouseEvent *event)
+    {
         if (event->buttons() & Qt::LeftButton) {
-            gluUnProject(
-                event->pos().x()
-              , event->pos().y()
-              , 0.0
-              , modelview
-              , mapMatrix.constData()
-              , viewport
-              , &x
-              , &y
-              , &z
-            );
-            QVector2D modelPos(x, y);
+            QVector2D modelPos(getModelPos(event->pos()));
 
             QVector2D modelDelta(modelPos.x() - lastSweepPos.x(), modelPos.y() - lastSweepPos.y());
 
-            // std::cout << "add force (" << modelPos.x() << ", " << modelPos.y()
-            //           << ") -> "       << modelDelta.x() << ", " << modelDelta.y() << "\n";
+            std::cout << "add force (" << modelPos.x() << ", " << modelPos.y()
+                       << ") -> "       << modelDelta.x() << ", " << modelDelta.y() << "\n";
 
-            gui.forceRecorded(modelPos, modelDelta);
+            //gui.forceRecorded(modelPos, modelDelta);
+            steeringProvider->steer(ForceSteerer(modelPos, modelDelta));
             lastSweepPos = modelPos;
         }
-        */
 
         if (event->buttons() & Qt::RightButton) {
             double zoomFactor = -globalOffset.z() * 0.01 + 1;
@@ -354,7 +313,7 @@ namespace vandouken {
     {
         QMatrix4x4 pmvMatrix;
 
-        const float ratio = float(h)/w;
+        const float ratio = float(dimensions.y())/dimensions.x();
 
         pmvMatrix.setToIdentity();
         pmvMatrix.frustum(-1.0, 1.0, ratio, -ratio, 5, 1000);
@@ -425,7 +384,7 @@ namespace vandouken {
             "    vec2 realTex = vec2(tex.x, tex.y * (1.0 / 40.0)) + delta * vec2(0, c.w * 100.0);\n"
             "    realColor.w = 255.0;\n"
             "    vec4 baseColor = (realColor * fac) * texture2D(myTexture, realTex);\n"
-            "    if(baseColor.a < 0.9) baseColor.a = 0.0;\n"//baseColor = baseColor * vec4(0.0,1.0,1.0,1.0);\n"
+            "    if(baseColor.a < 0.9) discard;\n"
             "    gl_FragColor = baseColor;\n"
             "}\n"
             ;

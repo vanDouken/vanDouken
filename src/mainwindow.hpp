@@ -16,9 +16,14 @@
 
 namespace vandouken {
     class GridProvider;
+    class SteeringProvider;
     class ParticleWidget;
+    class MainControl;
+    class ForceControl;
+    class ForceView;
+    class CameraPreview;
 
-    class MainWindow : public QMainWindow
+    class MainWindow : public QWidget
     {
         Q_OBJECT;
 
@@ -26,15 +31,33 @@ namespace vandouken {
         MainWindow(
             LibGeoDecomp::Coord<2> dim,
             GridProvider *gridProvider,
+            SteeringProvider *steeringProvider,
             QWidget *parent=0);
+
+    public Q_SLOTS:
+        void stateChanged(int);
 
     protected:
         void keyPressEvent(QKeyEvent * event);
+        void mousePressEvent(QMouseEvent *event);
+        void resizeEvent(QResizeEvent *event);
+        void paintEvent(QPaintEvent *);
 
     private:
+
+        void layoutWidget(QSize size);
+
         Ui_MainWindow content;
         QTimer paintTimer;
+        QTimer grabTimer;
+        MainControl *mainControl;
+        ForceControl *forceControl;
+        ForceView *forceView;
+        CameraPreview *cameraPreview;
         ParticleWidget * particleWidget;
+        SteeringProvider *steeringProvider;
+
+        int state;
     };
 }
 

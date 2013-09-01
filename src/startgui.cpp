@@ -15,12 +15,13 @@ namespace {
     void runWidget(
         boost::shared_ptr<hpx::lcos::local::promise<void> > finishedPromise,
         const LibGeoDecomp::Coord<2>& simulationDim,
-        vandouken::GridProvider *gridProvider)
+        vandouken::GridProvider *gridProvider,
+        vandouken::SteeringProvider *steererProvider)
     {
         QCoreApplication *app = QApplication::instance();
         std::cout << simulationDim << "\n";
         vandouken::MainWindow
-            *main = new vandouken::MainWindow(simulationDim, gridProvider);
+            *main = new vandouken::MainWindow(simulationDim, gridProvider, steererProvider);
 
         main->resize(1000, 500);
         main->show();
@@ -34,7 +35,8 @@ namespace vandouken {
     void startGUI(
         boost::program_options::variables_map& vm,
         const SimulationController& simulation,
-        GridProvider *gridProvider)
+        vandouken::GridProvider *gridProvider,
+        vandouken::SteeringProvider *steererProvider)
     {
         boost::shared_ptr<hpx::lcos::local::promise<void> >
             finishedPromise(new hpx::lcos::local::promise<void>);
@@ -48,7 +50,8 @@ namespace vandouken {
                 &::runWidget,
                 finishedPromise,
                 simulation.getInitializer()->gridDimensions(),
-                gridProvider
+                gridProvider,
+                steererProvider
             )
         );
 

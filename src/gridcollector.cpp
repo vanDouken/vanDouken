@@ -8,6 +8,7 @@
 
 #include "gridcollector.hpp"
 #include "gridcollectorserver.hpp"
+#include "particleconverter.hpp"
 
 #include <boost/serialization/export.hpp>
 
@@ -17,17 +18,34 @@
 
 namespace vandouken {
     GridCollector::GridCollector(unsigned period) :
-        Writer<Particles>("", period),
+        LibGeoDecomp::ParallelWriter<Cell>("", period),
         nextId(0)
     {
-        collectorServerId = hpx::components::new_<GridCollectorServer>(hpx::find_here(), this).get();
-        hpx::agas::register_name(VANDOUKEN_GRIDCOLLECTOR_NAME, collectorServerId);
     }
 
-    void GridCollector::stepFinished(const GridType& grid, unsigned step, LibGeoDecomp::WriterEvent event)
+    void GridCollector::stepFinished(
+        const GridCollector::GridType& grid,
+        const GridCollector::RegionType& validRegion,
+        const GridCollector::CoordType& globalDimensions,
+        unsigned step,
+        LibGeoDecomp::WriterEvent event,
+        std::size_t rank,
+        bool lastCall)
     {
+        {
+            Mutex::scoped_lock l(mutex);
+            if(!collectorServerId)
+            {
+                std::string name(VANDOUKEN_GRIDCOLLECTOR_NAME);
+                name += "/";
+                name += boost::lexical_cast<std::string>(rank);
+                collectorServerId = hpx::components::new_<GridCollectorServer>(hpx::find_here(), this).get();
+                hpx::agas::register_name(name, collectorServerId);
+                std::cout << "registered: " << name << "\n";
+            }
+        }
         if(step == 0) timer.restart();
-        if(step % 10 == 0)
+        if(lastCall && step % 10 == 0 && rank == 0)
         {
             std::cout
                 << "Simulation at step "
@@ -39,27 +57,29 @@ namespace vandouken {
         Mutex::scoped_lock l(mutex);
         if(!ids.empty())
         {
-            boost::shared_ptr<GridType> g(new GridType(grid));
-            BOOST_FOREACH(std::size_t id, ids)
+            Mutex::scoped_lock bl(bufferMutex);
+            BufferMap::iterator it = buffers.find(step);
+            if(it == buffers.end())
             {
-                GridMap::iterator it = grids.find(id);
-                if(it == grids.end())
-                {
-                    it = grids.insert(
-                        it,
-                        std::make_pair(
-                            id
-                          , std::map<unsigned, boost::shared_ptr<GridType> >()
-                        )
-                    );
-                }
-                it->second.insert(
-                    std::make_pair(
-                        step
-                      , g
-                    )
-                );
+                it = buffers.insert(it, std::make_pair(step, boost::make_shared<Particles>()));
+                it->second->reserve(globalDimensions.prod());
             }
+
+            for (RegionType::StreakIterator i = validRegion.beginStreak();
+                 i != validRegion.endStreak(); ++i) {
+                const Cell *src = &grid.at(i->origin);
+                //it->second->resize(i->length());
+                for(int j = 0; j < i->length(); ++j)
+                {
+                    ParticleConverter()(*src, globalDimensions, *it->second);
+                    ++src;
+                }
+            }
+
+            /*
+            std::cout << it->second->size() << "\n";
+            if(lastCall) std::cout << "\n";
+            */
         }
     }
 
@@ -83,20 +103,46 @@ namespace vandouken {
         ids.erase(it);
     }
 
-    boost::shared_ptr<GridCollector::GridType> GridCollector::getNextGrid(std::size_t id)
+    GridCollector::BufferType
+    GridCollector::getNextBuffer(std::size_t id)
     {
-        Mutex::scoped_lock l(mutex);
-        boost::shared_ptr<GridCollector::GridType> res;
-        GridMap::iterator it = grids.find(id);
+        Mutex::scoped_lock l(bufferMutex);
+        BufferType res;
 
-        if((it == grids.end()) || it->second.empty())
+        BufferMap::iterator it = buffers.begin();
+        if(it == buffers.end()) return res;
+        if(it->second->size() == 0) return res;
+
+        res = it->second;
+
+        buffers.erase(it);
+        if(buffers.size() > 10) buffers.clear();
+
+        return res;
+
+        /*
+        BufferMap::iterator it = buffers.find(id);
+
+
+        if(it == buffers.end())
             return res;
+
+        if(it->second.empty())
+            return res;
+        
 
         res = it->second.begin()->second;
         if(it->second.size() > 10)
+        {
             it->second.clear();
+        }
+        else
+        {
+            it->second.erase(it->second.begin());
+        }
 
         return res;
+        */
     }
 }
 

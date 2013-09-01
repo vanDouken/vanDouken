@@ -13,6 +13,6 @@ namespace vandouken {
         LibGeoDecomp::Coord<2> simulationDim(
             vm["dimX"].as<int>(),
             vm["dimY"].as<int>());
-        return SimulationController(simulationDim, vm["overcommitFactor"].as<std::size_t>());
+        return SimulationController(simulationDim);
     }
 }

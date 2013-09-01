@@ -7,12 +7,17 @@
 #include "simulationcontrollerserver.hpp"
 #include "initializer.hpp"
 #include "gridcollector.hpp"
+#include "particlesteerer.hpp"
+
+#include <libgeodecomp/io/tracingwriter.h>
 
 #include <hpx/hpx_fwd.hpp>
 
+/*
 LIBGEODECOMP_REGISTER_HPX_WRITER_COLLECTOR(
     vandouken::ConverterSinkType,
     vandoukenHpxWriterConverterCollector)
+*/
 
 namespace vandouken {
     SimulationControllerServer::SimulationControllerServer() :
@@ -27,7 +32,7 @@ namespace vandouken {
         BOOST_ASSERT(false);
     }
 
-    SimulationControllerServer::SimulationControllerServer(const LibGeoDecomp::Coord<2>& simulationDim, std::size_t overcommitFactor) :
+    SimulationControllerServer::SimulationControllerServer(const LibGeoDecomp::Coord<2>& simulationDim) :
         simulator(
             createInitializer(simulationDim),
             boost::lexical_cast<float>(hpx::get_config_entry("vandouken.overcommitfactor", "1.0")),
@@ -36,13 +41,13 @@ namespace vandouken {
             1  //ghostzoneWidth
         )
     {
-        LibGeoDecomp::HpxWriterCollector<Cell, ParticleConverter>::SinkType sink(
-            new GridCollector(1 /*period*/),
-            simulator.numUpdateGroups());
+        simulator.addWriter(new GridCollector(1));
+        simulator.addSteerer(new ParticleSteerer());
 
+        /*
         simulator.addWriter(
-            new LibGeoDecomp::HpxWriterCollector<Cell, ParticleConverter>(
-                sink));
+            new LibGeoDecomp::TracingWriter<Cell>(10, (std::numeric_limits<unsigned>::max)()));
+        */
     }
 
     boost::shared_ptr<LibGeoDecomp::Initializer<Cell> > SimulationControllerServer::getInitializer()
@@ -66,6 +71,10 @@ HPX_REGISTER_ACTION(
 HPX_REGISTER_ACTION(
     vandouken::SimulationControllerServer::StopAction,
     vandoukenSimulationControllerServerStopAction)
+
+HPX_REGISTER_ACTION(
+    vandouken::SimulationControllerServer::NumUpdateGroupsAction,
+    vandoukenSimulationControllerNumUpdateGroupsAction)
 
 HPX_REGISTER_MINIMAL_COMPONENT_FACTORY(
     hpx::components::managed_component<vandouken::SimulationControllerServer>,

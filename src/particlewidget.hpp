@@ -15,6 +15,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <hpx/util/high_resolution_timer.hpp>
+#include <hpx/util/spinlock.hpp>
 
 #include <QtGui>
 #include <QtOpenGL/QGLWidget>
@@ -37,28 +38,30 @@
 
 namespace vandouken {
     class GridProvider;
+    class SteeringProvider;
 
     class ParticleWidget
         : public QGLWidget, protected QGLFunctions
     {
         Q_OBJECT
     public:
-        typedef LibGeoDecomp::Grid<Particles> GridType;
         static const std::size_t N = 240;
 
         ParticleWidget(
             GridProvider *gridProvider,
+            SteeringProvider *steeringProvider,
             LibGeoDecomp::Coord<2> dimensions,
             QColor backgroundColor = Qt::black, QWidget *parent = 0) :
             QGLWidget(parent),
+            recordedForces(new std::vector<std::pair<QVector2D, QVector2D> >()),
             gridProvider(gridProvider),
+            steeringProvider(steeringProvider),
             dimensions(dimensions),
             backgroundColor(backgroundColor),
             globalOffset(0, 0, 0),
-            //frameCounter(0),
-            colors(N*4),
             frames(0)
-        {}
+        {
+        }
 
         ~ParticleWidget()
         {}
@@ -75,17 +78,23 @@ namespace vandouken {
 
         void initializeGL();
 
-        void keyPressEvent(QKeyEvent * event);
+        QVector2D getModelPos(const QPoint& pos);
+
     protected:
         void resizeGL(int width, int height);
         void mousePressEvent(QMouseEvent *event);
+        void mouseReleaseEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
         void wheelEvent(QWheelEvent *event);
+        void paintEvent(QPaintEvent*);
         void paintGL();
 
     private:
-        boost::shared_ptr<GridType> grid;
+        boost::shared_ptr<std::vector<std::pair<QVector2D, QVector2D> > >
+            recordedForces;
+        boost::shared_ptr<Particles> particles;
         GridProvider *gridProvider;
+        SteeringProvider *steeringProvider;
 
         LibGeoDecomp::Coord<2> dimensions;
         boost::array<float, 16> matrix;
@@ -113,13 +122,10 @@ namespace vandouken {
         int h;
         int w;
 
-        std::vector<float> colors;
-
-        LibGeoDecomp::SuperVector<float> posAngle;
-        LibGeoDecomp::SuperVector<float> color;
-
         std::size_t frames;
         hpx::util::high_resolution_timer timer;
+        hpx::util::spinlock mutex;
+
         void resetProjection();
         GLuint createProgram();
         GLuint loadShader(GLenum type, const char * src);
