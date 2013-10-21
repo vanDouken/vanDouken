@@ -18,7 +18,8 @@ namespace vandouken {
         unsigned step,
         LibGeoDecomp::SteererEvent,
         std::size_t rank,
-        bool lastCall)
+        bool lastCall,
+        SteererFeedback *feedback)
     {
         Mutex::scoped_lock l(mutex);
         if(!steererServerId)
@@ -38,7 +39,7 @@ namespace vandouken {
         if(lastCall)
             steererFunctors.clear();
     }
-    
+
     void ParticleSteerer::steer(const SteererFunctor& f)
     {
         Mutex::scoped_lock l(mutex);

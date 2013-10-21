@@ -7,6 +7,7 @@
 #ifndef VANDOUKEN_PARTICLEWIDGET_HPP
 #define VANDOUKEN_PARTICLEWIDGET_HPP
 
+#include <hpx/config.hpp>
 #include "particle.hpp"
 
 #include <libgeodecomp/misc/coord.h>

@@ -1,6 +1,7 @@
 #ifndef VANDOUKEN_IMAGESTEERER_HPP
 #define VANDOUKEN_IMAGESTEERER_HPP
 
+#include "config.hpp"
 #include "cell.hpp"
 
 #include <libgeodecomp/misc/floatcoord.h>
@@ -38,18 +39,19 @@ namespace vandouken {
                 i != validRegion.end(); ++i) {
                 if(clear)
                 {
-                    grid->at(*i)
-                        = Cell(
+                    grid->set(*i,
+                        Cell(
                             0xff000000 + tmp.pixel(i->x(), i->y())
                           , *i
                           , false
                           , force
                           , rand() % Cell::MAX_SPAWN_COUNTDOWN
-                        );
+                        )
+                    );
                 }
                 else
                 {
-                    Cell & cell = grid->at(*i);
+                    Cell cell = grid->get(*i);
                     cell.backgroundPixel
                         = 0xff000000 + tmp.pixel(i->x(), i->y());
                     for(int j = 0; j < cell.numParticles; ++j)
@@ -59,6 +61,7 @@ namespace vandouken {
                             cell.particles[j].color = 0xff000000 + tmp.pixel(i->x(), i->y());
                         }
                     }
+                    grid->set(*i, cell);
                 }
             }
         }

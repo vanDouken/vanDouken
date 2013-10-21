@@ -67,7 +67,7 @@ namespace vandouken {
 
             for (RegionType::StreakIterator i = validRegion.beginStreak();
                  i != validRegion.endStreak(); ++i) {
-                const Cell *src = &grid.at(i->origin);
+                GridType::ConstIterator src = grid.at(i->origin);
                 //it->second->resize(i->length());
                 for(int j = 0; j < i->length(); ++j)
                 {
@@ -129,7 +129,7 @@ namespace vandouken {
 
         if(it->second.empty())
             return res;
-        
+
 
         res = it->second.begin()->second;
         if(it->second.size() > 10)

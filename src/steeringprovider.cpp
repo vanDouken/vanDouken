@@ -22,7 +22,7 @@ namespace vandouken {
             name += boost::lexical_cast<std::string>(i);
             while(serverIds[i] == hpx::naming::invalid_id)
             {
-                hpx::agas::resolve_name(name, serverIds[i]);
+                hpx::agas::resolve_name_sync(name, serverIds[i]);
                 if(retry > 10) {
                     throw std::logic_error("Could not connect to simulation");
                 }

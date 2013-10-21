@@ -43,7 +43,7 @@ namespace vandouken {
             FloatCoord<2> delta(qDelta.x(), qDelta.y());
             double length = sqrt(delta[0] * delta[0] + delta[1] * delta[1]);
             FloatCoord<2> force = delta * (1.0 / length);
-            
+
             if (abs(delta[0]) > abs(delta[1])) {
                 if (delta[0] < 0) {
                     origin = origin + Coord<2>(delta[0], delta[1]);
@@ -75,14 +75,16 @@ namespace vandouken {
 
             Region<2> relevantRegion = newRegion & *lastRenderedRegion & validRegion;
 
-            for (Region<2>::StreakIterator i = relevantRegion.beginStreak(); 
-                 i != relevantRegion.endStreak(); 
+            for (Region<2>::StreakIterator i = relevantRegion.beginStreak();
+                 i != relevantRegion.endStreak();
                  ++i) {
                 for (Coord<2> c = i->origin; c.x() < i->endX; ++c.x()) {
-                    grid->at(c).setForceVario(force[0], force[1]);
+                    Cell cell = grid->get(c);
+                    cell.setForceVario(force[0], force[1]);
+                    grid->set(c, cell);
                 }
             }
-            
+
             *lastRenderedRegion = newRegion;
         }
 

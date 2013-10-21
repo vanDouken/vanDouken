@@ -123,8 +123,6 @@ add_hpx_executable(
         ${LOCAL_LIBGEODECOMP_LINK_LIB}
         ${QT_LIBRARIES}
         vandouken_lib
-        mpi
-        mpi_cxx
     FOLDER "vanDouken Server Application"
 )
 
@@ -144,7 +142,5 @@ add_hpx_executable(
         ${LOCAL_LIBGEODECOMP_LINK_LIB}
         ${QT_LIBRARIES}
         vandouken_lib
-        mpi
-        mpi_cxx
     FOLDER "vanDouken GUI Application"
 )

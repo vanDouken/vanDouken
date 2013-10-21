@@ -10,11 +10,10 @@
 #include "config.hpp"
 
 #include <stdio.h>
-#include <libgeodecomp/misc/cellapitraits.h>
+#include <libgeodecomp/misc/apitraits.h>
 #include <libgeodecomp/misc/floatcoord.h>
 #include <libgeodecomp/misc/topologies.h>
 #include <libgeodecomp/misc/stencils.h>
-#include <libgeodecomp/misc/cellapitraits.h>
 
 #include <boost/serialization/is_bitwise_serializable.hpp>
 #include <boost/serialization/split_member.hpp>
@@ -86,6 +85,12 @@ public:
 
     static const int MAX_PARTICLES = 5;
     static const int MAX_SPAWN_COUNTDOWN = DEFAULT_PARTICLE_LIFETIME;
+
+    class API :
+        public LibGeoDecomp::APITraits::HasNanoSteps<2>
+    {};
+
+    /*
     typedef LibGeoDecomp::Topologies::Cube<2>::Topology Topology;
     typedef LibGeoDecomp::Stencils::Moore<2, 1> Stencil;
     class API : public LibGeoDecomp::CellAPITraits::Fixed
@@ -100,6 +105,8 @@ public:
     {
         return 2;
     }
+    */
+
     // fixme: clean up constructors
     Cell()
       : backgroundPixel(0x00ff0000),
@@ -140,7 +147,7 @@ public:
     void update(const COORD_MAP& hood, const unsigned& nanoStep)
     {
         //std::cout << numParticles << " start update\n";
-        if (nanoStep == (nanoSteps() - 1)) {
+        if (nanoStep == 1) {
             // fixme: can we avoid this?
             *this = hood[LibGeoDecomp::FixedCoord<0,0>()];
             moveParticles(hood);
@@ -149,7 +156,7 @@ public:
 
         updateForces(hood, nanoStep);
 
-        if (nanoStep == (nanoSteps() - 2)) {
+        if (nanoStep == 0) {
             spawnParticles();
             updateParticles();
         }

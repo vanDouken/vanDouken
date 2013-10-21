@@ -14,7 +14,6 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <libgeodecomp/io/simpleinitializer.h>
-#include <libgeodecomp/misc/supervector.h>
 
 namespace vandouken {
     class Initializer : public LibGeoDecomp::SimpleInitializer<Cell>
@@ -32,21 +31,21 @@ namespace vandouken {
         template<class SHAPE>
         void addShape(const SHAPE& shape)
         {
-            shapes << boost::shared_ptr<ForcePrimitives::Base>(new SHAPE(shape));
+            shapes.push_back(boost::shared_ptr<ForcePrimitives::Base>(new SHAPE(shape)));
         }
 
     private:
-        LibGeoDecomp::SuperVector<boost::shared_ptr<ForcePrimitives::Base> > shapes;
+        std::vector<boost::shared_ptr<ForcePrimitives::Base> > shapes;
 
         template<class ARCHIVE>
         void serialize(ARCHIVE& ar, unsigned)
         {
-            ar & boost::serialization::base_object<SimpleInitializer<Cell> >(*this);
+            ar & boost::serialization::base_object<LibGeoDecomp::SimpleInitializer<Cell> >(*this);
             ar & shapes;
         }
 
         Initializer() :
-            SimpleInitializer<Cell>(
+            LibGeoDecomp::SimpleInitializer<Cell>(
                 CoordType(0, 0),
                 (std::numeric_limits<unsigned>::max)())
         {}

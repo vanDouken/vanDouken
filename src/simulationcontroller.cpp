@@ -15,7 +15,7 @@ namespace vandouken {
         std::size_t retry = 0;
         while(thisId == hpx::naming::invalid_id)
         {
-            hpx::agas::resolve_name(VANDOUKEN_SIMULATION_CONTROLLER_NAME, thisId);
+            hpx::agas::resolve_name_sync(VANDOUKEN_SIMULATION_CONTROLLER_NAME, thisId);
             if(retry > 10) {
                 throw std::logic_error("Could not connect to simulation");
             }
@@ -48,7 +48,7 @@ namespace vandouken {
     {
         ComponentType::StopAction()(thisId);
     }
-        
+
     std::size_t SimulationController::numUpdateGroups() const
     {
         return ComponentType::NumUpdateGroupsAction()(thisId);

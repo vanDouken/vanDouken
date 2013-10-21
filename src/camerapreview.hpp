@@ -7,6 +7,7 @@
 #ifndef VANDOUKEN_CAMERA_PREVIEW_HPP
 #define VANDOUKEN_CAMERA_PREVIEW_HPP
 
+#include "config.hpp"
 #include "framegrabber.hpp"
 
 #include <QWidget>
@@ -20,7 +21,7 @@ namespace vandouken {
         Q_OBJECT
     public:
         CameraPreview(SteeringProvider *steeringProvider, QWidget *parent);
-        
+
         void paintEvent(QPaintEvent *);
         void resizeEvent(QResizeEvent *);
         void mousePressEvent(QMouseEvent * event);

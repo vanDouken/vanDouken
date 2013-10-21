@@ -18,7 +18,7 @@ namespace vandouken {
         friend class boost::serialization::access;
     public:
         SingleTracer(unsigned period) :
-            Writer<Cell>("", period)
+            LibGeoDecomp::Writer<Cell>("", period)
         {}
 
         void stepFinished(const GridType& grid, unsigned step, LibGeoDecomp::WriterEvent event)

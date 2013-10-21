@@ -7,7 +7,6 @@
 #ifndef VANDOUKEN_PARTICLE_HPP
 #define VANDOUKEN_PARTICLE_HPP
 
-#include <libgeodecomp/misc/supervector.h>
 #include <libgeodecomp/misc/topologies.h>
 
 #include <boost/shared_ptr.hpp>
@@ -65,8 +64,8 @@ namespace vandouken {
 
         /*
         Particles() :
-            posAngle(boost::make_shared<LibGeoDecomp::SuperVector<float> >()),
-            colors(boost::make_shared<LibGeoDecomp::SuperVector<boost::uint32_t> >())
+            posAngle(boost::make_shared<std::vector<float> >()),
+            colors(boost::make_shared<std::vector<boost::uint32_t> >())
         {}
         */
 
@@ -112,8 +111,8 @@ namespace vandouken {
             ar & colors;
         }
 
-        LibGeoDecomp::SuperVector<float> posAngle;
-        LibGeoDecomp::SuperVector<float> colors;
+        std::vector<float> posAngle;
+        std::vector<float> colors;
     };
 }
 BOOST_IS_BITWISE_SERIALIZABLE(vandouken::Particle)

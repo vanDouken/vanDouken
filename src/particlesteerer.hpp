@@ -44,7 +44,8 @@ namespace vandouken {
             unsigned step,
             LibGeoDecomp::SteererEvent,
             std::size_t rank,
-            bool lastCall);
+            bool lastCall,
+            SteererFeedback *feedback);
 
         void steer(const SteererFunctor& f);
 
@@ -53,10 +54,10 @@ namespace vandouken {
         {
             throw "implement me!";
         }
-        
+
         hpx::naming::id_type steererServerId;
         typedef hpx::lcos::local::spinlock Mutex;
-        
+
         Mutex mutex;
         std::vector<SteererFunctor> steererFunctors;
     };

@@ -26,8 +26,7 @@ namespace vandouken {
     public:
         typedef boost::shared_ptr<Particles> BufferType;
 
-        static const int DIM = Cell::Topology::DIM;
-        typedef Cell::Topology Topology;
+        static const int DIM = Topology::DIM;
         using LibGeoDecomp::ParallelWriter<Cell>::GridType;
         typedef LibGeoDecomp::Region<Topology::DIM> RegionType;
         typedef LibGeoDecomp::Coord<Topology::DIM> CoordType;
@@ -42,9 +41,9 @@ namespace vandouken {
         typedef hpx::lcos::local::spinlock Mutex;
         GridCollector(unsigned period);
 
-        ParallelWriter<Cell> *clone()
+        LibGeoDecomp::ParallelWriter<Cell> *clone()
         {
-            return new GridCollector(ParallelWriter<Cell>::period);
+            return new GridCollector(LibGeoDecomp::ParallelWriter<Cell>::period);
         }
 
         void stepFinished(

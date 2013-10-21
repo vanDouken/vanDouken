@@ -9,6 +9,7 @@
 #include <hpx/util/portable_binary_iarchive.hpp>
 #include <hpx/util/portable_binary_oarchive.hpp>
 
+
 #include <boost/shared_ptr.hpp>
 
 #if !defined(__ANDROID__) || !defined(ANDROID)
@@ -18,8 +19,9 @@
 #include <fstream>
 
 namespace vandouken {
+
     Initializer::Initializer(const CoordType& dim) :
-        SimpleInitializer<Cell>(
+        LibGeoDecomp::SimpleInitializer<Cell>(
             dim,
             (std::numeric_limits<unsigned>::max)())
     {}
@@ -51,7 +53,7 @@ namespace vandouken {
 
             // force alpha channel to 0xff to ensure all particles are opaque
             unsigned pixel = 0xff000000 + img.pixel(i->x(), i->y());
-            ret->at(*i) = Cell(pixel, *i, setForce, force, rand() % Cell::MAX_SPAWN_COUNTDOWN);
+            ret->set(*i, Cell(pixel, *i, setForce, force, rand() % Cell::MAX_SPAWN_COUNTDOWN));
         }
         std::cout << "done ...\n";
 #endif

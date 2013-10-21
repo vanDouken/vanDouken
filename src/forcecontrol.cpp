@@ -7,6 +7,7 @@
 #include "forcecontrol.hpp"
 
 #include <iostream>
+#include <cmath>
 
 namespace vandouken {
     ForceControl::ForceControl(QWidget *parent)
@@ -50,7 +51,7 @@ namespace vandouken {
               , 4.5 * MARGIN + (3 * (LENGTH + MARGIN))
             );
     }
-    
+
     void ForceControl::mousePressEvent(QMouseEvent * event)
     {
         int x = event->pos().x() - OFFSET;
@@ -85,7 +86,7 @@ namespace vandouken {
         int y = event->pos().y() - OFFSET;
         setSliderPos(x, y);
     }
-        
+
     void ForceControl::setSliderPos(int x, int y)
     {
         int directionLength = 3 * (LENGTH + MARGIN);
@@ -96,7 +97,7 @@ namespace vandouken {
             Q_EMIT(forceChanged(sliderPos));
         }
     }
-        
+
     void ForceControl::paintEvent(QPaintEvent *)
     {
         QPainter painter(this);

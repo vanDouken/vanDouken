@@ -58,11 +58,13 @@ include_directories(src)
 include_directories(${CMAKE_BINARY_DIR}/src)
 include_directories(${HPX_INCLUDE_DIR})
 include_directories(${LIBGEODECOMP_INCLUDE_DIR})
+include_directories(${OPENCV_INCLUDE_DIR})
 
 set(HPX_RPATH "${CMAKE_INSTALL_PREFIX}/lib/hpx:${CMAKE_BINARY_DIR}/lib/hpx:${LIBGEODECOMP_LIB_DIR}")
 link_directories(${CMAKE_BINARY_DIR}/lib/hpx)
 link_directories(${HPX_LIBRARY_DIR})
 link_directories(${LIBGEODECOMP_LIB_DIR})
+link_directories(${OPENCV_LIB_DIR})
 
 add_definitions("-DVANDOUKEN_DATA_DIR=\"${CMAKE_SOURCE_DIR}/data/\"")
 

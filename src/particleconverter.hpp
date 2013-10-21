@@ -11,8 +11,6 @@
 #include "forceprimitives.hpp"
 #include "particle.hpp"
 
-#include <libgeodecomp/misc/supervector.h>
-
 namespace vandouken {
     class ParticleConverter
     {
