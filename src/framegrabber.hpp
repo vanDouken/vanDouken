@@ -20,7 +20,9 @@ namespace vandouken {
         boost::shared_ptr<QImage> grab();
 
     private:
+        bool fake;
         CvCapture *capture;
+        QImage testImage;
         int width;
         int height;
     };

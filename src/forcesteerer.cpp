@@ -113,6 +113,9 @@ namespace vandouken {
             std::vector<LibGeoDecomp::FloatCoord<2> >
         > res = forceFuture.move();
 
+        std::cout << "got new forces\n";
+
+
         origins.insert(origins.end(), res.first.begin(), res.first.end());
         forces.insert(forces.end(), res.second.begin(), res.second.end());
 

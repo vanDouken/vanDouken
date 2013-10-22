@@ -10,6 +10,8 @@
 #include "particlesteererserver.hpp"
 #include <hpx/hpx.hpp>
 
+BOOST_CLASS_EXPORT_GUID(vandouken::ParticleSteerer, "vandoukenParticleSteerer");
+
 namespace vandouken {
     void ParticleSteerer::nextStep(
         GridType *grid,
@@ -32,12 +34,18 @@ namespace vandouken {
             std::cout << "registered: " << name << "\n";
         }
 
+
         BOOST_FOREACH(const SteererFunctor& f, steererFunctors)
         {
             f(grid, validRegion, globalDimensions, step);
         }
-        if(lastCall)
+
+        updatedRegion += validRegion;
+        if(updatedRegion == region)
+        {
             steererFunctors.clear();
+            updatedRegion.clear();
+        }
     }
 
     void ParticleSteerer::steer(const SteererFunctor& f)
@@ -46,3 +54,4 @@ namespace vandouken {
         steererFunctors.push_back(f);
     }
 }
+

@@ -14,6 +14,7 @@
 namespace vandouken {
     CameraPreview::CameraPreview(SteeringProvider *steeringProvider, QWidget *parent)
       : QWidget(parent)
+      , frameGrabber()
       , steeringProvider(steeringProvider)
       , grabEnabled(false)
       , clear(true)

@@ -70,10 +70,37 @@ namespace vandouken {
         bool clear;
 
         template <typename ARCHIVE>
-        void serialize(ARCHIVE& ar, unsigned)
+        void save(ARCHIVE& ar, unsigned) const
         {
-            throw "implement me!";
+            int w = image->width();
+            int h = image->height();
+            QImage::Format format = image->format();
+            ar & w;
+            ar & h;
+            ar & format;
+            const unsigned char *imageData = image->constBits();
+            std::vector<unsigned char> buffer(imageData, imageData + w * h);
+            ar & buffer;
+            ar & clear;
         }
+
+        template <typename ARCHIVE>
+        void load(ARCHIVE& ar, unsigned)
+        {
+            int w;
+            int h;
+            QImage::Format format;
+            ar & w;
+            ar & h;
+            ar & format;
+            std::vector<unsigned char> buffer;
+            buffer.reserve(w * h);
+            ar & buffer;
+            image.reset(new QImage(&buffer[0], w, h, format));
+            ar & clear;
+        }
+
+        BOOST_SERIALIZATION_SPLIT_MEMBER()
     };
 }
 

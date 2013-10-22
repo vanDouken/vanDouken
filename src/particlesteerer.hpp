@@ -52,7 +52,10 @@ namespace vandouken {
         template <typename ARCHIVE>
         void serialize(ARCHIVE& ar, unsigned)
         {
-            throw "implement me!";
+            ar & boost::serialization::base_object<LibGeoDecomp::Steerer<Cell> >(*this);
+            ar & steererServerId;
+            ar & steererFunctors;
+            ar & updatedRegion;
         }
 
         hpx::naming::id_type steererServerId;
@@ -60,6 +63,8 @@ namespace vandouken {
 
         Mutex mutex;
         std::vector<SteererFunctor> steererFunctors;
+
+        LibGeoDecomp::Region<2> updatedRegion;
     };
 }
 
