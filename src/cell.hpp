@@ -11,9 +11,9 @@
 
 #include <stdio.h>
 #include <libgeodecomp/misc/apitraits.h>
-#include <libgeodecomp/misc/floatcoord.h>
-#include <libgeodecomp/misc/topologies.h>
-#include <libgeodecomp/misc/stencils.h>
+#include <libgeodecomp/geometry/floatcoord.h>
+#include <libgeodecomp/geometry/topologies.h>
+#include <libgeodecomp/geometry/stencils.h>
 
 #include <boost/serialization/is_bitwise_serializable.hpp>
 #include <boost/serialization/split_member.hpp>

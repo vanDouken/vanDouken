@@ -42,7 +42,9 @@ namespace vandouken {
         )
     {
         simulator.addWriter(new GridCollector(1));
+        /*
         simulator.addSteerer(new ParticleSteerer());
+        */
 
         /*
         simulator.addWriter(

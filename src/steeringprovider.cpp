@@ -6,7 +6,7 @@
 
 #include "steeringprovider.hpp"
 #include "particlesteererserver.hpp"
-#include <libgeodecomp/parallelization/hiparsimulator/gridvecconv.h>
+#include <libgeodecomp/storage/gridvecconv.h>
 
 #include <hpx/lcos/broadcast.hpp>
 

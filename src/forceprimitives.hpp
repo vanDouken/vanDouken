@@ -9,8 +9,8 @@
 
 #include "config.hpp"
 
-#include <libgeodecomp/misc/coord.h>
-#include <libgeodecomp/misc/floatcoord.h>
+#include <libgeodecomp/geometry/coord.h>
+#include <libgeodecomp/geometry/floatcoord.h>
 
 #include <boost/serialization/base_object.hpp>
 

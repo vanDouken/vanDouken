@@ -10,6 +10,7 @@
 #include "gridcollectorserver.hpp"
 #include "particleconverter.hpp"
 
+#include <libgeodecomp/communication/serialization.h>
 #include <boost/serialization/export.hpp>
 
 #include <hpx/hpx.hpp>
@@ -40,7 +41,7 @@ namespace vandouken {
                 name += "/";
                 name += boost::lexical_cast<std::string>(rank);
                 collectorServerId = hpx::components::new_<GridCollectorServer>(hpx::find_here(), this).get();
-                hpx::agas::register_name(name, collectorServerId);
+                hpx::agas::register_name_sync(name, collectorServerId);
                 std::cout << "registered: " << name << "\n";
             }
         }
@@ -54,6 +55,7 @@ namespace vandouken {
                 << "\n";
         }
 
+#if 0
         Mutex::scoped_lock l(mutex);
         if(!ids.empty())
         {
@@ -81,6 +83,7 @@ namespace vandouken {
             if(lastCall) std::cout << "\n";
             */
         }
+#endif
     }
 
     std::size_t GridCollector::addGridConsumer()

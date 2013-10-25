@@ -11,7 +11,7 @@
 #include "cell.hpp"
 
 #include <hpx/runtime/naming/name.hpp>
-#include <libgeodecomp/misc/coord.h>
+#include <libgeodecomp/geometry/coord.h>
 #include <libgeodecomp/io/initializer.h>
 
 namespace vandouken {

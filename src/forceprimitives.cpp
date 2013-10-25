@@ -1,6 +1,8 @@
 
 #include "forceprimitives.hpp"
 
+#include <libgeodecomp/communication/serialization.h>
+
 #include <hpx/util/portable_binary_iarchive.hpp>
 #include <hpx/util/portable_binary_oarchive.hpp>
 

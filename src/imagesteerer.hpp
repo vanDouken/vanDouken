@@ -4,9 +4,9 @@
 #include "config.hpp"
 #include "cell.hpp"
 
-#include <libgeodecomp/misc/floatcoord.h>
-#include <libgeodecomp/misc/region.h>
-#include <libgeodecomp/misc/gridbase.h>
+#include <libgeodecomp/geometry/floatcoord.h>
+#include <libgeodecomp/geometry/region.h>
+#include <libgeodecomp/storage/gridbase.h>
 
 #include <QImage>
 

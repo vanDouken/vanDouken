@@ -11,13 +11,13 @@
 #include "cell.hpp"
 
 #include <libgeodecomp/parallelization/hpxsimulator.h>
-#include <libgeodecomp/parallelization/hiparsimulator/partitions/recursivebisectionpartition.h>
+#include <libgeodecomp/geometry/partitions/recursivebisectionpartition.h>
 
 namespace vandouken {
     typedef
         LibGeoDecomp::HpxSimulator::HpxSimulator<
             Cell,
-            LibGeoDecomp::HiParSimulator::RecursiveBisectionPartition<2>
+            LibGeoDecomp::RecursiveBisectionPartition<2>
         >
         Simulator;
 }

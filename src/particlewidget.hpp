@@ -10,8 +10,8 @@
 #include <hpx/config.hpp>
 #include "particle.hpp"
 
-#include <libgeodecomp/misc/coord.h>
-#include <libgeodecomp/misc/grid.h>
+#include <libgeodecomp/geometry/coord.h>
+#include <libgeodecomp/storage/grid.h>
 
 #include <boost/shared_ptr.hpp>
 

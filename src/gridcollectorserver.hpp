@@ -10,8 +10,8 @@
 #include "config.hpp"
 #include "particle.hpp"
 
-#include <libgeodecomp/misc/grid.h>
-#include <libgeodecomp/misc/region.h>
+#include <libgeodecomp/storage/grid.h>
+#include <libgeodecomp/geometry/region.h>
 
 #include <hpx/include/components.hpp>
 #include <boost/serialization/shared_ptr.hpp>

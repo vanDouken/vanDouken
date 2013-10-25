@@ -9,7 +9,7 @@
 
 #include "simulator.hpp"
 
-#include <libgeodecomp/misc/coord.h>
+#include <libgeodecomp/geometry/coord.h>
 #include <libgeodecomp/io/hpxwritercollector.h>
 #include <libgeodecomp/io/initializer.h>
 

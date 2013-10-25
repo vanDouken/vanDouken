@@ -9,7 +9,7 @@
 
 #include "ui_main.h"
 
-#include <libgeodecomp/misc/coord.h>
+#include <libgeodecomp/geometry/coord.h>
 
 #include <QMainWindow>
 #include <QTimer>

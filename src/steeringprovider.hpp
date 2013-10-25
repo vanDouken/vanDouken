@@ -13,8 +13,8 @@
 #include <hpx/lcos/future.hpp>
 #include <hpx/util/high_resolution_timer.hpp>
 
-#include <libgeodecomp/misc/grid.h>
-#include <libgeodecomp/misc/region.h>
+#include <libgeodecomp/storage/grid.h>
+#include <libgeodecomp/geometry/region.h>
 
 #include <boost/serialization/shared_ptr.hpp>
 

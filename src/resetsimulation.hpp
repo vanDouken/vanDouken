@@ -9,8 +9,8 @@
 
 #include "initializer.hpp"
 
-#include <libgeodecomp/misc/floatcoord.h>
-#include <libgeodecomp/misc/region.h>
+#include <libgeodecomp/geometry/floatcoord.h>
+#include <libgeodecomp/geometry/region.h>
 
 namespace vandouken {
 

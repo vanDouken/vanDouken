@@ -26,7 +26,7 @@ namespace vandouken {
     SimulationController::SimulationController(const LibGeoDecomp::Coord<2>& simulationDim)
     {
         thisId = hpx::components::new_<ComponentType>(hpx::find_here(), simulationDim).get();
-        hpx::agas::register_name(VANDOUKEN_SIMULATION_CONTROLLER_NAME, thisId);
+        hpx::agas::register_name_sync(VANDOUKEN_SIMULATION_CONTROLLER_NAME, thisId);
     }
 
     SimulationController::~SimulationController()

@@ -8,6 +8,7 @@
 
 #include "particlesteerer.hpp"
 #include "particlesteererserver.hpp"
+#include <libgeodecomp/communication/serialization.h>
 #include <hpx/hpx.hpp>
 
 BOOST_CLASS_EXPORT_GUID(vandouken::ParticleSteerer, "vandoukenParticleSteerer");
@@ -30,7 +31,7 @@ namespace vandouken {
             name += "/";
             name += boost::lexical_cast<std::string>(rank);
             steererServerId = hpx::components::new_<ParticleSteererServer>(hpx::find_here(), this).get();
-            hpx::agas::register_name(name, steererServerId);
+            hpx::agas::register_name_sync(name, steererServerId);
             std::cout << "registered: " << name << "\n";
         }
 
