@@ -7,6 +7,7 @@
 #ifndef VANDOUKEN_CAMERA_PREVIEW_HPP
 #define VANDOUKEN_CAMERA_PREVIEW_HPP
 
+
 #include "config.hpp"
 #include "framegrabber.hpp"
 

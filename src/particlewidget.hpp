@@ -23,8 +23,10 @@
 #include <QtOpenGL/QGLFunctions>
 #include <QtOpenGL/QGLShaderProgram>
 
+
 #ifndef LOG
-#if !defined(__ANDROID__) || !defined(ANDROID)
+#if 1
+//!defined(__ANDROID__) || !defined(ANDROID)
 #define LOG(x,...) std::cout << x;
 #else
 #define LOG(x,...)                                                               \

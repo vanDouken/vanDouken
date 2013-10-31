@@ -17,6 +17,7 @@
 
 #include <boost/serialization/access.hpp>
 #include <libgeodecomp/io/parallelwriter.h>
+#include <libgeodecomp/communication/serialization.h>
 
 namespace vandouken {
     class GridCollector : public LibGeoDecomp::ParallelWriter<Cell>
@@ -60,7 +61,9 @@ namespace vandouken {
 
         BufferType getNextBuffer(std::size_t id);
     private:
-        GridCollector()
+        GridCollector() : 
+            LibGeoDecomp::ParallelWriter<Cell>("", period),
+            nextId(0)
         {}
 
         template<typename ARCHIVE>

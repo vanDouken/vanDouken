@@ -11,6 +11,7 @@
 
 #include <libgeodecomp/geometry/coord.h>
 #include <libgeodecomp/geometry/floatcoord.h>
+#include <libgeodecomp/communication/serialization.h>
 
 #include <boost/serialization/base_object.hpp>
 
@@ -46,6 +47,9 @@ namespace vandouken {
         class Base
         {
         public:
+
+            virtual ~Base() {}
+
             virtual void initCell(
                 FloatCoordType *result,
                 bool *setForce,

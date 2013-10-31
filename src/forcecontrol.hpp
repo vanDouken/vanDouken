@@ -7,10 +7,12 @@
 #ifndef VANDOUKEN_FORCECONTROL_HPP
 #define VANDOUKEN_FORCECONTROL_HPP
 
-#include <QtGui/QWidget>
+//#include <QtGui/QWidget>
+#include <QtWidgets/QWidget>
 #include <QtGui/QPainter>
 #include <QtSvg/QSvgRenderer>
-#include <QtGui/QApplication>
+//#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 #include <QtGui/QMouseEvent>
 
 #include <bitset>

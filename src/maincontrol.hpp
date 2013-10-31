@@ -7,7 +7,8 @@
 #ifndef VANDOUKEN_MAINCONTROL_HPP
 #define VANDOUKEN_MAINCONTROL_HPP
 
-#include <QtGui/QWidget>
+//#include <QtGui/QWidget>
+#include <QtWidgets/QWidget>
 #include <QtGui/QPainter>
 #include <QtSvg/QSvgRenderer>
 #include <QtGui/QMouseEvent>

@@ -46,13 +46,18 @@ else()
     set(LOCAL_LIBGEODECOMP_LINK_LIB geodecomp)
 endif()
 
-find_package(Qt4 COMPONENTS QtOpenGL QtGui QtCore QtSvg)
+find_package(Qt5OpenGL REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Svg REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+#find_package(Qt COMPONENTS QtOpenGL QtGui QtCore QtSvg)
 
-if(QT_FOUND)
-  include(${QT_USE_FILE})
-
-  add_definitions(-DQT_NO_KEYWORDS)
-endif()
+#if(QT_FOUND)
+#  include(${QT_USE_FILE})
+#
+#  add_definitions(-DQT_NO_KEYWORDS)
+#endif()
 
 include_directories(src)
 include_directories(${CMAKE_BINARY_DIR}/src)

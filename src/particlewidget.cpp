@@ -9,7 +9,9 @@
 #include "particlewidget.hpp"
 #include "forcesteerer.hpp"
 
+#if !defined(ANDROID)
 #include <GL/glu.h>
+#endif
 
 namespace vandouken {
     void ParticleWidget::initializeGL()
@@ -227,6 +229,7 @@ namespace vandouken {
             double x = 0.0;
             double y = 0.0;
             double z = 0.0;
+#if !defined(ANDROID)
             gluUnProject(
                 event->pos().x()
               , event->pos().y()
@@ -238,6 +241,7 @@ namespace vandouken {
               , &y
               , &z
             );
+#endif
             lastSweepPos = QVector2D(x, y);
         }
         if (event->buttons() & Qt::RightButton) {
@@ -254,6 +258,7 @@ namespace vandouken {
         double x = 0.0;
         double y = 0.0;
         double z = 0.0;
+#if !defined(ANDROID)
         gluUnProject(
             pos.x()
           , pos.y()
@@ -265,6 +270,7 @@ namespace vandouken {
           , &y
           , &z
         );
+#endif
 
         return QVector2D(x, y);
     }

@@ -11,6 +11,7 @@
 
 #include <boost/serialization/access.hpp>
 #include <libgeodecomp/io/writer.h>
+#include <libgeodecomp/communication/serialization.h>
 
 namespace vandouken {
     class SingleTracer : public LibGeoDecomp::Writer<Cell>
@@ -27,7 +28,8 @@ namespace vandouken {
         }
 
     private:
-        SingleTracer()
+        SingleTracer() :
+            LibGeoDecomp::Writer<Cell>("", period)
         {}
         template<typename ARCHIVE>
         void serialize(ARCHIVE& ar, unsigned)

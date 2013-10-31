@@ -33,6 +33,8 @@ add_hpx_component(
     FOLDER "vanDouken Components"
 )
 
+qt5_use_modules(vandouken_component_component Gui)
+
 set(VANDOUKEN_LIBRARY_MOC_HEADERS
     camerapreview.hpp
     forcecontrol.hpp
@@ -42,20 +44,28 @@ set(VANDOUKEN_LIBRARY_MOC_HEADERS
     particlewidget.hpp
 )
 
-QT4_WRAP_CPP(
+#QT4_WRAP_CPP(
+#    VANDOUKEN_LIBRARY_MOC_SOURCES
+#    ${VANDOUKEN_LIBRARY_MOC_HEADERS}
+#    OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED
+#)
+qt5_wrap_cpp(
     VANDOUKEN_LIBRARY_MOC_SOURCES
     ${VANDOUKEN_LIBRARY_MOC_HEADERS}
-    OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED
+    OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED -p.
 )
 
 set(VANDOUKEN_UI_SOURCES
     ui/startdialog.ui
     ui/main.ui)
 
-QT4_WRAP_UI(
+#QT4_WRAP_UI(
+#    VANDOUKEN_UI_HEADERS
+#    ${VANDOUKEN_UI_SOURCES})
+
+qt5_wrap_ui(
     VANDOUKEN_UI_HEADERS
     ${VANDOUKEN_UI_SOURCES})
-
 
 set(VANDOUKEN_LIBRARY_SOURCES
     camerapreview.cpp
@@ -72,6 +82,7 @@ set(VANDOUKEN_LIBRARY_SOURCES
     steeringprovider.cpp
     simulation.cpp
     simulationcontroller.cpp
+    ${VANDOUKEN_UI_SOURCES}
     ${VANDOUKEN_LIBRARY_MOC_SOURCES}
 )
 set(VANDOUKEN_LIBRARY_HEADERS
@@ -98,13 +109,15 @@ add_hpx_library(
     HEADERS ${VANDOUKEN_LIBRARY_HEADERS}
     DEPENDENCIES
         ${LOCAL_LIBGEODECOMP_LINK_LIB}
-        GLU
+        #GLU
         opencv_core
         opencv_highgui
     COMPONENT_DEPENDENCIES
         vandouken_component
     FOLDER "vanDouken Library"
 )
+
+qt5_use_modules(vandouken_lib Core Gui OpenGL Svg Widgets)
 
 set(VANDOUKEN_SERVER_SOURCES
     server.cpp
