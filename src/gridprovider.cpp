@@ -11,12 +11,13 @@
 #include <hpx/lcos/broadcast.hpp>
 
 namespace vandouken {
-    GridProvider::GridProvider(std::size_t numUpdateGroups, const LibGeoDecomp::Coord<2>& dim) :
-        dim(dim),
+    GridProvider::GridProvider(std::size_t numUpdateGroups, const LibGeoDecomp::CoordBox<2>& boundingBox) :
+        //region(region),
         stopped(false),
         consumerIds(numUpdateGroups),
         collectorIds(numUpdateGroups)
     {
+        region << boundingBox;
         for(std::size_t i = 0; i < numUpdateGroups; ++i)
         {
             std::size_t retry = 0;
@@ -26,9 +27,6 @@ namespace vandouken {
             while(collectorIds[i] == hpx::naming::invalid_id)
             {
                 hpx::agas::resolve_name_sync(name, collectorIds[i]);
-                if(retry > 10) {
-                    throw std::logic_error("Could not connect to simulation");
-                }
                 if(!collectorIds[i])
                 {
                     hpx::this_thread::suspend(boost::posix_time::seconds(1));
@@ -40,7 +38,10 @@ namespace vandouken {
         }
 
         timer.restart();
-        std::vector<hpx::future<BufferType> > futures;
+        std::vector<
+            hpx::future<std::pair<unsigned, RegionBuffer> >
+        > futures;
+        //std::vector<hpx::future<BufferType> > futures;
         futures.reserve(collectorIds.size());
         for(std::size_t i = 0; i < collectorIds.size(); ++i)
         {
@@ -69,34 +70,64 @@ namespace vandouken {
     }
 
     void GridProvider::setNextGrid(
-        hpx::future<std::vector<hpx::future<BufferType> > >& buffersFuture)
+        hpx::future<
+            std::vector<
+                hpx::future<std::pair<unsigned, RegionBuffer> >
+            >
+        >& buffersFuture)
     {
-        std::vector<hpx::future<BufferType> > buffers = buffersFuture.move();
+        typedef std::pair<unsigned, RegionBuffer> pair_type;
+        std::vector<hpx::future<pair_type> > buffers = buffersFuture.move();
         BufferType res;
 
-        BOOST_FOREACH(hpx::future<BufferType>& bufferFuture, buffers)
+
+        BOOST_FOREACH(hpx::future<pair_type>& bufferFuture, buffers)
         {
-            BufferType buffer = bufferFuture.move();
-            if(!res)
+            std::pair<unsigned, RegionBuffer> regionBuffer = bufferFuture.move();
+            if(regionBuffer.second.region.empty())
             {
-                res = buffer;
                 continue;
             }
-            if(!buffer) continue;
-            res->posAngle.insert(res->posAngle.end(), buffer->posAngle.begin(), buffer->posAngle.end());
-            res->colors.insert(res->colors.end(), buffer->colors.begin(), buffer->colors.end());
-        }
 
-        {
-            MutexType::scoped_lock l(mutex);
-            if(res && res->size() > 0)
-                grid = res;
+            {
+                MutexType::scoped_lock l(mutex);
+                BufferMap::iterator it = bufferMap.find(regionBuffer.first);
+
+                if(it == bufferMap.end())
+                {
+                    it =
+                        bufferMap.insert(it,
+                            std::make_pair(
+                                regionBuffer.first
+                              , RegionBuffer(regionBuffer.second.buffer, region)
+                            )
+                        );
+                }
+                else
+                {
+                    std::vector<float> & posAngle = it->second.buffer->posAngle;
+                    std::vector<float> & colors = it->second.buffer->colors;
+                    posAngle.insert(
+                        posAngle.end()
+                      , regionBuffer.second.buffer->posAngle.begin()
+                      , regionBuffer.second.buffer->posAngle.end());
+                    colors.insert(
+                        colors.end()
+                      , regionBuffer.second.buffer->colors.begin()
+                      , regionBuffer.second.buffer->colors.end());
+                }
+
+                it->second.region -= regionBuffer.second.region;
+
+            }
         }
 
         if(!stopped)
         {
             timer.restart();
-            std::vector<hpx::future<BufferType> > futures;
+            std::vector<
+                hpx::future<std::pair<unsigned, RegionBuffer> >
+            > futures;
             futures.reserve(collectorIds.size());
             for(std::size_t i = 0; i < collectorIds.size(); ++i)
             {
@@ -118,8 +149,25 @@ namespace vandouken {
     GridProvider::BufferType GridProvider::nextGrid()
     {
         MutexType::scoped_lock l(mutex);
-        BufferType res = grid;
-        grid.reset();
+        BufferType res;
+        BufferMap::iterator begin = bufferMap.begin();
+        BufferMap::iterator it;
+        bool erase = false;
+
+        for(it = begin; it != bufferMap.end(); ++it)
+        {
+            if(it->second.region.empty())
+            {
+                res = it->second.buffer;
+                erase = true;
+                break;
+            }
+        }
+        if(erase)
+        {
+            bufferMap.erase(begin, ++it);
+        }
+        if(bufferMap.size() > 10) bufferMap.clear();
         return res;
     }
 }

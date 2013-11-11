@@ -25,11 +25,13 @@ namespace vandouken {
         if(grabEnabled)
         {
             image = frameGrabber.grab();
+            Q_EMIT(setImage(*image));
+            std::cout << "grabbing images " << !image << "\n";
             if(isVisible())
             {
                 repaint();
             }
-            else
+            else if(doSteer)
             {
                 steer();
                 if(clear) clear = false;
@@ -37,14 +39,16 @@ namespace vandouken {
         }
     }
 
-    void CameraPreview::enableGrab(bool b)
+    void CameraPreview::enableGrab(bool b, bool steer)
     {
         grabEnabled = b;
         clear = grabEnabled;
+        doSteer = steer;
     }
 
     void CameraPreview::steer()
     {
+        std::cout << steeringProvider << " " << !image << " " << clear << "\n";
         steeringProvider->steer(ImageSteerer(image, clear));
     }
 
@@ -71,7 +75,7 @@ namespace vandouken {
     {
         if(isVisible())
         {
-            Q_EMIT(stateChanged(MainControl::resetAll));
+            Q_EMIT(stateChanged(MainControl::resetAll, false));
         }
     }
 }

@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/">
+        <file>data/arrowEast.svg</file>
+        <file>data/center.svg</file>
+        <file>data/east.svg</file>
+        <file>data/force.svg</file>
+        <file>data/freeHand.svg</file>
+        <file>data/north.svg</file>
+        <file>data/northEast.svg</file>
+        <file>data/arrowNorth.svg</file>
+        <file>data/arrowNorthEast.svg</file>
+        <file>data/arrowNorthWest.svg</file>
+        <file>data/arrowSouth.svg</file>
+        <file>data/arrowSouthEast.svg</file>
+        <file>data/arrowSouthWest.svg</file>
+        <file>data/arrowWest.svg</file>
+        <file>data/background.svg</file>
+        <file>data/brushstrokes.png</file>
+        <file>data/northEastSelected.svg</file>
+        <file>data/northSelected.svg</file>
+        <file>data/northWest.svg</file>
+        <file>data/northWestSelected.svg</file>
+        <file>data/picture.svg</file>
+        <file>data/sliderLine.svg</file>
+        <file>data/sliderSelect.svg</file>
+        <file>data/south.svg</file>
+        <file>data/southEast.svg</file>
+        <file>data/centerSelected.svg</file>
+        <file>data/eastSelected.svg</file>
+        <file>data/forceSelected.svg</file>
+        <file>data/southEastSelected.svg</file>
+        <file>data/southSelected.svg</file>
+        <file>data/southWest.svg</file>
+        <file>data/starry_night.jpg</file>
+        <file>data/test.png</file>
+        <file>data/vandoukenGUIMock.svg</file>
+        <file>data/video.svg</file>
+        <file>data/videoSelected.svg</file>
+        <file>data/west.svg</file>
+        <file>data/westSelected.svg</file>
+        <file>data/freeHandSelected.svg</file>
+        <file>data/pictureSelected.svg</file>
+        <file>data/southWestSelected.svg</file>
+    </qresource>
+</RCC>

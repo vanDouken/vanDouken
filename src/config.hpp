@@ -14,6 +14,7 @@
 
 #define VANDOUKEN_SIMULATION_CONTROLLER_NAME "vanDoukenSimulator"
 #define VANDOUKEN_GUI_SINK_NAME "vanDoukenGUISink"
+#define VANDOUKEN_MAIN_WINDOW_NAME "vanDoukenMainWindow"
 #define VANDOUKEN_GRIDCOLLECTOR_NAME "vanDoukenGridCollector"
 #define VANDOUKEN_PARTICLESTEERER_NAME "vanDoukenParticleSteerer"
 #define VANDOUKEN_INITIALIZER_IMG "starry_night.jpg"

@@ -13,6 +13,7 @@
 #include <QtSvg/QSvgRenderer>
 
 namespace vandouken {
+    class MainWindow;
     class ParticleWidget;
     class SteeringProvider;
 
@@ -24,7 +25,7 @@ namespace vandouken {
         ForceView(
             ParticleWidget *particleWidget
           , SteeringProvider *steeringProvider
-          , QWidget *parent);
+          , MainWindow *parent);
 
         void mousePressEvent(QMouseEvent *event);
 
@@ -40,6 +41,7 @@ namespace vandouken {
         double forceValue;
         QSvgRenderer arrows[9];
 
+        MainWindow *mainWindow;
         ParticleWidget *particleWidget;
         SteeringProvider *steeringProvider;
 

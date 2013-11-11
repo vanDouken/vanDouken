@@ -55,7 +55,6 @@ namespace vandouken {
                 << "\n";
         }
 
-#if 0
         Mutex::scoped_lock l(mutex);
         if(!ids.empty())
         {
@@ -63,8 +62,21 @@ namespace vandouken {
             BufferMap::iterator it = buffers.find(step);
             if(it == buffers.end())
             {
-                it = buffers.insert(it, std::make_pair(step, boost::make_shared<Particles>()));
-                it->second->reserve(globalDimensions.prod());
+                it = buffers.insert(
+                    it
+                  , std::make_pair(
+                        step
+                      , RegionBuffer(
+                            boost::make_shared<Particles>()
+                          , validRegion
+                        )
+                    )
+                );
+                it->second.buffer->reserve(globalDimensions.prod());
+            }
+            else
+            {
+                it->second.region += validRegion;
             }
 
             for (RegionType::StreakIterator i = validRegion.beginStreak();
@@ -73,7 +85,7 @@ namespace vandouken {
                 //it->second->resize(i->length());
                 for(int j = 0; j < i->length(); ++j)
                 {
-                    ParticleConverter()(*src, globalDimensions, *it->second);
+                    ParticleConverter()(*src, globalDimensions, *it->second.buffer);
                     ++src;
                 }
             }
@@ -83,7 +95,6 @@ namespace vandouken {
             if(lastCall) std::cout << "\n";
             */
         }
-#endif
     }
 
     std::size_t GridCollector::addGridConsumer()
@@ -106,17 +117,16 @@ namespace vandouken {
         ids.erase(it);
     }
 
-    GridCollector::BufferType
+    std::pair<unsigned, RegionBuffer>
     GridCollector::getNextBuffer(std::size_t id)
     {
         Mutex::scoped_lock l(bufferMutex);
-        BufferType res;
+        std::pair<unsigned, RegionBuffer> res;
 
         BufferMap::iterator it = buffers.begin();
         if(it == buffers.end()) return res;
-        if(it->second->size() == 0) return res;
 
-        res = it->second;
+        res = *it;
 
         buffers.erase(it);
         if(buffers.size() > 10) buffers.clear();

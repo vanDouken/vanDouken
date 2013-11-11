@@ -18,7 +18,7 @@ namespace vandouken {
         collector->removeGridConsumer(id);
     }
 
-    GridCollector::BufferType
+    std::pair<unsigned, RegionBuffer>
     GridCollectorServer::getNextBuffer(std::size_t id)
     {
         return collector->getNextBuffer(id);

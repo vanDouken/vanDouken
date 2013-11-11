@@ -151,7 +151,7 @@ namespace vandouken {
         {
             int viewportHeight = width/worldRatio;
             viewport[0] = 0;
-            viewport[1] = (height - viewportHeight)/2;
+            viewport[1] = (height - viewportHeight)/2.0;
             viewport[2] = width;
             viewport[3] = viewportHeight;
             glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
@@ -159,13 +159,17 @@ namespace vandouken {
         else
         {
             int viewportWidth = height*worldRatio;
-            viewport[0] = (width - viewportWidth)/2;
+            viewport[0] = (width - viewportWidth)/2.0;
             viewport[1] = 0;
             viewport[2] = viewportWidth;
             viewport[3] = height;
             glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
         }
 
+        std::cout
+            << dimensions.x() << " "
+            << dimensions.y() << " "
+            << "\n";
 
         w = viewport[2] - viewport[0];
         h = viewport[3] - viewport[1];
@@ -189,7 +193,7 @@ namespace vandouken {
         ++frames;
 
         boost::shared_ptr<Particles> newParticles = gridProvider->nextGrid();
-        if(newParticles) {
+        if(newParticles && newParticles->size()) {
             particles = newParticles;
         }
         if(!particles) return;
@@ -223,114 +227,19 @@ namespace vandouken {
         }
     }
 
-    void ParticleWidget::mousePressEvent(QMouseEvent *event)
-    {
-        if (event->buttons() & Qt::LeftButton) {
-            double x = 0.0;
-            double y = 0.0;
-            double z = 0.0;
-#if !defined(ANDROID)
-            gluUnProject(
-                event->pos().x()
-              , event->pos().y()
-              , 0.0
-              , modelview
-              , mapMatrix.constData()
-              , viewport
-              , &x
-              , &y
-              , &z
-            );
-#endif
-            lastSweepPos = QVector2D(x, y);
-        }
-        if (event->buttons() & Qt::RightButton) {
-            lastPanPos = event->pos();
-        }
-    }
-    
-    void ParticleWidget::mouseReleaseEvent(QMouseEvent *event)
-    {
-    }
-    
-    QVector2D ParticleWidget::getModelPos(const QPoint& pos)
-    {
-        double x = 0.0;
-        double y = 0.0;
-        double z = 0.0;
-#if !defined(ANDROID)
-        gluUnProject(
-            pos.x()
-          , pos.y()
-          , 0.0
-          , modelview
-          , mapMatrix.constData()
-          , viewport
-          , &x
-          , &y
-          , &z
-        );
-#endif
-
-        return QVector2D(x, y);
-    }
-
-    void ParticleWidget::mouseMoveEvent(QMouseEvent *event)
-    {
-        if (event->buttons() & Qt::LeftButton) {
-            QVector2D modelPos(getModelPos(event->pos()));
-
-            QVector2D modelDelta(modelPos.x() - lastSweepPos.x(), modelPos.y() - lastSweepPos.y());
-
-            std::cout << "add force (" << modelPos.x() << ", " << modelPos.y()
-                       << ") -> "       << modelDelta.x() << ", " << modelDelta.y() << "\n";
-
-            //gui.forceRecorded(modelPos, modelDelta);
-            steeringProvider->steer(ForceSteerer(modelPos, modelDelta));
-            lastSweepPos = modelPos;
-        }
-
-        if (event->buttons() & Qt::RightButton) {
-            double zoomFactor = -globalOffset.z() * 0.01 + 1;
-            double factor = 0.0403 * zoomFactor;
-            double factorX = factor * 1000.0 / width();
-            double factorY = factor *  500.0 / height();
-
-            QPoint delta = event->pos() - lastPanPos;
-
-            globalOffset.setX(globalOffset.x() + factorX * delta.x());
-            globalOffset.setY(globalOffset.y() + factorY * delta.y());
-            // std::cout << "globalOffset(" << globalOffset.x() << ", " << globalOffset.y() << ")\n";
-            lastPanPos = event->pos();
-            resetProjection();
-        }
-    }
-
-    void ParticleWidget::wheelEvent(QWheelEvent *event)
-    {
-        double newZ = globalOffset.z() - event->delta() * 0.03;
-        if ((newZ < 90) && (newZ > -1000)) {
-            globalOffset.setZ(newZ);
-            resetProjection();
-        }
-    }
-
     void ParticleWidget::resetProjection()
     {
         QMatrix4x4 pmvMatrix;
 
-        const float ratio = float(dimensions.y())/dimensions.x();
-
         pmvMatrix.setToIdentity();
-        pmvMatrix.frustum(-1.0, 1.0, ratio, -ratio, 5, 1000);
+        // FIXME: where do these magic numbers come from?
+        pmvMatrix.ortho(
+            -0.068f * dimensions.x(),
+            0.068f * dimensions.x(),
+            0.068f * dimensions.y(),
+            -0.068f * dimensions.y(),
+            -100.f, 280.f);
         pmvMatrix.translate(
-            globalOffset.x(),
-            globalOffset.y(),
-            globalOffset.z());
-
-        mapMatrix.setToIdentity();
-        mapMatrix.ortho(0, dimensions.x(), 0, dimensions.y(), 0, 1);
-        mapMatrix.translate(
             globalOffset.x(),
             globalOffset.y(),
             globalOffset.z());

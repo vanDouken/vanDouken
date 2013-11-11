@@ -9,6 +9,7 @@
 #include <libgeodecomp/storage/gridbase.h>
 
 #include <QImage>
+#include <QBuffer>
 
 namespace vandouken {
 
@@ -35,8 +36,8 @@ namespace vandouken {
             QImage tmp = image->scaled(globalDimensions.x(), globalDimensions.y());
 
             FloatCoord<2> force(0.0f, 0.0f);
-            for(Region<2>::Iterator i = validRegion.begin();
-                i != validRegion.end(); ++i) {
+            LibGeoDecomp::CoordBox<2> box = grid->boundingBox();
+            for (LibGeoDecomp::CoordBox<2>::Iterator i = box.begin(); i != box.end(); ++i) {
                 if(clear)
                 {
                     grid->set(*i,
@@ -72,31 +73,27 @@ namespace vandouken {
         template <typename ARCHIVE>
         void save(ARCHIVE& ar, unsigned) const
         {
-            int w = image->width();
-            int h = image->height();
-            QImage::Format format = image->format();
-            ar & w;
-            ar & h;
-            ar & format;
-            const unsigned char *imageData = image->constBits();
-            std::vector<unsigned char> buffer(imageData, imageData + w * h);
-            ar & buffer;
+            QByteArray ba;
+            QBuffer buffer(&ba);
+            buffer.open(QIODevice::WriteOnly);
+            image->save(&buffer, "PNG");
+            int size = ba.size();
+            ar & size;
+            ar & boost::serialization::make_array(ba.data(), ba.size());
             ar & clear;
         }
 
         template <typename ARCHIVE>
         void load(ARCHIVE& ar, unsigned)
         {
-            int w;
-            int h;
-            QImage::Format format;
-            ar & w;
-            ar & h;
-            ar & format;
-            std::vector<unsigned char> buffer;
-            buffer.reserve(w * h);
-            ar & buffer;
-            image.reset(new QImage(&buffer[0], w, h, format));
+            int size = 0;
+            ar & size;
+            QByteArray ba(size, 0);
+            ar & boost::serialization::make_array(ba.data(), size);
+            QBuffer buffer(&ba);
+            buffer.open(QIODevice::ReadOnly);
+            image.reset(new QImage);
+            image->load(&buffer, "PNG");
             ar & clear;
         }
 

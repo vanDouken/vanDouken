@@ -8,6 +8,7 @@
 #include "forcesteerer.hpp"
 #include "forceview.hpp"
 #include "particlewidget.hpp"
+#include "mainwindow.hpp"
 #include "steeringprovider.hpp"
 
 #include <QPainter>
@@ -62,10 +63,11 @@ namespace vandouken {
     ForceView::ForceView(
         ParticleWidget *particleWidget
       , SteeringProvider *steeringProvider
-      , QWidget *parent)
+      , MainWindow *parent)
       : QWidget(parent)
       , direction(4)
       , forceValue(0.5)
+      , mainWindow(parent)
       , particleWidget(particleWidget)
       , steeringProvider(steeringProvider)
     {
@@ -94,6 +96,7 @@ namespace vandouken {
             return;
         }
         if(std::abs(forceValue) <= 1e-7) return;
+
         ForceArrow forceArrow = {
             event->pos()
           , direction
@@ -104,14 +107,18 @@ namespace vandouken {
     void ForceView::paintEvent(QPaintEvent *)
     {
         if(!isVisible()) return;
+
         QPainter painter(this);
 
-        QImage tmp(
-            particleWidget->grabFrameBuffer());//.scaled(size(), Qt::KeepAspectRatio));
-        painter.drawImage(
-            0//size().width()/2 - tmp.size().width()/2
-          , 0//size().height()/2 - tmp.size().height()/2
-          , tmp);
+        if(particleWidget)
+        {
+            QImage tmp(
+                particleWidget->grabFrameBuffer());//.scaled(size(), Qt::KeepAspectRatio));
+            painter.drawImage(
+                0//size().width()/2 - tmp.size().width()/2
+              , 0//size().height()/2 - tmp.size().height()/2
+              , tmp);
+        }
 
         BOOST_FOREACH(const ForceArrow& forceArrow, forces)
         {
@@ -137,6 +144,7 @@ namespace vandouken {
             }
             pos.rx() -= width * 0.5;
             pos.ry() -= height * 0.5;
+
             arrows[forceArrow.direction].render(
                 &painter
               , QRectF(
@@ -151,12 +159,13 @@ namespace vandouken {
     void ForceView::directionChanged(int d)
     {
         direction = d;
+
         if(direction == ForceControl::center)
         {
             typedef std::vector<ForceArrow>::iterator iterator;
             for(iterator it = forces.begin(); it != forces.end();)
             {
-                QVector2D modelPos(particleWidget->getModelPos(it->pos));
+                QVector2D modelPos(mainWindow->getModelPos(it->pos));
                 QVector2D modelDelta(getModelDelta(it->direction, it->force));
 
                 steeringProvider->steer(
@@ -170,7 +179,7 @@ namespace vandouken {
                 iterator next = ++it;
                 if(next != forces.end())
                 {
-                    QVector2D nextModelPos(particleWidget->getModelPos(next->pos));
+                    QVector2D nextModelPos(mainWindow->getModelPos(next->pos));
                     
                     /*
                     QVector2D diff(nextModelPos - modelPos);

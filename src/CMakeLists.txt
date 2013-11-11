@@ -23,17 +23,18 @@ set(VANDOUKEN_COMPONENT_HEADERS
     gridcollectorserver.hpp
 )
 
-add_hpx_component(
-    vandouken_component
-    ESSENTIAL
-    SOURCES ${VANDOUKEN_COMPONENT_SOURCES}
-    HEADERS ${VANDOUKEN_COMPONENT_HEADERS}
-    DEPENDENCIES
-        ${LOCAL_LIBGEODECOMP_LINK_LIB}
-    FOLDER "vanDouken Components"
-)
+#add_hpx_component(
+#    vandouken_component
+#    ESSENTIAL
+#    SOURCES ${VANDOUKEN_COMPONENT_SOURCES}
+#    HEADERS ${VANDOUKEN_COMPONENT_HEADERS}
+#    DEPENDENCIES
+#        ${LOCAL_LIBGEODECOMP_LINK_LIB}
+#    FOLDER "vanDouken Components"
+#)
+#
+#qt5_use_modules(vandouken_component_component Gui)
 
-qt5_use_modules(vandouken_component_component Gui)
 
 set(VANDOUKEN_LIBRARY_MOC_HEADERS
     camerapreview.hpp
@@ -41,6 +42,7 @@ set(VANDOUKEN_LIBRARY_MOC_HEADERS
     forceview.hpp
     mainwindow.hpp
     maincontrol.hpp
+    imagewidget.hpp
     particlewidget.hpp
 )
 
@@ -67,6 +69,12 @@ qt5_wrap_ui(
     VANDOUKEN_UI_HEADERS
     ${VANDOUKEN_UI_SOURCES})
 
+qt5_add_resources(
+    VANDOUKEN_RESOURCES
+    ../resource.qrc)
+
+message(${VANDOUKEN_RESOURCES})
+
 set(VANDOUKEN_LIBRARY_SOURCES
     camerapreview.cpp
     forcecontrol.cpp
@@ -74,14 +82,19 @@ set(VANDOUKEN_LIBRARY_SOURCES
     framegrabber.cpp
     gridprovider.cpp
     gridcollector.cpp
+    imagewidget.cpp
     parameters.cpp
     particlewidget.cpp
     maincontrol.cpp
     mainwindow.cpp
+    mainwindowserver.cpp
     startgui.cpp
     steeringprovider.cpp
     simulation.cpp
     simulationcontroller.cpp
+    controlgui.cpp
+    widgetbase.cpp
+    ${VANDOUKEN_RESOURCES}
     ${VANDOUKEN_UI_SOURCES}
     ${VANDOUKEN_LIBRARY_MOC_SOURCES}
 )
@@ -93,31 +106,51 @@ set(VANDOUKEN_LIBRARY_HEADERS
     gridprovider.hpp
     gridcollector.hpp
     maincontrol.hpp
+    mainwindowserver.hpp
     parameters.hpp
     steeringprovider.hpp
     simulation.hpp
     simulationcontroller.hpp
     startgui.hpp
+    controlgui.hpp
+    widgetbase.hpp
     ${VANDOUKEN_LIBRARY_MOC_HEADERS}
     ${VANDOUKEN_UI_HEADERS}
 )
 
-add_hpx_library(
+set(ADDITIONAL_LIBS "")
+
+if("${HPX_PLATFORM}" STREQUAL "Android")
+    set(ADDITIONAL_LIBS
+        log
+        z
+        EGL
+        GLESv1_CM
+        GLESv2
+    )
+else()
+    set(ADDITIONAL_LIBS
+        opencv_core
+        opencv_highgui)
+endif()
+
+message(${ADDITIONAL_LIBS})
+
+add_hpx_component(
     vandouken
     ESSENTIAL
     SOURCES ${VANDOUKEN_LIBRARY_SOURCES}
+            ${VANDOUKEN_COMPONENT_SOURCES}
     HEADERS ${VANDOUKEN_LIBRARY_HEADERS}
+        ${VANDOUKEN_COMPONENT_HEADERS}
     DEPENDENCIES
         ${LOCAL_LIBGEODECOMP_LINK_LIB}
         #GLU
-        opencv_core
-        opencv_highgui
-    COMPONENT_DEPENDENCIES
-        vandouken_component
+        ${ADDITIONAL_LIBS}
     FOLDER "vanDouken Library"
 )
 
-qt5_use_modules(vandouken_lib Core Gui OpenGL Svg Widgets)
+qt5_use_modules(vandouken_component Core Gui OpenGL Svg Widgets)
 
 set(VANDOUKEN_SERVER_SOURCES
     server.cpp
@@ -132,10 +165,12 @@ add_hpx_executable(
     ESSENTIAL
     SOURCES ${VANDOUKEN_SERVER_SOURCES}
     #HEADERS ${VANDOUKEN_SERVER_HEADERS}
+    COMPONENT_DEPENDENCIES
+        vandouken
     DEPENDENCIES
+        ${ADDITIONAL_LIBS}
         ${LOCAL_LIBGEODECOMP_LINK_LIB}
         ${QT_LIBRARIES}
-        vandouken_lib
     FOLDER "vanDouken Server Application"
 )
 
@@ -151,9 +186,24 @@ add_hpx_executable(
     ESSENTIAL
     SOURCES ${VANDOUKEN_GUI_SOURCES}
     HEADERS ${VANDOUKEN_GUI_HEADERS}
+    COMPONENT_DEPENDENCIES
+        vandouken
     DEPENDENCIES
+        ${ADDITIONAL_LIBS}
         ${LOCAL_LIBGEODECOMP_LINK_LIB}
         ${QT_LIBRARIES}
-        vandouken_lib
+    FOLDER "vanDouken GUI Application"
+)
+
+add_hpx_executable(
+    vandouken_controlgui
+    ESSENTIAL
+    SOURCES controlgui_main.cpp
+    COMPONENT_DEPENDENCIES
+        vandouken
+    DEPENDENCIES
+        ${ADDITIONAL_LIBS}
+        ${LOCAL_LIBGEODECOMP_LINK_LIB}
+        ${QT_LIBRARIES}
     FOLDER "vanDouken GUI Application"
 )

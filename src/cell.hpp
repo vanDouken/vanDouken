@@ -83,11 +83,18 @@ public:
         unsigned color;
     };
 
+#if defined(ANDROID)
+    static const int MAX_PARTICLES = 1;
+#else
     static const int MAX_PARTICLES = 5;
+#endif
     static const int MAX_SPAWN_COUNTDOWN = DEFAULT_PARTICLE_LIFETIME;
 
     class API :
-        public LibGeoDecomp::APITraits::HasNanoSteps<2>
+        public LibGeoDecomp::APITraits::HasNanoSteps<2>,
+        public LibGeoDecomp::APITraits::HasFixedCoordsOnlyUpdate,
+        public LibGeoDecomp::APITraits::HasCubeTopology<2>,
+        public LibGeoDecomp::APITraits::HasStencil<LibGeoDecomp::Stencils::Moore<2, 1> >
     {};
 
     /*

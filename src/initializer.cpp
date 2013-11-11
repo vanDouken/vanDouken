@@ -25,7 +25,8 @@ namespace vandouken {
         LibGeoDecomp::SimpleInitializer<Cell>(
             dim,
             (std::numeric_limits<unsigned>::max)())
-    {}
+    {
+    }
 
     void Initializer::grid(LibGeoDecomp::GridBase<Cell, 2> *ret)
     {
@@ -44,7 +45,7 @@ namespace vandouken {
         }
 
         CoordBox<2> box = ret->boundingBox();
-        for (CoordBox<2>::Iterator i = ret->boundingBox().begin(); i != box.end(); ++i) {
+        for (CoordBox<2>::Iterator i = box.begin(); i != box.end(); ++i) {
             bool setForce = false;
             FloatCoord<2> force;
 
@@ -65,43 +66,48 @@ namespace vandouken {
         Initializer *init(new Initializer(dim));
         using LibGeoDecomp::Coord;
 
+        const char * filename = VANDOUKEN_DATA_DIR VANDOUKEN_INITIALIZER_IMG;
+        QImage img(filename);
+        double scaleFactorX = double(dim.x())/img.width();
+        double scaleFactorY = double(dim.y())/img.height();
+
         try {
             init->addShape(
                 ForcePrimitives::Circle(
-                    Coord<2>(0.25 * 1160, 0.25 * 188), 0.25 * 90, 0.4 ));
+                    Coord<2>(scaleFactorX * 1160, scaleFactorY * 188), scaleFactorX * 90, 0.4 ));
             init->addShape(
                 ForcePrimitives::Circle(
-                    Coord<2>(0.25 * 904, 0.25 * 240) , 0.25 * 44, 0.3 ));
+                    Coord<2>(scaleFactorX * 904, scaleFactorY * 240) , scaleFactorX * 44, 0.3 ));
             init->addShape(
                 ForcePrimitives::Circle(
-                    Coord<2>(0.25 * 778, 0.25 * 92)  , 0.25 * 30, 0.2 ));
+                    Coord<2>(scaleFactorX * 778, scaleFactorY * 92)  , scaleFactorX * 30, 0.2 ));
             init->addShape(
                 ForcePrimitives::Circle(
-                    Coord<2>(0.25 * 526, 0.25 * 72)  , 0.25 * 20, 0.15));
+                    Coord<2>(scaleFactorX * 526, scaleFactorY * 72)  , scaleFactorX * 20, 0.15));
             init->addShape(
                 ForcePrimitives::Circle(
-                    Coord<2>(0.25 * 444, 0.25 * 44)  , 0.25 * 10, 0.15 ));
+                    Coord<2>(scaleFactorX * 444, scaleFactorY * 44)  , scaleFactorX * 10, 0.15 ));
             init->addShape(
                 ForcePrimitives::Circle(
-                    Coord<2>(0.25 * 296, 0.25 * 34)  , 0.25 * 6 , 0.1 ));
+                    Coord<2>(scaleFactorX * 296, scaleFactorY * 34)  , scaleFactorX * 6 , 0.1 ));
             init->addShape(
                     ForcePrimitives::Circle(
-                        Coord<2>(0.25 * 302, 0.25 * 180) , 0.25 * 20, 0.25 ));
+                        Coord<2>(scaleFactorX * 302, scaleFactorY * 180) , scaleFactorX * 20, 0.25 ));
             init->addShape(
                     ForcePrimitives::Circle(
-                        Coord<2>(0.25 * 138, 0.25 * 46)  , 0.25 * 10, 0.2 ));
+                        Coord<2>(scaleFactorX * 138, scaleFactorY * 46)  , scaleFactorX * 10, 0.2 ));
             init->addShape(
                     ForcePrimitives::Circle(
-                        Coord<2>(0.25 * 416, 0.25 * 328) , 0.25 *  4, 0.1 ));
+                        Coord<2>(scaleFactorX * 416, scaleFactorY * 328) , scaleFactorX *  4, 0.1 ));
             init->addShape(
                     ForcePrimitives::Circle(
-                        Coord<2>(0.25 * 456, 0.25 * 538) , 0.25 * 68, 0.4 ));
+                        Coord<2>(scaleFactorX * 456, scaleFactorY * 538) , scaleFactorX * 68, 0.4 ));
             init->addShape(
                     ForcePrimitives::Circle(
-                        Coord<2>(0.25 * 170, 0.25 * 492) , 0.25 *  6, 0.1 ));
+                        Coord<2>(scaleFactorX * 170, scaleFactorY * 492) , scaleFactorX *  6, 0.1 ));
             init->addShape(
                     ForcePrimitives::Circle(
-                        Coord<2>(0.25 * 58 , 0.25 * 460) , 0.25 *  4, 0.1 ));
+                        Coord<2>(scaleFactorX * 58 , scaleFactorY * 460) , scaleFactorX *  4, 0.1 ));
         }
         catch(...)
         {

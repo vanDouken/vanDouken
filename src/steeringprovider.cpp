@@ -23,9 +23,6 @@ namespace vandouken {
             while(serverIds[i] == hpx::naming::invalid_id)
             {
                 hpx::agas::resolve_name_sync(name, serverIds[i]);
-                if(retry > 10) {
-                    throw std::logic_error("Could not connect to simulation");
-                }
                 if(!serverIds[i])
                 {
                     hpx::this_thread::suspend(boost::posix_time::seconds(1));

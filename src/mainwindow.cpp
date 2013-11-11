@@ -7,12 +7,17 @@
 #include "gridprovider.hpp"
 #include "steeringprovider.hpp"
 #include "resetsimulation.hpp"
+#include "mainwindowserver.hpp"
 #include "mainwindow.hpp"
 #include "maincontrol.hpp"
 #include "forcecontrol.hpp"
 #include "forceview.hpp"
 #include "camerapreview.hpp"
 #include "particlewidget.hpp"
+#include "imagewidget.hpp"
+
+#include <hpx/hpx.hpp>
+#include <hpx/hpx.hpp>
 
 #include <QResizeEvent>
 
@@ -21,87 +26,159 @@ namespace vandouken {
         LibGeoDecomp::Coord<2> dim,
         GridProvider *gridProvider,
         SteeringProvider *steeringProvider,
+        Mode guiMode,
         QWidget *parent) :
         QWidget(parent),
+        dim(dim),
+        particleWidget(0),
         steeringProvider(steeringProvider),
+        imageWidget(0),
+        guiMode(guiMode),
         state(MainControl::free)
     {
-        particleWidget =
-            new ParticleWidget(
-                gridProvider,
-                steeringProvider,
-                dim,
-                Qt::black,
-                this);
+        if(gridProvider)
+        {
+            particleWidget =
+                new ParticleWidget(
+                    gridProvider,
+                    steeringProvider,
+                    dim,
+                    Qt::black,
+                    this);
+        }
 
-        mainControl = new MainControl(this);
-        forceControl = new ForceControl(this);
-        forceControl->hide();
-        forceView =
-            new ForceView(
-                particleWidget
-              , steeringProvider
-              , this);
+        if(guiMode == Mode::picturesOnly)
+        {
+            imageWidget = new ImageWidget(this,
+                    steeringProvider,
+                    dim
+                    );
 
-        forceView->hide();
+            QObject::connect(
+                imageWidget, SIGNAL(stateChanged(int, bool))
+              , this, SLOT(stateChanged(int, bool))
+            );
+        }
+
+        if(guiMode != Mode::control)
+        {
+            mainControl = new MainControl(this);
+            forceControl = new ForceControl(this);
+            forceControl->hide();
+            forceView =
+                new ForceView(
+                    particleWidget
+                  , steeringProvider
+                  , this);
+
+            forceView->hide();
+        }
         cameraPreview = new CameraPreview(steeringProvider, this);
         cameraPreview->hide();
 
-        QObject::connect(&paintTimer, SIGNAL(timeout()), particleWidget, SLOT(updateGL()));
-        QObject::connect(&paintTimer, SIGNAL(timeout()), forceView, SLOT(repaint()));
+        if(particleWidget)
+        {
+            QObject::connect(&paintTimer, SIGNAL(timeout()), particleWidget, SLOT(updateGL()));
+        }
+
         QObject::connect(&grabTimer, SIGNAL(timeout()), cameraPreview, SLOT(grabFrame()));
 
+        if(guiMode != Mode::picturesOnly)
+        {
+            QObject::connect(cameraPreview, SIGNAL(setImage(QImage)), this, SLOT(setImage(QImage)));
+        }
+
+
+        if(guiMode != Mode::control)
+        {
+            QObject::connect(&paintTimer, SIGNAL(timeout()), forceView, SLOT(repaint()));
+            QObject::connect(
+                forceControl, SIGNAL(directionChanged(int))
+              , forceView, SLOT(directionChanged(int))
+            );
+
+            QObject::connect(
+                forceControl, SIGNAL(forceChanged(double))
+              , forceView, SLOT(forceChanged(double))
+            );
+        }
+
         QObject::connect(
-            forceControl, SIGNAL(directionChanged(int))
-          , forceView, SLOT(directionChanged(int))
+            mainControl, SIGNAL(stateChanged(int, bool))
+          , this, SLOT(stateChanged(int, bool))
         );
 
         QObject::connect(
-            forceControl, SIGNAL(forceChanged(double))
-          , forceView, SLOT(forceChanged(double))
-        );
-
-        QObject::connect(
-            mainControl, SIGNAL(stateChanged(int))
-          , this, SLOT(stateChanged(int))
-        );
-
-        QObject::connect(
-            cameraPreview, SIGNAL(stateChanged(int))
-          , this, SLOT(stateChanged(int))
+            cameraPreview, SIGNAL(stateChanged(int, bool))
+          , this, SLOT(stateChanged(int, bool))
         );
 
         paintTimer.start(20);
         grabTimer.start(20);
 
         showFullScreen();
+        resetImage();
     }
 
-    void MainWindow::stateChanged(int s)
+    void MainWindow::stateChanged(int s, bool callResetImage)
     {
+        if(!(guiMode & Mode::control) && serverId)
+        {
+            hpx::apply<MainWindowServer::StateChangedAction>(serverId, s, callResetImage);
+        }
+
         if(s == MainControl::resetAll)
         {
+            if(callResetImage)
+                resetImage();
+
             switch(state)
             {
                 case MainControl::free:
-                    steeringProvider->steer(ResetSimulation());
-                    mainControl->state = MainControl::free;
+                    if(guiMode == Mode::control)
+                    {
+                        steeringProvider->steer(ResetSimulation());
+                    }
+                    else
+                    {
+                        mainControl->state = MainControl::free;
+                    }
                     state = MainControl::free;
                     break;
                 case MainControl::edit:
-                    steeringProvider->steer(ResetSimulation());
-                    mainControl->state = MainControl::edit;
+                    if(guiMode == Mode::control)
+                    {
+                        steeringProvider->steer(ResetSimulation());
+                    }
+                    else
+                    {
+                        mainControl->state = MainControl::edit;
+                    }
                     state = MainControl::edit;
                     break;
                 case MainControl::picture:
-                    cameraPreview->steer();
-                    mainControl->state = MainControl::free;
+                    if(guiMode == Mode::control)
+                    {
+                        std::cout << "should steer camera picture\n";
+                        cameraPreview->steer();
+                        std::cout << "steering done\n";
+                    }
+                    else
+                    {
+                        mainControl->state = MainControl::free;
+                    }
                     state = MainControl::free;
                     break;
                 case MainControl::video:
-                    cameraPreview->enableGrab(false);
-                    steeringProvider->steer(ResetSimulation());
-                    mainControl->state = MainControl::free;
+                    if(guiMode == Mode::control)
+                    {
+                        cameraPreview->enableGrab(false, false);
+                        steeringProvider->steer(ResetSimulation());
+                    }
+                    else
+                    {
+                        mainControl->state = MainControl::free;
+                    }
                     state = MainControl::free;
                     break;
             }
@@ -111,7 +188,30 @@ namespace vandouken {
             state = s;
         }
         layoutWidget(size());
-        mainControl->repaint();
+        if(guiMode != Mode::control)
+        {
+            mainControl->repaint();
+        }
+    }
+
+    QVector2D MainWindow::getModelPos(const QPoint& pos)
+    {
+        if(particleWidget) return particleWidget->getModelPos(pos);
+        return imageWidget->getModelPos(pos);
+    }
+
+    void MainWindow::setImage(QImage img)
+    {
+        if(guiMode & Mode::picturesOnly)
+        {
+            imageWidget->setImage(img);
+            imageWidget->repaint();
+        }
+        else
+        {
+            MutexType::scoped_lock lock(mutex);
+            image = img;
+        }
     }
 
     void MainWindow::keyPressEvent(QKeyEvent * event)
@@ -120,6 +220,7 @@ namespace vandouken {
         {
             case Qt::Key_F5:
                 steeringProvider->steer(ResetSimulation());
+                resetImage();
                 break;
             case Qt::Key_F:
                 if(isFullScreen())
@@ -148,8 +249,57 @@ namespace vandouken {
         layoutWidget(size);
     }
 
+    QImage MainWindow::getImage()
+    {
+        MutexType::scoped_lock lock(mutex);
+        if(image.isNull())
+        {
+            return image;
+        }
+        std::cout << "getting new image\n";
+        QImage res = image;
+        image = QImage();
+        return res;
+    }
+
+    void MainWindow::resetImage()
+    {
+        if(guiMode != picturesOnly)
+        {
+            MutexType::scoped_lock lock(mutex);
+            const char * filename = VANDOUKEN_DATA_DIR VANDOUKEN_INITIALIZER_IMG;
+            std::cout << "resetting image " << filename << "\n";
+            std::cout << image.isNull() << "\n";
+            image.load(QString(filename));
+            std::cout << image.isNull() << "\n";
+        }
+    }
+
     void MainWindow::layoutWidget(QSize size)
     {
+        if(guiMode == Mode::control)
+        {
+            if(particleWidget)
+            {
+                particleWidget->resize(size);
+
+                if(!particleWidget->isVisible())
+                {
+                    particleWidget->show();
+                }
+            }
+
+            if(state == MainControl::video || state == MainControl::picture)
+            {
+                cameraPreview->enableGrab(true, state == MainControl::video);
+            }
+            if(state != MainControl::video && state != MainControl::picture)
+            {
+                cameraPreview->enableGrab(false, false);
+            }
+            return;
+        }
+
         QSize forceSize = forceControl->size();
         QSize mainSize = mainControl->size();
         int particleOffset = mainSize.width() + MainControl::OFFSET;
@@ -174,6 +324,7 @@ namespace vandouken {
               , 0
             );
             forceView->show();
+            std::cout << "showing force view ...\n";
         }
         else
         {
@@ -183,54 +334,81 @@ namespace vandouken {
                 forceView->hide();
         }
 
-        if(state == MainControl::picture)
+        if(guiMode == Mode::picturesOnly)
         {
-            cameraPreview->resize(size - QSize(particleOffset, 0));
-            cameraPreview->move(
-                particleOffset   
-              , 0
-            );
-            if(!cameraPreview->isVisible())
+            if(imageWidget)
             {
-                cameraPreview->show();
+                imageWidget->resize(size - QSize(particleOffset, 0));
+
+                imageWidget->move(
+                    particleOffset   
+                  , 0
+                );
+                if(!imageWidget->isVisible())
+                {
+                    imageWidget->show();
+                }
+
+                if(state == MainControl::picture)
+                {
+                    imageWidget->resetOnClick(true, false);
+                }
             }
         }
         else
         {
-            if(cameraPreview->isVisible())
+            if(state == MainControl::picture)
             {
-                cameraPreview->hide();
+                cameraPreview->resize(size - QSize(particleOffset, 0));
+                cameraPreview->move(
+                    particleOffset   
+                  , 0
+                );
+                if(!cameraPreview->isVisible())
+                {
+                    cameraPreview->show();
+                }
             }
-        }
-
-        if(state == MainControl::free || state == MainControl::video || state == MainControl::edit)
-        {
-            particleWidget->resize(size - QSize(particleOffset, 0));
-
-            particleWidget->move(
-                particleOffset   
-              , 0
-            );
-            if(!particleWidget->isVisible())
+            else
             {
-                particleWidget->show();
+                if(cameraPreview->isVisible())
+                {
+                    cameraPreview->hide();
+                }
             }
-        }
-        else
-        {
-            if(particleWidget->isVisible())
-            {
-                particleWidget->hide();
-            }
-        }
 
-        if(state == MainControl::video || state == MainControl::picture)
-        {
-            cameraPreview->enableGrab(true);
-        }
-        if(state != MainControl::video && state != MainControl::picture)
-        {
-            cameraPreview->enableGrab(false);
+            if(state == MainControl::free || state == MainControl::video || state == MainControl::edit)
+            {
+                if(particleWidget)
+                {
+                    particleWidget->resize(size - QSize(particleOffset, 0));
+
+                    particleWidget->move(
+                        particleOffset   
+                      , 0
+                    );
+                    if(!particleWidget->isVisible())
+                    {
+                        particleWidget->show();
+                    }
+                }
+            }
+            else
+            {
+                if(particleWidget && particleWidget->isVisible())
+                {
+                    particleWidget->hide();
+                }
+            }
+
+            if(state == MainControl::video || state == MainControl::picture)
+            {
+                cameraPreview->enableGrab(true, state == MainControl::video);
+            }
+            if(state != MainControl::video && state != MainControl::picture)
+            {
+                cameraPreview->enableGrab(false, false);
+            }
         }
     }
 

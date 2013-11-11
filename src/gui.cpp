@@ -28,18 +28,19 @@ int hpx_main(boost::program_options::variables_map& vm)
     if(standalone) {
         vandouken::SimulationController simulation = vandouken::runSimulation(vm);
         hpx::future<void> runFuture = simulation.run();
-        vandouken::GridProvider gridProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
+        std::cout << "simulation started\n";
+        vandouken::GridProvider gridProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridBox());
         vandouken::SteeringProvider steererProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
-        vandouken::startGUI(vm, simulation, &gridProvider, &steererProvider);
+        vandouken::startGUI(vm, simulation, &gridProvider, &steererProvider, vandouken::MainWindow::control);
         simulation.stop();
         hpx::wait(runFuture);
         return hpx::finalize();
     }
     else {
         vandouken::SimulationController simulation;
-        vandouken::GridProvider gridProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
+        vandouken::GridProvider gridProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridBox());
         vandouken::SteeringProvider steererProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
-        vandouken::startGUI(vm, simulation, &gridProvider, &steererProvider);
+        vandouken::startGUI(vm, simulation, &gridProvider, &steererProvider, vandouken::MainWindow::control);
         return hpx::disconnect();
     }
 }

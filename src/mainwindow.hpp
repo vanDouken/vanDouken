@@ -9,6 +9,10 @@
 
 #include "ui_main.h"
 
+#include <hpx/hpx_fwd.hpp>
+#include <hpx/runtime/naming/id_type.hpp>
+#include <hpx/lcos/local/spinlock.hpp>
+
 #include <libgeodecomp/geometry/coord.h>
 
 #include <QMainWindow>
@@ -18,6 +22,7 @@ namespace vandouken {
     class GridProvider;
     class SteeringProvider;
     class ParticleWidget;
+    class ImageWidget;
     class MainControl;
     class ForceControl;
     class ForceView;
@@ -28,14 +33,35 @@ namespace vandouken {
         Q_OBJECT;
 
     public:
+
+        enum Mode
+        {
+            default_ = 0x00,
+            control = 0x01,
+            showControls = 0x02,
+            picturesOnly = 0x04
+        };
+
         MainWindow(
             LibGeoDecomp::Coord<2> dim,
             GridProvider *gridProvider,
             SteeringProvider *steeringProvider,
+            Mode guiMode,
             QWidget *parent=0);
+        
+        template <typename ARCHIVE>
+        void serialize(ARCHIVE& ar, unsigned) { BOOST_ASSERT(false); }
+        MainWindow() { BOOST_ASSERT(false); }
+
+        void setServerId(hpx::id_type id) { serverId = id; }
+
+        QImage getImage();
+        
+        QVector2D getModelPos(const QPoint& pos);
 
     public Q_SLOTS:
-        void stateChanged(int);
+        void stateChanged(int, bool);
+        void setImage(QImage);
 
     protected:
         void keyPressEvent(QKeyEvent * event);
@@ -44,9 +70,13 @@ namespace vandouken {
         void paintEvent(QPaintEvent *);
 
     private:
+        typedef hpx::lcos::local::spinlock MutexType;
+        MutexType mutex;
 
+        void resetImage();
         void layoutWidget(QSize size);
 
+        LibGeoDecomp::Coord<2> dim;
         Ui_MainWindow content;
         QTimer paintTimer;
         QTimer grabTimer;
@@ -56,8 +86,14 @@ namespace vandouken {
         CameraPreview *cameraPreview;
         ParticleWidget * particleWidget;
         SteeringProvider *steeringProvider;
+        ImageWidget * imageWidget;
+        
+        Mode guiMode;
+        QImage image;
+        hpx::id_type serverId;
 
         int state;
+
     };
 }
 

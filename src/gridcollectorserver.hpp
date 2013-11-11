@@ -9,6 +9,7 @@
 
 #include "config.hpp"
 #include "particle.hpp"
+#include "regionbuffer.hpp"
 
 #include <libgeodecomp/storage/grid.h>
 #include <libgeodecomp/geometry/region.h>
@@ -38,7 +39,7 @@ namespace vandouken
         void removeGridConsumer(std::size_t);
         HPX_DEFINE_COMPONENT_ACTION(GridCollectorServer, removeGridConsumer, RemoveGridConsumerAction);
 
-        boost::shared_ptr<Particles>
+        std::pair<unsigned, RegionBuffer>
         getNextBuffer(std::size_t id);
         HPX_DEFINE_COMPONENT_ACTION(GridCollectorServer, getNextBuffer, GetNextBufferAction);
 

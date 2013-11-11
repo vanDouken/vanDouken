@@ -5,7 +5,7 @@
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef VANDOUKEN_FORCESTEERER_HPP
-#define VNADOUKEN_FORCESTEERER_HPP
+#define VANDOUKEN_FORCESTEERER_HPP
 
 #include "cell.hpp"
 
@@ -38,7 +38,6 @@ namespace vandouken {
                 const LibGeoDecomp::Coord<2>& globalDimensions,
                 unsigned)
         {
-            Region<2> lastRenderedRegion;
             Coord<2> origin(qOrigin.x(), qOrigin.y());
             FloatCoord<2> delta(qDelta.x(), qDelta.y());
             double length = sqrt(delta[0] * delta[0] + delta[1] * delta[1]);
@@ -51,7 +50,7 @@ namespace vandouken {
                 }
                 for (int x = 0; x <= delta[0]; ++x) {
                     int y = origin[1] + x * delta[1] / (delta[0] + 1);
-                    renderForce(origin[0] + x, y, force, grid, validRegion, &lastRenderedRegion);
+                    renderForce(origin[0] + x, y, force, grid, validRegion);
                 }
             } else {
                 if (delta[1] < 0) {
@@ -60,12 +59,12 @@ namespace vandouken {
                 }
                 for (int y = 0; y <= delta[1]; ++y) {
                     int x = origin[0] + y * delta[0] / (delta[1] + 1);
-                    renderForce(x, origin[1] + y, force, grid, validRegion, &lastRenderedRegion);
+                    renderForce(x, origin[1] + y, force, grid, validRegion);
                 }
             }
         }
 
-        void renderForce(int posX, int posY, const FloatCoord<2>& force, LibGeoDecomp::GridBase<Cell, 2> *grid, const Region<2>& validRegion, Region<2> *lastRenderedRegion)
+        void renderForce(int posX, int posY, const FloatCoord<2>& force, LibGeoDecomp::GridBase<Cell, 2> *grid, const Region<2>& validRegion)
         {
             int size = 10;
             Region<2> newRegion;
@@ -73,7 +72,7 @@ namespace vandouken {
                 newRegion << Streak<2>(Coord<2>(posX - size, posY + y), posX + size);
             }
 
-            Region<2> relevantRegion = newRegion & *lastRenderedRegion & validRegion;
+            Region<2> relevantRegion = newRegion & validRegion;
 
             for (Region<2>::StreakIterator i = relevantRegion.beginStreak();
                  i != relevantRegion.endStreak();
@@ -84,15 +83,31 @@ namespace vandouken {
                     grid->set(c, cell);
                 }
             }
-
-            *lastRenderedRegion = newRegion;
         }
 
         template <typename ARCHIVE>
-        void serialize(ARCHIVE& ar, unsigned)
+        void load(ARCHIVE& ar, unsigned)
         {
-            throw "implement me!";
+            float coord[2] = {0.0};
+            ar & coord;
+            qOrigin = QVector2D(coord[0], coord[1]);
+            ar & coord;
+            qDelta = QVector2D(coord[0], coord[1]);
         }
+        
+        template <typename ARCHIVE>
+        void save(ARCHIVE& ar, unsigned) const
+        {
+            float coord[2] = {0.0};
+            coord[0] = qOrigin.x();
+            coord[1] = qOrigin.y();
+            ar & coord;
+            coord[0] = qDelta.x();
+            coord[1] = qDelta.y();
+            ar & coord;
+        }
+
+        BOOST_SERIALIZATION_SPLIT_MEMBER()
 
         QVector2D qOrigin;
         QVector2D qDelta;

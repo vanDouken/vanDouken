@@ -55,7 +55,7 @@ namespace vandouken {
         State state;
 
     Q_SIGNALS:
-        void stateChanged(int);
+        void stateChanged(int, bool);
 
     private:
         QSvgRenderer background;

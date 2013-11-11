@@ -10,6 +10,7 @@
 #include "config.hpp"
 #include "cell.hpp"
 #include "particle.hpp"
+#include "regionbuffer.hpp"
 
 #include <hpx/runtime/naming/name.hpp>
 #include <hpx/lcos/local/spinlock.hpp>
@@ -35,7 +36,7 @@ namespace vandouken {
         typedef
             std::map<
                 unsigned,
-                BufferType
+                RegionBuffer
             >
             BufferMap;
 
@@ -59,10 +60,11 @@ namespace vandouken {
         std::size_t addGridConsumer();
         void removeGridConsumer(std::size_t);
 
-        BufferType getNextBuffer(std::size_t id);
+        std::pair<unsigned, RegionBuffer>
+        getNextBuffer(std::size_t id);
     private:
         GridCollector() : 
-            LibGeoDecomp::ParallelWriter<Cell>("", period),
+            LibGeoDecomp::ParallelWriter<Cell>("", 1),
             nextId(0)
         {}
 

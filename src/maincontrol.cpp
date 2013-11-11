@@ -18,7 +18,7 @@ namespace vandouken {
         if(y < LENGTH)
         {
             state = free;
-            Q_EMIT(stateChanged(state));
+            Q_EMIT(stateChanged(state, true));
             repaint();
             return;
         }
@@ -26,7 +26,7 @@ namespace vandouken {
         if(y < LENGTH)
         {
             state = edit;
-            Q_EMIT(stateChanged(state));
+            Q_EMIT(stateChanged(state, true));
             repaint();
             return;
         }
@@ -34,7 +34,7 @@ namespace vandouken {
         if(y < LENGTH)
         {
             state = picture;
-            Q_EMIT(stateChanged(state));
+            Q_EMIT(stateChanged(state, true));
             repaint();
             return;
         }
@@ -42,7 +42,7 @@ namespace vandouken {
         if(y < LENGTH)
         {
             state = video;
-            Q_EMIT(stateChanged(state));
+            Q_EMIT(stateChanged(state, true));
             repaint();
             return;
         }
@@ -50,7 +50,7 @@ namespace vandouken {
         if(y < LENGTH)
         {
             state = resetAll;
-            Q_EMIT(stateChanged(state));
+            Q_EMIT(stateChanged(state, true));
             repaint();
         }
     }

@@ -9,6 +9,7 @@
 
 #include "config.hpp"
 #include "simulationcontroller.hpp"
+#include "mainwindow.hpp"
 
 #include <libgeodecomp/config.h>
 #include <hpx/config.hpp>
@@ -22,7 +23,8 @@ namespace vandouken {
         boost::program_options::variables_map& vm,
         const SimulationController& simulation,
         GridProvider *gridProvider,
-        SteeringProvider *steeringProvider);
+        SteeringProvider *steeringProvider,
+        MainWindow::Mode guiMode);
 }
 
 #endif

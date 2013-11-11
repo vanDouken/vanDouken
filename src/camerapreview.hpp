@@ -26,15 +26,15 @@ namespace vandouken {
         void paintEvent(QPaintEvent *);
         void resizeEvent(QResizeEvent *);
         void mousePressEvent(QMouseEvent * event);
-        void enableGrab(bool);
+        void enableGrab(bool, bool);
         void steer();
 
     public Q_SLOTS:
         void grabFrame();
 
     Q_SIGNALS:
-        void stateChanged(int);
-
+        void stateChanged(int, bool);
+        void setImage(QImage);
 
     private:
         boost::shared_ptr<QImage> image;
@@ -42,6 +42,7 @@ namespace vandouken {
         SteeringProvider *steeringProvider;
         bool grabEnabled;
         bool clear;
+        bool doSteer;
     };
 }
 

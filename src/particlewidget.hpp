@@ -7,8 +7,9 @@
 #ifndef VANDOUKEN_PARTICLEWIDGET_HPP
 #define VANDOUKEN_PARTICLEWIDGET_HPP
 
-#include <hpx/config.hpp>
+#include "config.hpp"
 #include "particle.hpp"
+#include "widgetbase.hpp"
 
 #include <libgeodecomp/geometry/coord.h>
 #include <libgeodecomp/storage/grid.h>
@@ -44,9 +45,11 @@ namespace vandouken {
     class SteeringProvider;
 
     class ParticleWidget
-        : public QGLWidget, protected QGLFunctions
+        : public WidgetBase<QGLWidget>, protected QGLFunctions
     {
         Q_OBJECT
+
+        typedef WidgetBase<QGLWidget> BaseType;
     public:
         static const std::size_t N = 240;
 
@@ -55,13 +58,10 @@ namespace vandouken {
             SteeringProvider *steeringProvider,
             LibGeoDecomp::Coord<2> dimensions,
             QColor backgroundColor = Qt::black, QWidget *parent = 0) :
-            QGLWidget(parent),
+            BaseType(parent, dimensions, steeringProvider),
             recordedForces(new std::vector<std::pair<QVector2D, QVector2D> >()),
             gridProvider(gridProvider),
-            steeringProvider(steeringProvider),
-            dimensions(dimensions),
             backgroundColor(backgroundColor),
-            globalOffset(0, 0, 0),
             frames(0)
         {
         }
@@ -81,14 +81,8 @@ namespace vandouken {
 
         void initializeGL();
 
-        QVector2D getModelPos(const QPoint& pos);
-
     protected:
         void resizeGL(int width, int height);
-        void mousePressEvent(QMouseEvent *event);
-        void mouseReleaseEvent(QMouseEvent *event);
-        void mouseMoveEvent(QMouseEvent *event);
-        void wheelEvent(QWheelEvent *event);
         void paintEvent(QPaintEvent*);
         void paintGL();
 
@@ -97,9 +91,7 @@ namespace vandouken {
             recordedForces;
         boost::shared_ptr<Particles> particles;
         GridProvider *gridProvider;
-        SteeringProvider *steeringProvider;
 
-        LibGeoDecomp::Coord<2> dimensions;
         boost::array<float, 16> matrix;
         GLuint program;
         GLint texture;
@@ -113,14 +105,9 @@ namespace vandouken {
         GLuint textureLocation;
         GLuint buffers[3];
 
-        QMatrix4x4 mapMatrix;
         double modelview[16];
         int viewport[4];
         QColor backgroundColor;
-        QVector2D lastSweepPos;
-        QPoint lastPanPos;
-
-        QVector3D globalOffset;
 
         int h;
         int w;

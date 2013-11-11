@@ -10,7 +10,7 @@ namespace vandouken {
 
     FrameGrabber::FrameGrabber()
     {
-
+#if 0//!defined(ANDROID)
         capture = cvCaptureFromCAM(CV_CAP_ANY);
         if(capture && cvGetCaptureDomain(capture) != CV_CAP_ANY)
         {
@@ -19,6 +19,7 @@ namespace vandouken {
             height = cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT);
         }
         else
+#endif
         {
             std::cout << "Got fake cam ...\n";
             fake = true;
@@ -29,10 +30,12 @@ namespace vandouken {
 
     FrameGrabber::~FrameGrabber()
     {
+#if !defined(ANDROID)
         if(!fake)
         {
             cvReleaseCapture(&capture);
         }
+#endif
     }
 
     boost::shared_ptr<QImage> FrameGrabber::grab()
@@ -42,6 +45,7 @@ namespace vandouken {
         {
             frame.reset(new QImage(VANDOUKEN_DATA_DIR "test.png"));
         }
+#if !defined(ANDROID)
         else
         {
             IplImage *cv_frame = cvQueryFrame(capture);
@@ -88,6 +92,7 @@ namespace vandouken {
                 }
             }
         }
+#endif
         return frame;
     }
 

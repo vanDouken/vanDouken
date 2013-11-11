@@ -40,13 +40,18 @@ namespace vandouken {
         {
             f(grid, validRegion, globalDimensions, step);
         }
+        
+        steererFunctors.clear();
+        updatedRegion.clear();
 
-        updatedRegion += validRegion;
-        if(updatedRegion == region)
+        /*
+        else
         {
-            steererFunctors.clear();
-            updatedRegion.clear();
+            std::cout << rank << " complete region " << region << "\n";
+            std::cout << rank << " valid region " << validRegion << "\n";
+            std::cout << rank << " missing region " << (updatedRegion - region) << "\n";
         }
+        */
     }
 
     void ParticleSteerer::steer(const SteererFunctor& f)
