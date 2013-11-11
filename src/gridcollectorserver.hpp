@@ -71,11 +71,11 @@ HPX_REGISTER_BASE_LCO_WITH_VALUE_DECLARATION(
 
 HPX_REGISTER_ACTION_DECLARATION(
     vandouken::GridCollectorServer::CreateAction
-  , vandoukenGridCollectorServerSteerCreateAction)
+  , vandoukenGridCollectorServerCreateAction)
 
 HPX_REGISTER_ACTION_DECLARATION(
     vandouken::GridCollectorServer::ConstCreateAction
-  , vandoukenGridCollectorServerSteerConstCreateAction)
+  , vandoukenGridCollectorServerConstCreateAction)
 
 HPX_REGISTER_ACTION_DECLARATION(
     vandouken::GridCollectorServer::AddGridConsumerAction,

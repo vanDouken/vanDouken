@@ -23,9 +23,24 @@
 #include <QDialog>
 #include "ui_startdialog.h"
 
+#ifndef LOG
+#if !defined(ANDROID)
+#define LOG(x,...) std::cout << x;
+#else
+#include <android/log.h>
+#define LOG(x,...)                                                               \
+{                                                                               \
+    std::stringstream sstr;                                                     \
+    sstr << x;                                                                  \
+    __android_log_print(ANDROID_LOG_INFO, "vandouken", "%s", sstr.str().c_str());            \
+}                                                                               \
+/**/
+#endif
+#endif
+
 int hpx_main(boost::program_options::variables_map& vm)
 {
-    std::cout << "inside hpx_main\n";
+    LOG("inside hpx_main\n")
     vandouken::SimulationController simulation;
     vandouken::SteeringProvider steererProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
     vandouken::startGUI(
@@ -52,12 +67,13 @@ void controlGUI(int argc, char **argv)
     std::string agasPort = dialog.port->displayText().toStdString();
     std::string numThreads = boost::lexical_cast<std::string>(dialog.numThreads->value());
     
+    LOG("starting HPX ... " << agasHost << " " << agasPort << " " << numThreads << "\n")
     std::vector<std::string> cfg;
     cfg.push_back("hpx.run_hpx_main!=1");
     cfg.push_back("hpx.os_threads=" + numThreads);
     cfg.push_back("hpx.agas.address=" + agasHost);
     cfg.push_back("hpx.agas.port=" + agasPort);
-    cfg.push_back("hpx.logging.level=5");
+    //cfg.push_back("hpx.logging.level=5");
 #if defined(ANROID)
     cfg.push_back("hpx.parcel.address=192.168.0.2");
 #endif

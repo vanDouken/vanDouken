@@ -30,6 +30,10 @@ namespace vandouken {
         QWidget *parent) :
         QWidget(parent),
         dim(dim),
+        mainControl(0),
+        forceControl(0),
+        forceView(0),
+        cameraPreview(0),
         particleWidget(0),
         steeringProvider(steeringProvider),
         imageWidget(0),
@@ -103,15 +107,21 @@ namespace vandouken {
             );
         }
 
-        QObject::connect(
-            mainControl, SIGNAL(stateChanged(int, bool))
-          , this, SLOT(stateChanged(int, bool))
-        );
+        if(mainControl)
+        {
+            QObject::connect(
+                mainControl, SIGNAL(stateChanged(int, bool))
+              , this, SLOT(stateChanged(int, bool))
+            );
+        }
 
-        QObject::connect(
-            cameraPreview, SIGNAL(stateChanged(int, bool))
-          , this, SLOT(stateChanged(int, bool))
-        );
+        if(cameraPreview)
+        {
+            QObject::connect(
+                cameraPreview, SIGNAL(stateChanged(int, bool))
+              , this, SLOT(stateChanged(int, bool))
+            );
+        }
 
         paintTimer.start(20);
         grabTimer.start(20);

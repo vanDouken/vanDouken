@@ -67,11 +67,11 @@ namespace vandouken
 
 HPX_REGISTER_ACTION_DECLARATION(
     vandouken::ParticleSteererServer::CreateAction
-  , vandoukenParticleSteererServerSteerCreateAction)
+  , vandoukenParticleSteererServerCreateAction)
 
 HPX_REGISTER_ACTION_DECLARATION(
     vandouken::ParticleSteererServer::ConstCreateAction
-  , vandoukenParticleSteererServerSteerConstCreateAction)
+  , vandoukenParticleSteererServerConstCreateAction)
 
 HPX_REGISTER_ACTION_DECLARATION(
     vandouken::ParticleSteererServer::SteerAction,

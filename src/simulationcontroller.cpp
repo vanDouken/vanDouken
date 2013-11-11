@@ -9,18 +9,37 @@
 
 #include <hpx/runtime/components/new.hpp>
 
+#ifndef LOG
+#if !defined(ANDROID)
+#define LOG(x,...) std::cout << x;
+#else
+#include <android/log.h>
+#define LOG(x,...)                                                               \
+{                                                                               \
+    std::stringstream sstr;                                                     \
+    sstr << x;                                                                  \
+    __android_log_print(ANDROID_LOG_INFO, "hpiif_android", "%s", sstr.str().c_str());            \
+}                                                                               \
+/**/
+#endif
+#endif
+
 namespace vandouken {
     SimulationController::SimulationController()
     {
-        std::size_t retry = 0;
+        //std::size_t retry = 0;
         while(thisId == hpx::naming::invalid_id)
         {
             hpx::agas::resolve_name_sync(VANDOUKEN_SIMULATION_CONTROLLER_NAME, thisId);
+            /*
             if(retry > 10) {
+                LOG("Could not connect to simulation");
                 throw std::logic_error("Could not connect to simulation");
             }
             ++retry;
+            */
         }
+        LOG("resolved " << VANDOUKEN_SIMULATION_CONTROLLER_NAME << "\n");
     }
 
     SimulationController::SimulationController(const LibGeoDecomp::Coord<2>& simulationDim)

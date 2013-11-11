@@ -26,10 +26,10 @@
 
 
 #ifndef LOG
-#if 1
-//!defined(__ANDROID__) || !defined(ANDROID)
+#if !defined(ANDROID)
 #define LOG(x,...) std::cout << x;
 #else
+#include <android/log.h>
 #define LOG(x,...)                                                               \
 {                                                                               \
     std::stringstream sstr;                                                     \
