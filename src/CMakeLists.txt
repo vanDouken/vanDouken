@@ -82,6 +82,9 @@ set(VANDOUKEN_LIBRARY_SOURCES
     framegrabber.cpp
     gridprovider.cpp
     gridcollector.cpp
+    imagesteerer.cpp
+    forcesteerer.cpp
+    resetsimulation.cpp
     imagewidget.cpp
     parameters.cpp
     particlewidget.cpp

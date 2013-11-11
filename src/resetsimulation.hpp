@@ -7,7 +7,11 @@
 #ifndef VANDOUKEN_RESETSIMULATION_HPP
 #define VNADOUKEN_RESETSIMULATION_HPP
 
+#include "config.hpp"
 #include "initializer.hpp"
+
+#include <hpx/hpx_fwd.hpp>
+#include <hpx/util/function.hpp>
 
 #include <libgeodecomp/geometry/floatcoord.h>
 #include <libgeodecomp/geometry/region.h>
@@ -40,5 +44,16 @@ namespace vandouken {
         }
     };
 }
+
+HPX_UTIL_REGISTER_FUNCTION_DECLARATION(
+    void(
+        LibGeoDecomp::GridBase<vandouken::Cell, 2> *
+      , const LibGeoDecomp::Region<2>&
+      , const LibGeoDecomp::Coord<2>&
+      , unsigned
+    )
+  , vandouken::ResetSimulation
+  , vandoukenResetSimulation
+)
 
 #endif

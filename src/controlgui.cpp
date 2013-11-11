@@ -57,6 +57,10 @@ void controlGUI(int argc, char **argv)
     cfg.push_back("hpx.os_threads=" + numThreads);
     cfg.push_back("hpx.agas.address=" + agasHost);
     cfg.push_back("hpx.agas.port=" + agasPort);
+    cfg.push_back("hpx.logging.level=5");
+#if defined(ANROID)
+    cfg.push_back("hpx.parcel.address=192.168.0.2");
+#endif
 
     boost::program_options::options_description
         commandLineParameters("Usage: " HPX_APPLICATION_STRING " [options]");

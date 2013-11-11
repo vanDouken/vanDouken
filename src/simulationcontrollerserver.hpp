@@ -72,6 +72,11 @@ namespace vandouken {
     };
 }
 
+HPX_REGISTER_BASE_LCO_WITH_VALUE_DECLARATION(
+    boost::shared_ptr<LibGeoDecomp::Initializer<vandouken::Cell> >
+  , LibGeoDecompInitializerVandoukenCellLCO
+)
+
 HPX_REGISTER_ACTION_DECLARATION(
     vandouken::SimulationControllerServer::CreateComponentAction,
     vandoukenSimulationControllerServerCreateComponentAction)

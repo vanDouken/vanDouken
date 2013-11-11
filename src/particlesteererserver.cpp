@@ -15,6 +15,14 @@ namespace vandouken {
 }
 
 HPX_REGISTER_ACTION(
+    vandouken::ParticleSteererServer::CreateAction
+  , vandoukenParticleSteererServerSteerCreateAction)
+
+HPX_REGISTER_ACTION(
+    vandouken::ParticleSteererServer::ConstCreateAction
+  , vandoukenParticleSteererServerSteerConstCreateAction)
+
+HPX_REGISTER_ACTION(
     vandouken::ParticleSteererServer::SteerAction,
     vandoukenParticleSteererServerSteerAction)
 

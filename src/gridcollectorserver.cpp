@@ -25,6 +25,19 @@ namespace vandouken {
     }
 }
 
+HPX_REGISTER_BASE_LCO_WITH_VALUE(
+    vandouken::GridCollectorServer::PairType
+  , GridCollectorServerPairType
+)
+
+HPX_REGISTER_ACTION(
+    vandouken::GridCollectorServer::CreateAction
+  , vandoukenGridCollectorServerSteerCreateAction)
+
+HPX_REGISTER_ACTION(
+    vandouken::GridCollectorServer::ConstCreateAction
+  , vandoukenGridCollectorServerSteerConstCreateAction)
+
 HPX_REGISTER_ACTION(
     vandouken::GridCollectorServer::AddGridConsumerAction,
     vandoukenGridCollectorServerAddGridConsumerAction)

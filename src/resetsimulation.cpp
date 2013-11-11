@@ -4,7 +4,7 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#include "forcesteerer.hpp"
+#include "resetsimulation.hpp"
 
 HPX_UTIL_REGISTER_FUNCTION(
     void(
@@ -13,6 +13,6 @@ HPX_UTIL_REGISTER_FUNCTION(
       , const LibGeoDecomp::Coord<2>&
       , unsigned
     )
-  , vandouken::ForceSteerer
-  , vandoukenForceSteerer
+  , vandouken::ResetSimulation
+  , vandoukenResetSimulation
 )

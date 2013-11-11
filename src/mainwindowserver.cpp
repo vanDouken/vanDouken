@@ -27,6 +27,16 @@ namespace vandouken
     }
 }
 
+HPX_REGISTER_BASE_LCO_WITH_VALUE(QImage, QImageLco)
+
+HPX_REGISTER_ACTION(
+    vandouken::MainWindowServer::CreateAction
+  , vandoukenMainWindowServerCreateAction)
+
+HPX_REGISTER_ACTION(
+    vandouken::MainWindowServer::ConstCreateAction
+  , vandoukenMainWindowServerConstCreateAction)
+
 HPX_REGISTER_ACTION(
     vandouken::MainWindowServer::StateChangedAction,
     MainWindowServerStateChangedAction)

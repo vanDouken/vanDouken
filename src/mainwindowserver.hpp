@@ -28,6 +28,19 @@ namespace vandouken
         {
             BOOST_ASSERT(false);
         }
+        typedef 
+            hpx::components::server::create_component_action1<
+                vandouken::MainWindowServer
+              , vandouken::MainWindow *
+            >
+            CreateAction;
+
+        typedef 
+            hpx::components::server::create_component_action1<
+                vandouken::MainWindowServer
+              , vandouken::MainWindow * const
+            >
+            ConstCreateAction;
 
         MainWindowServer(MainWindow *mainWindow) :
             mainWindow(mainWindow)
@@ -74,6 +87,16 @@ void save(ARCHIVE& ar, QImage const & image, unsigned)
 }
 
 BOOST_SERIALIZATION_SPLIT_FREE(QImage)
+
+HPX_REGISTER_BASE_LCO_WITH_VALUE_DECLARATION(QImage, QImageLco)
+
+HPX_REGISTER_ACTION_DECLARATION(
+    vandouken::MainWindowServer::CreateAction
+  , vandoukenMainWindowServerCreateAction)
+
+HPX_REGISTER_ACTION_DECLARATION(
+    vandouken::MainWindowServer::ConstCreateAction
+  , vandoukenMainWindowServerConstCreateAction)
 
 HPX_REGISTER_ACTION_DECLARATION(
     vandouken::MainWindowServer::StateChangedAction,

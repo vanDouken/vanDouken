@@ -12,6 +12,7 @@
 
 #include <libgeodecomp/storage/grid.h>
 #include <libgeodecomp/geometry/region.h>
+#include <libgeodecomp/communication/serialization.h>
 
 #include <hpx/include/components.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -38,6 +39,20 @@ namespace vandouken
             BOOST_ASSERT(false);
         }
 
+        typedef 
+            hpx::components::server::create_component_action1<
+                vandouken::ParticleSteererServer
+              , vandouken::ParticleSteerer *
+            >
+            CreateAction;
+
+        typedef 
+            hpx::components::server::create_component_action1<
+                vandouken::ParticleSteererServer
+              , vandouken::ParticleSteerer * const
+            >
+            ConstCreateAction;
+
         ParticleSteererServer(ParticleSteerer *steerer) :
             collector(steerer)
         {}
@@ -49,6 +64,14 @@ namespace vandouken
         ParticleSteerer *collector;
     };
 }
+
+HPX_REGISTER_ACTION_DECLARATION(
+    vandouken::ParticleSteererServer::CreateAction
+  , vandoukenParticleSteererServerSteerCreateAction)
+
+HPX_REGISTER_ACTION_DECLARATION(
+    vandouken::ParticleSteererServer::ConstCreateAction
+  , vandoukenParticleSteererServerSteerConstCreateAction)
 
 HPX_REGISTER_ACTION_DECLARATION(
     vandouken::ParticleSteererServer::SteerAction,

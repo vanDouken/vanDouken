@@ -1,8 +1,17 @@
+//  Copyright (c) 2012-2013 Thomas Heller
+//  Copyright (c) 2012-2013 Andreas Schaefer
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
+//  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
 #ifndef VANDOUKEN_IMAGESTEERER_HPP
 #define VANDOUKEN_IMAGESTEERER_HPP
 
 #include "config.hpp"
 #include "cell.hpp"
+
+#include <hpx/hpx_fwd.hpp>
+#include <hpx/util/function.hpp>
 
 #include <libgeodecomp/geometry/floatcoord.h>
 #include <libgeodecomp/geometry/region.h>
@@ -100,5 +109,16 @@ namespace vandouken {
         BOOST_SERIALIZATION_SPLIT_MEMBER()
     };
 }
+
+HPX_UTIL_REGISTER_FUNCTION_DECLARATION(
+    void(
+        LibGeoDecomp::GridBase<vandouken::Cell, 2> *
+      , const LibGeoDecomp::Region<2>&
+      , const LibGeoDecomp::Coord<2>&
+      , unsigned
+    )
+  , vandouken::ImageSteerer
+  , vandoukenImageSteerer
+)
 
 #endif

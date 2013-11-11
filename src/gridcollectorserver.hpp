@@ -30,6 +30,20 @@ namespace vandouken
             BOOST_ASSERT(false);
         }
 
+        typedef 
+            hpx::components::server::create_component_action1<
+                vandouken::GridCollectorServer
+              , vandouken::GridCollector *
+            >
+            CreateAction;
+
+        typedef 
+            hpx::components::server::create_component_action1<
+                vandouken::GridCollectorServer
+              , vandouken::GridCollector * const
+            >
+            ConstCreateAction;
+
         GridCollectorServer(GridCollector *collector) :
             collector(collector)
         {}
@@ -39,7 +53,9 @@ namespace vandouken
         void removeGridConsumer(std::size_t);
         HPX_DEFINE_COMPONENT_ACTION(GridCollectorServer, removeGridConsumer, RemoveGridConsumerAction);
 
-        std::pair<unsigned, RegionBuffer>
+        typedef std::pair<unsigned, RegionBuffer> PairType;
+
+        PairType
         getNextBuffer(std::size_t id);
         HPX_DEFINE_COMPONENT_ACTION(GridCollectorServer, getNextBuffer, GetNextBufferAction);
 
@@ -47,6 +63,19 @@ namespace vandouken
         GridCollector *collector;
     };
 }
+
+HPX_REGISTER_BASE_LCO_WITH_VALUE_DECLARATION(
+    vandouken::GridCollectorServer::PairType
+  , GridCollectorServerPairType
+)
+
+HPX_REGISTER_ACTION_DECLARATION(
+    vandouken::GridCollectorServer::CreateAction
+  , vandoukenGridCollectorServerSteerCreateAction)
+
+HPX_REGISTER_ACTION_DECLARATION(
+    vandouken::GridCollectorServer::ConstCreateAction
+  , vandoukenGridCollectorServerSteerConstCreateAction)
 
 HPX_REGISTER_ACTION_DECLARATION(
     vandouken::GridCollectorServer::AddGridConsumerAction,

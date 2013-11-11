@@ -9,6 +9,9 @@
 
 #include "cell.hpp"
 
+#include <hpx/hpx_fwd.hpp>
+#include <hpx/util/function.hpp>
+
 #include <libgeodecomp/geometry/floatcoord.h>
 #include <libgeodecomp/geometry/region.h>
 #include <libgeodecomp/storage/gridbase.h>
@@ -113,5 +116,16 @@ namespace vandouken {
         QVector2D qDelta;
     };
 }
+
+HPX_UTIL_REGISTER_FUNCTION_DECLARATION(
+    void(
+        LibGeoDecomp::GridBase<vandouken::Cell, 2> *
+      , const LibGeoDecomp::Region<2>&
+      , const LibGeoDecomp::Coord<2>&
+      , unsigned
+    )
+  , vandouken::ForceSteerer
+  , vandoukenForceSteerer
+)
 
 #endif

@@ -13,9 +13,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#if !defined(__ANDROID__) || !defined(ANDROID)
 #include <QImage>
-#endif
 
 #include <fstream>
 
@@ -32,7 +30,6 @@ namespace vandouken {
     {
         using LibGeoDecomp::CoordBox;
         using LibGeoDecomp::FloatCoord;
-#if !defined(__ANDROID__) || !defined(ANDROID)
         const char * filename = VANDOUKEN_DATA_DIR VANDOUKEN_INITIALIZER_IMG;
         QImage img = QImage(filename).scaled(gridDimensions().x(), gridDimensions().y());
 
@@ -58,7 +55,6 @@ namespace vandouken {
             ret->set(*i, Cell(pixel, *i, setForce, force, rand() % Cell::MAX_SPAWN_COUNTDOWN));
         }
         std::cout << "done ...\n";
-#endif
     }
 
     Initializer *createInitializer(const Initializer::CoordType& dim)
