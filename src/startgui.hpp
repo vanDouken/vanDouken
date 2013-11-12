@@ -7,6 +7,8 @@
 #ifndef VANDOUKEN_STARTGUI_HPP
 #define VANDOUKEN_STARTGUI_HPP
 
+#if !defined(__MIC)
+
 #include "config.hpp"
 #include "simulationcontroller.hpp"
 #include "mainwindow.hpp"
@@ -27,4 +29,5 @@ namespace vandouken {
         MainWindow::Mode guiMode);
 }
 
+#endif
 #endif

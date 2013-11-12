@@ -51,11 +51,13 @@ set(VANDOUKEN_LIBRARY_MOC_HEADERS
 #    ${VANDOUKEN_LIBRARY_MOC_HEADERS}
 #    OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED
 #)
-qt5_wrap_cpp(
-    VANDOUKEN_LIBRARY_MOC_SOURCES
-    ${VANDOUKEN_LIBRARY_MOC_HEADERS}
-    OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED -p.
-)
+if(NOT HPX_NATIVE_MIC)
+  qt5_wrap_cpp(
+      VANDOUKEN_LIBRARY_MOC_SOURCES
+      ${VANDOUKEN_LIBRARY_MOC_HEADERS}
+      OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED -p.
+  )
+endif()
 
 set(VANDOUKEN_UI_SOURCES
     ui/startdialog.ui
@@ -65,15 +67,15 @@ set(VANDOUKEN_UI_SOURCES
 #    VANDOUKEN_UI_HEADERS
 #    ${VANDOUKEN_UI_SOURCES})
 
-qt5_wrap_ui(
-    VANDOUKEN_UI_HEADERS
-    ${VANDOUKEN_UI_SOURCES})
+if(NOT HPX_NATIVE_MIC)
+    qt5_wrap_ui(
+        VANDOUKEN_UI_HEADERS
+        ${VANDOUKEN_UI_SOURCES})
 
-qt5_add_resources(
-    VANDOUKEN_RESOURCES
-    ../resource.qrc)
-
-message(${VANDOUKEN_RESOURCES})
+    qt5_add_resources(
+        VANDOUKEN_RESOURCES
+        ../resource.qrc)
+endif()
 
 set(VANDOUKEN_LIBRARY_SOURCES
     camerapreview.cpp
@@ -132,12 +134,12 @@ if("${HPX_PLATFORM}" STREQUAL "Android")
         GLESv2
     )
 else()
-    set(ADDITIONAL_LIBS
-        opencv_core
-        opencv_highgui)
+    if(NOT HPX_NATIVE_MIC)
+        set(ADDITIONAL_LIBS
+            opencv_core
+            opencv_highgui)
+    endif()
 endif()
-
-message(${ADDITIONAL_LIBS})
 
 add_hpx_component(
     vandouken
@@ -153,7 +155,9 @@ add_hpx_component(
     FOLDER "vanDouken Library"
 )
 
-qt5_use_modules(vandouken_component Core Gui OpenGL Svg Widgets)
+if(NOT HPX_NATIVE_MIC)
+    qt5_use_modules(vandouken_component Core Gui OpenGL Svg Widgets)
+endif()
 
 set(VANDOUKEN_SERVER_SOURCES
     server.cpp

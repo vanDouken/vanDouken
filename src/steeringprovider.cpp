@@ -6,6 +6,7 @@
 
 #include "steeringprovider.hpp"
 #include "particlesteererserver.hpp"
+#include "log.hpp"
 #include <libgeodecomp/storage/gridvecconv.h>
 
 #include <hpx/lcos/broadcast.hpp>
@@ -16,20 +17,26 @@ namespace vandouken {
     {
         for(std::size_t i = 0; i < numUpdateGroups; ++i)
         {
-            std::size_t retry = 0;
             std::string name(VANDOUKEN_PARTICLESTEERER_NAME);
             name += "/";
             name += boost::lexical_cast<std::string>(i);
+
+            LOG("trying to resolve " << name << "\n");
+            
             while(serverIds[i] == hpx::naming::invalid_id)
             {
-                hpx::agas::resolve_name_sync(name, serverIds[i]);
-                if(!serverIds[i])
+                hpx::naming::id_type id;
+                hpx::agas::resolve_name_sync(name, id);
+                if(!id)
                 {
                     hpx::this_thread::suspend(boost::posix_time::seconds(1));
+                    continue;
                 }
-                ++retry;
+                hpx::naming::gid_type gid = id.get_gid();
+                hpx::naming::detail::strip_credit_from_gid(gid);
+                serverIds[i] = hpx::id_type(gid, hpx::id_type::unmanaged);
             }
-            std::cout << "resolved: " << name << "\n";
+            LOG("resolved: " << name << "\n");
         }
     }
 
@@ -41,6 +48,7 @@ namespace vandouken {
     {
         for(std::size_t i = 0; i < serverIds.size(); ++i)
         {
+            LOG("steering ... " << serverIds[i] << "\n");
             hpx::apply<ParticleSteererServer::SteerAction>(serverIds[i], f);
         }
     }

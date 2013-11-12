@@ -7,6 +7,8 @@
 #ifndef VANDOUKEN_MAINWINDOW_HPP
 #define VANDOUKEN_MAINWINDOW_HPP
 
+#if !defined(__MIC)
+
 #include "ui_main.h"
 
 #include <hpx/hpx_fwd.hpp>
@@ -97,4 +99,5 @@ namespace vandouken {
     };
 }
 
+#endif
 #endif

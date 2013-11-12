@@ -7,6 +7,8 @@
 #ifndef VANDOUKEN_FORCECONTROL_HPP
 #define VANDOUKEN_FORCECONTROL_HPP
 
+#if !defined(__MIC)
+
 //#include <QtGui/QWidget>
 #include <QtWidgets/QWidget>
 #include <QtGui/QPainter>
@@ -68,4 +70,5 @@ namespace vandouken {
     };
 }
 
+#endif
 #endif

@@ -7,6 +7,8 @@
 #ifndef VANDOUKEN_IMAGEWIDGET_HPP
 #define VANDOUKEN_IMAGEWIDGET_HPP
 
+#if !defined(__MIC)
+
 #include "config.hpp"
 #include "widgetbase.hpp"
 
@@ -54,4 +56,4 @@ namespace vandouken {
 }
 
 #endif
-
+#endif

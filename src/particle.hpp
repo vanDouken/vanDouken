@@ -12,9 +12,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 
-//#if !defined(__ANDROID__) || !defined(ANDROID)
+#if !defined(__MIC)
 #include <QtGui/QColor>
-/*
 #else
 inline int qRed(unsigned int rgb)
 {
@@ -36,7 +35,6 @@ inline int qAlpha(unsigned int rgb)
     return rgb >> 24;
 }
 #endif
-*/
 
 
 namespace vandouken {

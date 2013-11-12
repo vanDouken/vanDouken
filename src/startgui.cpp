@@ -4,6 +4,8 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(__MIC)
+
 #include "startgui.hpp"
 #include "mainwindow.hpp"
 #include "mainwindowserver.hpp"
@@ -11,6 +13,21 @@
 #include <hpx/hpx.hpp>
 
 #include <QApplication>
+
+#ifndef LOG
+#if !defined(ANDROID)
+#define LOG(x,...) std::cout << x;
+#else
+#include <android/log.h>
+#define LOG(x,...)                                                               \
+{                                                                               \
+    std::stringstream sstr;                                                     \
+    sstr << x;                                                                  \
+    __android_log_print(ANDROID_LOG_INFO, "vandouken", "%s", sstr.str().c_str());            \
+}                                                                               \
+/**/
+#endif
+#endif
 
 namespace {
     void runWidget(
@@ -22,16 +39,17 @@ namespace {
         vandouken::MainWindow::Mode guiMode)
     {
         QCoreApplication *app = QApplication::instance();
-        std::cout << "runWidget" << simulationDim << "\n";
+        LOG("runWidget" << simulationDim << "\n");
         vandouken::MainWindow
             *main = new vandouken::MainWindow(simulationDim, gridProvider, steererProvider, guiMode);
         mainWindowPromise->set_value(main);
+        LOG("main window created\n");
 
         main->resize(1000, 500);
         main->show();
 
         app->exec();
-        std::cout << "finished ...\n";
+        LOG("finished ...\n");
         finishedPromise->set_value();
     }
 }
@@ -74,31 +92,38 @@ namespace vandouken {
             std::string name(VANDOUKEN_MAIN_WINDOW_NAME);
             serverId = hpx::components::new_<MainWindowServer>(hpx::find_here(), mainWindow).get();
             hpx::agas::register_name_sync(name, serverId);
-            std::cout << "registered: " << name << "\n";
+            LOG("registered: " << name << "\n");
         }
         else
         {
             std::string name(VANDOUKEN_MAIN_WINDOW_NAME);
             while(serverId == hpx::naming::invalid_id)
             {
-                hpx::agas::resolve_name_sync(name, serverId);
-                if(!serverId)
+                hpx::naming::id_type id;
+                hpx::agas::resolve_name_sync(name, id);
+                if(!id)
                 {
                     hpx::this_thread::suspend(boost::posix_time::seconds(1));
+                    continue;
                 }
+                hpx::naming::gid_type gid = id.get_gid();
+                hpx::naming::detail::strip_credit_from_gid(gid);
+                serverId = hpx::id_type(gid, hpx::id_type::unmanaged);
             }
-            std::cout << "resolved: " << name << "\n";
+            LOG("resolved: " << name << "\n");
         }
         mainWindow->setServerId(serverId);
 
         if(guiMode == MainWindow::Mode::picturesOnly)
         {
-            std::cout << "starting image retrival ...\n";
+            LOG("starting image retrival ...\n");
             while(!finished.is_ready())
             {
                 hpx::util::high_resolution_timer timer;
                 QImage image = MainWindowServer::GetImageAction()(serverId);
                 if(image.isNull()) continue;
+
+                LOG("got image\n");
 
                 QMetaObject::invokeMethod(
                     mainWindow,
@@ -120,3 +145,5 @@ namespace vandouken {
         }
     }
 }
+
+#endif

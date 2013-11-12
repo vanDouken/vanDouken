@@ -18,7 +18,7 @@
 {                                                                               \
     std::stringstream sstr;                                                     \
     sstr << x;                                                                  \
-    __android_log_print(ANDROID_LOG_INFO, "hpiif_android", "%s", sstr.str().c_str());            \
+    __android_log_print(ANDROID_LOG_INFO, "vandouken", "%s", sstr.str().c_str());\
 }                                                                               \
 /**/
 #endif

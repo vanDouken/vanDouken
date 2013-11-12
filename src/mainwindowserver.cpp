@@ -5,6 +5,8 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(__MIC)
+
 #include "mainwindowserver.hpp"
 #include "mainwindow.hpp"
 
@@ -48,3 +50,5 @@ HPX_REGISTER_ACTION(
 HPX_REGISTER_MINIMAL_COMPONENT_FACTORY(
     hpx::components::managed_component<vandouken::MainWindowServer>,
     vandoukenMainWindowServer);
+
+#endif

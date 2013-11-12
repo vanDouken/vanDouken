@@ -7,6 +7,8 @@
 #ifndef VANDOUKEN_PARTICLEWIDGET_HPP
 #define VANDOUKEN_PARTICLEWIDGET_HPP
 
+#if !defined(__MIC)
+
 #include "config.hpp"
 #include "particle.hpp"
 #include "widgetbase.hpp"
@@ -34,7 +36,7 @@
 {                                                                               \
     std::stringstream sstr;                                                     \
     sstr << x;                                                                  \
-    __android_log_print(ANDROID_LOG_INFO, "hpiif_android", "%s", sstr.str().c_str());            \
+    __android_log_print(ANDROID_LOG_INFO, "vandouken", "%s", sstr.str().c_str());            \
 }                                                                               \
 /**/
 #endif
@@ -123,4 +125,5 @@ namespace vandouken {
 
 }
 
+#endif
 #endif

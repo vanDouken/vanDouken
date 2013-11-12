@@ -4,6 +4,8 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(__MIC)
+
 #include "forcecontrol.hpp"
 
 #include <iostream>
@@ -131,7 +133,6 @@ namespace vandouken {
 
         painter.translate(sliderPos * sliderLength - MARGIN*0.5, -MARGIN*0.5);
         sliderSelect.render(&painter, QRectF(0, 0, MARGIN*0.5, sliderLength * 0.1));
-
     }
 
     /*
@@ -168,3 +169,4 @@ namespace vandouken {
     }
     */
 }
+#endif

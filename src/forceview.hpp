@@ -7,6 +7,8 @@
 #ifndef VANDOUKEN_FORCEVIEW_HPP
 #define VANDOUKEN_FORCEVIEW_HPP
 
+#if !defined(__MIC)
+
 #include "config.hpp"
 
 #include <QWidget>
@@ -56,4 +58,4 @@ namespace vandouken {
 }
 
 #endif
-
+#endif

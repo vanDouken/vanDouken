@@ -16,7 +16,20 @@
 #include <libgeodecomp/geometry/region.h>
 #include <libgeodecomp/storage/gridbase.h>
 
+#if !defined(__MIC)
 #include <QVector2D>
+#else
+struct QVector2D
+{
+    QVector2D() : x_(0.0), y_(0.0) {}
+    QVector2D(double x, double y) : x_(x), y_(y) {}
+
+    double const & x() const { return x_; }
+    double const & y() const { return y_; }
+    double x_;
+    double y_;
+};
+#endif
 
 namespace vandouken {
 

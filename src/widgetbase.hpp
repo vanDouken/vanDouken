@@ -4,12 +4,15 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(__MIC)
+
 #ifndef VANDOUKEN_WIDGETBASE_HPP
 #define VANDOUKEN_WIDGETBASE_HPP
 
 #include "config.hpp"
 #include "steeringprovider.hpp"
 #include "forcesteerer.hpp"
+#include "log.hpp"
 
 #include <libgeodecomp/geometry/coord.h>
 
@@ -45,6 +48,7 @@ namespace vandouken {
         QVector3D globalOffset;
     private:
         virtual void resetProjection() = 0;
+        void addForce(QPoint const & eventPos);
         
         SteeringProvider *steeringProvider;
         
@@ -86,17 +90,44 @@ namespace vandouken {
     void WidgetBase<QBase>::mousePressEvent(QMouseEvent *event)
     {
         if (event->buttons() & Qt::LeftButton) {
-            std::cout << event->pos().x() <<  " " << event->pos().y() << "\n";
+            LOG(event->pos().x() <<  " " << event->pos().y() << "\n");
             lastSweepPos = event->pos();// - QPoint(viewport[0], viewport[1]);
         }
         if (event->buttons() & Qt::RightButton) {
             lastPanPos = event->pos();// - QPoint(viewport[0], viewport[1]);
         }
     }
+
+    template <typename QBase>
+    void WidgetBase<QBase>::addForce(QPoint const & eventPos)
+    {
+        QPoint delta = eventPos - lastSweepPos;
+        //if(delta.manhattanLength() <= 5) return;
+
+        double zoomFactor = -globalOffset.z() * 0.01 + 1;
+        QVector2D modelPos = getModelPos(lastSweepPos);
+
+        //QPoint eventPos = event->pos() - QPoint(viewport[0], viewport[1]);
+
+        double factorX = static_cast<double>(dimensions.x()) / this->width();
+        double factorY = static_cast<double>(dimensions.y()) / this->height();
+        QVector2D modelDelta(delta.x() * zoomFactor * factorX,
+                             delta.y() * zoomFactor * factorY);
+
+        modelDelta.normalize();
+        LOG("add force (" << modelPos.x() << ", " << modelPos.y()
+                   << ") -> "       << modelDelta.x() << ", " << modelDelta.y() << "\n");
+        steeringProvider->steer(ForceSteerer(modelPos, modelDelta));
+        lastSweepPos = eventPos;
+    }
     
     template <typename QBase>
     void WidgetBase<QBase>::mouseReleaseEvent(QMouseEvent *event)
     {
+        if (event->buttons() & Qt::LeftButton) {
+            LOG("mouseRelease\n");
+            addForce(event->pos());
+        }
     }
     
     template <typename QBase>
@@ -104,22 +135,8 @@ namespace vandouken {
     {
         double zoomFactor = -globalOffset.z() * 0.01 + 1;
         if(event->buttons() & Qt::LeftButton) {
-            QVector2D modelPos = getModelPos(lastSweepPos);
-
-            QPoint eventPos = event->pos();//- QPoint(viewport[0], viewport[1]);
-
-            QPoint delta = eventPos - lastSweepPos;
-
-            double factorX = static_cast<double>(dimensions.x()) / this->width();
-            double factorY = static_cast<double>(dimensions.y()) / this->height();
-            QVector2D modelDelta(delta.x() * zoomFactor * factorX,
-                                 delta.y() * zoomFactor * factorY);
-
-            std::cout << "add force (" << modelPos.x() << ", " << modelPos.y()
-                       << ") -> "       << modelDelta.x() << ", " << modelDelta.y() << "\n";
-            steeringProvider->steer(ForceSteerer(modelPos, modelDelta));
-            lastSweepPos = eventPos;
-
+            LOG("mouseMove\n");
+            addForce(event->pos());
         }
 
         if (event->buttons() & Qt::RightButton) {
@@ -149,4 +166,5 @@ namespace vandouken {
     }
 }
 
+#endif
 #endif

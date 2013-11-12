@@ -13,7 +13,9 @@
 
 #include <boost/shared_ptr.hpp>
 
+#if !defined(__MIC)
 #include <QImage>
+#endif
 
 #include <fstream>
 
@@ -30,6 +32,7 @@ namespace vandouken {
     {
         using LibGeoDecomp::CoordBox;
         using LibGeoDecomp::FloatCoord;
+#if !defined(__MIC)
         const char * filename = VANDOUKEN_DATA_DIR VANDOUKEN_INITIALIZER_IMG;
         QImage img = QImage(filename).scaled(gridDimensions().x(), gridDimensions().y());
 
@@ -54,6 +57,7 @@ namespace vandouken {
             unsigned pixel = 0xff000000 + img.pixel(i->x(), i->y());
             ret->set(*i, Cell(pixel, *i, setForce, force, rand() % Cell::MAX_SPAWN_COUNTDOWN));
         }
+#endif
         std::cout << "done ...\n";
     }
 
@@ -62,10 +66,15 @@ namespace vandouken {
         Initializer *init(new Initializer(dim));
         using LibGeoDecomp::Coord;
 
+#if !defined(__MIC)
         const char * filename = VANDOUKEN_DATA_DIR VANDOUKEN_INITIALIZER_IMG;
         QImage img(filename);
         double scaleFactorX = double(dim.x())/img.width();
         double scaleFactorY = double(dim.y())/img.height();
+#else
+        double scaleFactorX = 0.4;
+        double scaleFactorY = 0.4;
+#endif
 
         try {
             init->addShape(

@@ -7,6 +7,8 @@
 #ifndef VANDOUKEN_MAINWINDOWSERVER_HPP
 #define VANDOUKEN_MAINWINDOWSERVER_HPP
 
+#if !defined(__MIC)
+
 #include <hpx/hpx.hpp>
 #include <hpx/include/components.hpp>
 
@@ -106,4 +108,5 @@ HPX_REGISTER_ACTION_DECLARATION(
     vandouken::MainWindowServer::GetImageAction,
     MainWindowGetImageAction)
 
+#endif
 #endif

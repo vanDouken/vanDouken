@@ -17,8 +17,10 @@
 #include <libgeodecomp/geometry/region.h>
 #include <libgeodecomp/storage/gridbase.h>
 
+#if !defined(__MIC)
 #include <QImage>
 #include <QBuffer>
+#endif
 
 namespace vandouken {
 
@@ -31,10 +33,12 @@ namespace vandouken {
     {
         ImageSteerer() {}
 
+#if !defined(__MIC)
         ImageSteerer(boost::shared_ptr<QImage> image, bool clear = true)
           : image(image)
           , clear(clear)
         {}
+#endif
 
         void operator()(
                 LibGeoDecomp::GridBase<Cell, 2> *grid,
@@ -42,11 +46,16 @@ namespace vandouken {
                 const LibGeoDecomp::Coord<2>& globalDimensions,
                 unsigned)
         {
+#if !defined(__MIC)
             QImage tmp = image->scaled(globalDimensions.x(), globalDimensions.y());
 
             FloatCoord<2> force(0.0f, 0.0f);
+            /*
             LibGeoDecomp::CoordBox<2> box = grid->boundingBox();
             for (LibGeoDecomp::CoordBox<2>::Iterator i = box.begin(); i != box.end(); ++i) {
+            */
+            std::cout << "grid bounding box: " << grid->boundingBox() << "\n";
+            for (LibGeoDecomp::Region<2>::Iterator i = validRegion.begin(); i != validRegion.end(); ++i) {
                 if(clear)
                 {
                     grid->set(*i,
@@ -74,14 +83,18 @@ namespace vandouken {
                     grid->set(*i, cell);
                 }
             }
+#endif
         }
 
+#if !defined(__MIC)
         boost::shared_ptr<QImage> image;
+#endif
         bool clear;
 
         template <typename ARCHIVE>
         void save(ARCHIVE& ar, unsigned) const
         {
+#if !defined(__MIC)
             QByteArray ba;
             QBuffer buffer(&ba);
             buffer.open(QIODevice::WriteOnly);
@@ -90,11 +103,13 @@ namespace vandouken {
             ar & size;
             ar & boost::serialization::make_array(ba.data(), ba.size());
             ar & clear;
+#endif
         }
 
         template <typename ARCHIVE>
         void load(ARCHIVE& ar, unsigned)
         {
+#if !defined(__MIC)
             int size = 0;
             ar & size;
             QByteArray ba(size, 0);
@@ -104,6 +119,7 @@ namespace vandouken {
             image.reset(new QImage);
             image->load(&buffer, "PNG");
             ar & clear;
+#endif
         }
 
         BOOST_SERIALIZATION_SPLIT_MEMBER()

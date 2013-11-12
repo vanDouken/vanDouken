@@ -4,6 +4,8 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(__MIC)
+
 #include "controlgui.hpp"
 #include "gridprovider.hpp"
 #include "steeringprovider.hpp"
@@ -42,6 +44,9 @@ int hpx_main(boost::program_options::variables_map& vm)
 {
     LOG("inside hpx_main\n")
     vandouken::SimulationController simulation;
+    LOG("got " << simulation.numUpdateGroups());
+    LibGeoDecomp::Coord<2> dim = simulation.getInitializer()->gridDimensions();
+    LOG("got " << dim.x() << " " << dim.y());
     vandouken::SteeringProvider steererProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
     vandouken::startGUI(
         vm
@@ -50,12 +55,17 @@ int hpx_main(boost::program_options::variables_map& vm)
       , &steererProvider
       , vandouken::MainWindow::picturesOnly
     );
+    LOG("inside hpx_main done\n")
     return hpx::disconnect();
 }
 
+#endif
+
 void controlGUI(int argc, char **argv)
 {
+#if !defined(__MIC)
     QApplication app(argc, argv);
+#if !defined(ANDROID)
     QDialog qDialog;
     Ui_Dialog dialog;
     dialog.setupUi(&qDialog);
@@ -66,6 +76,11 @@ void controlGUI(int argc, char **argv)
     std::string agasHost = dialog.host->displayText().toStdString();
     std::string agasPort = dialog.port->displayText().toStdString();
     std::string numThreads = boost::lexical_cast<std::string>(dialog.numThreads->value());
+#else
+    std::string agasHost = "192.168.0.1";
+    std::string agasPort = "7910";
+    std::string numThreads = "2";
+#endif
     
     LOG("starting HPX ... " << agasHost << " " << agasPort << " " << numThreads << "\n")
     std::vector<std::string> cfg;
@@ -74,7 +89,7 @@ void controlGUI(int argc, char **argv)
     cfg.push_back("hpx.agas.address=" + agasHost);
     cfg.push_back("hpx.agas.port=" + agasPort);
     //cfg.push_back("hpx.logging.level=5");
-#if defined(ANROID)
+#if defined(ANDROID)
     cfg.push_back("hpx.parcel.address=192.168.0.2");
 #endif
 
@@ -89,4 +104,5 @@ void controlGUI(int argc, char **argv)
         HPX_STD_FUNCTION<void()>(),
         HPX_STD_FUNCTION<void()>(),
         hpx::runtime_mode_connect);
+#endif
 }

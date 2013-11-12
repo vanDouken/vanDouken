@@ -17,9 +17,11 @@
 #include <hpx/hpx_init.hpp>
 #include <hpx/hpx.hpp>
 
+#if !defined(__MIC)
 #include <QApplication>
 #include <QDialog>
 #include "ui_startdialog.h"
+#endif
 
 bool standalone = false;
 
@@ -31,7 +33,9 @@ int hpx_main(boost::program_options::variables_map& vm)
         std::cout << "simulation started\n";
         vandouken::GridProvider gridProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridBox());
         vandouken::SteeringProvider steererProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
+#if !defined(__MIC)
         vandouken::startGUI(vm, simulation, &gridProvider, &steererProvider, vandouken::MainWindow::control);
+#endif
         simulation.stop();
         hpx::wait(runFuture);
         return hpx::finalize();
@@ -40,15 +44,19 @@ int hpx_main(boost::program_options::variables_map& vm)
         vandouken::SimulationController simulation;
         vandouken::GridProvider gridProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridBox());
         vandouken::SteeringProvider steererProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
+#if !defined(__MIC)
         vandouken::startGUI(vm, simulation, &gridProvider, &steererProvider, vandouken::MainWindow::control);
+#endif
         return hpx::disconnect();
     }
 }
 
 int main(int argc, char **argv)
 {
+#if !defined(__MIC)
     QApplication app(argc, argv);
     app.setOverrideCursor(QCursor(Qt::BlankCursor));
+#endif
     /*
     QDialog qDialog;
     Ui_Dialog dialog;
