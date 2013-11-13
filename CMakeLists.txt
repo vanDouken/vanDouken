@@ -77,6 +77,10 @@ else()
     set(HPX_RPATH "${OPENCV_LIB_DIR}:${HPX_RPATH}")
 endif()
 
-add_definitions("-DVANDOUKEN_DATA_DIR=\"://data/\"")
+if("${HPX_PLATFORM}" STREQUAL "Android")
+    add_definitions("-DVANDOUKEN_DATA_DIR=\"://data/\"")
+else()
+    add_definitions("-DVANDOUKEN_DATA_DIR=\"${CMAKE_SOURCE_DIR}/data/\"")
+endif()
 
 add_subdirectory(src)

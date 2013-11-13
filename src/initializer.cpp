@@ -13,9 +13,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-#if !defined(__MIC)
+#include <boost/gil/gil_all.hpp>
+#include <boost/gil/extension/io/png_dynamic_io.hpp>
+#include <boost/gil/extension/io/png_io.hpp>
+#include <boost/gil/extension/numeric/sampler.hpp>
+#include <boost/gil/extension/numeric/resample.hpp>
 #include <QImage>
-#endif
 
 #include <fstream>
 
@@ -32,18 +35,17 @@ namespace vandouken {
     {
         using LibGeoDecomp::CoordBox;
         using LibGeoDecomp::FloatCoord;
-#if !defined(__MIC)
-        const char * filename = VANDOUKEN_DATA_DIR VANDOUKEN_INITIALIZER_IMG;
-        QImage img = QImage(filename).scaled(gridDimensions().x(), gridDimensions().y());
 
-        std::cout << "opening " << filename << "\n";
-        std::cout << "initializer dimensions: " << gridDimensions().x() << " " << gridDimensions().y() << "\n";
-        if(img.isNull())
-        {
-            std::cout << "couldn't load image " << filename << "\n";
-            return;
-        }
+        boost::gil::rgb8_image_t img;
+        boost::gil::png_read_image(VANDOUKEN_DATA_DIR VANDOUKEN_INITIALIZER_IMG, img);
+        boost::gil::rgb8_image_t scaledImg(gridDimensions().x(), gridDimensions().y());
+        boost::gil::resize_view(
+            boost::gil::const_view(img)
+          , boost::gil::view(scaledImg)
+          , boost::gil::bilinear_sampler()
+        );
 
+        boost::gil::rgb8_image_t::const_view_t imgView = boost::gil::const_view(scaledImg);
         CoordBox<2> box = ret->boundingBox();
         for (CoordBox<2>::Iterator i = box.begin(); i != box.end(); ++i) {
             bool setForce = false;
@@ -54,10 +56,13 @@ namespace vandouken {
             }
 
             // force alpha channel to 0xff to ensure all particles are opaque
-            unsigned pixel = 0xff000000 + img.pixel(i->x(), i->y());
-            ret->set(*i, Cell(pixel, *i, setForce, force, rand() % Cell::MAX_SPAWN_COUNTDOWN));
+            boost::gil::rgb8_image_t::value_type pixel = imgView(i->x(), i->y());
+            unsigned color = 0xff000000 +
+                (pixel[0] << 16) +
+                (pixel[1] << 8) +
+                (pixel[2] << 0);
+            ret->set(*i, Cell(color, *i, setForce, force, rand() % Cell::MAX_SPAWN_COUNTDOWN));
         }
-#endif
         std::cout << "done ...\n";
     }
 
@@ -66,15 +71,11 @@ namespace vandouken {
         Initializer *init(new Initializer(dim));
         using LibGeoDecomp::Coord;
 
-#if !defined(__MIC)
-        const char * filename = VANDOUKEN_DATA_DIR VANDOUKEN_INITIALIZER_IMG;
-        QImage img(filename);
-        double scaleFactorX = double(dim.x())/img.width();
-        double scaleFactorY = double(dim.y())/img.height();
-#else
-        double scaleFactorX = 0.4;
-        double scaleFactorY = 0.4;
-#endif
+        boost::gil::point2<std::ptrdiff_t> imgDims
+            = boost::gil::png_read_dimensions(VANDOUKEN_DATA_DIR VANDOUKEN_INITIALIZER_IMG);
+
+        double scaleFactorX = double(dim.x())/imgDims[0];
+        double scaleFactorY = double(dim.y())/imgDims[1];
 
         try {
             init->addShape(
