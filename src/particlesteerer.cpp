@@ -35,7 +35,30 @@ namespace vandouken {
             std::cout << "registered: " << name << "\n";
         }
 
+        typedef SteererFunctors::iterator iterator;
+        for(iterator it = steererFunctors.begin(); it != steererFunctors.end();)
+        {
+            bool remove = false;
+            if(it->first && lastCall)
+            {
+                remove = true;
+            }
+            else
+            {
+                it->first = true;
+            }
+            it->second(grid, validRegion, globalDimensions, step);
+            if(remove)
+            {
+                it = steererFunctors.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
 
+        /*
         BOOST_FOREACH(const SteererFunctor& f, steererFunctors)
         {
             f(grid, validRegion, globalDimensions, step);
@@ -43,6 +66,7 @@ namespace vandouken {
         
         steererFunctors.clear();
         updatedRegion.clear();
+        */
 
         /*
         else
@@ -57,7 +81,7 @@ namespace vandouken {
     void ParticleSteerer::steer(const SteererFunctor& f)
     {
         Mutex::scoped_lock l(mutex);
-        steererFunctors.push_back(f);
+        steererFunctors.push_back(std::make_pair(false, f));
     }
 }
 

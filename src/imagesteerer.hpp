@@ -50,12 +50,12 @@ namespace vandouken {
             QImage tmp = image->scaled(globalDimensions.x(), globalDimensions.y());
 
             FloatCoord<2> force(0.0f, 0.0f);
-            /*
             LibGeoDecomp::CoordBox<2> box = grid->boundingBox();
             for (LibGeoDecomp::CoordBox<2>::Iterator i = box.begin(); i != box.end(); ++i) {
-            */
+            /*
             std::cout << "grid bounding box: " << grid->boundingBox() << "\n";
             for (LibGeoDecomp::Region<2>::Iterator i = validRegion.begin(); i != validRegion.end(); ++i) {
+            */
                 if(clear)
                 {
                     grid->set(*i,

@@ -15,6 +15,8 @@
 
 #include <libgeodecomp/io/steerer.h>
 
+#include <boost/serialization/list.hpp>
+
 namespace vandouken {
     struct ParticleSteerer
         : LibGeoDecomp::Steerer<Cell>
@@ -62,7 +64,8 @@ namespace vandouken {
         typedef hpx::lcos::local::spinlock Mutex;
 
         Mutex mutex;
-        std::vector<SteererFunctor> steererFunctors;
+        typedef std::list<std::pair<bool, SteererFunctor> > SteererFunctors;
+        SteererFunctors steererFunctors;
 
         LibGeoDecomp::Region<2> updatedRegion;
     };
