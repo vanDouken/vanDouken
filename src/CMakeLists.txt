@@ -138,6 +138,10 @@ else()
         set(ADDITIONAL_LIBS
             opencv_core
             opencv_highgui)
+    else()
+        set(ADDITIONAL_LIBS
+            z
+            png)
     endif()
 endif()
 

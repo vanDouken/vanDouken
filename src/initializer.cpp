@@ -18,7 +18,6 @@
 #include <boost/gil/extension/io/png_io.hpp>
 #include <boost/gil/extension/numeric/sampler.hpp>
 #include <boost/gil/extension/numeric/resample.hpp>
-#include <QImage>
 
 #include <fstream>
 

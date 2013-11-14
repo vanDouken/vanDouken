@@ -20,6 +20,12 @@
 #if !defined(__MIC)
 #include <QImage>
 #include <QBuffer>
+#else
+#include <boost/gil/extension/io_new/png_read.hpp>
+#include <boost/gil/extension/numeric/sampler.hpp>
+#include <boost/gil/extension/numeric/resample.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/array.hpp>
 #endif
 
 namespace vandouken {
@@ -48,6 +54,15 @@ namespace vandouken {
         {
 #if !defined(__MIC)
             QImage tmp = image->scaled(globalDimensions.x(), globalDimensions.y());
+#else
+            boost::gil::rgb8_image_t scaledImage(globalDimensions.x(), globalDimensions.y());
+            boost::gil::resize_view(
+                boost::gil::const_view(image)
+              , boost::gil::view(scaledImage)
+              , boost::gil::bilinear_sampler()
+            );
+            boost::gil::rgb8_image_t::const_view_t tmp = boost::gil::const_view(scaledImage);
+#endif
 
             FloatCoord<2> force(0.0f, 0.0f);
             LibGeoDecomp::CoordBox<2> box = grid->boundingBox();
@@ -56,11 +71,20 @@ namespace vandouken {
             std::cout << "grid bounding box: " << grid->boundingBox() << "\n";
             for (LibGeoDecomp::Region<2>::Iterator i = validRegion.begin(); i != validRegion.end(); ++i) {
             */
+#if !defined(__MIC)
+                unsigned color = 0xff000000 + tmp.pixel(i->x(), i->y());
+#else
+                boost::gil::rgb8_image_t::value_type pixel = tmp(i->x(), i->y());
+                unsigned color = 0xff000000 +
+                    (pixel[0] << 16) +
+                    (pixel[1] << 8) +
+                    (pixel[2] << 0);
+#endif
                 if(clear)
                 {
                     grid->set(*i,
                         Cell(
-                            0xff000000 + tmp.pixel(i->x(), i->y())
+                            color
                           , *i
                           , false
                           , force
@@ -71,23 +95,23 @@ namespace vandouken {
                 else
                 {
                     Cell cell = grid->get(*i);
-                    cell.backgroundPixel
-                        = 0xff000000 + tmp.pixel(i->x(), i->y());
+                    cell.backgroundPixel = color;
                     for(int j = 0; j < cell.numParticles; ++j)
                     {
                         if(cell.particles[j].lifetime > DEFAULT_PARTICLE_LIFETIME/2)
                         {
-                            cell.particles[j].color = 0xff000000 + tmp.pixel(i->x(), i->y());
+                            cell.particles[j].color = color;
                         }
                     }
                     grid->set(*i, cell);
                 }
             }
-#endif
         }
 
 #if !defined(__MIC)
         boost::shared_ptr<QImage> image;
+#else
+        boost::gil::rgb8_image_t image;
 #endif
         bool clear;
 
@@ -102,24 +126,35 @@ namespace vandouken {
             int size = ba.size();
             ar & size;
             ar & boost::serialization::make_array(ba.data(), ba.size());
-            ar & clear;
 #endif
+            ar & clear;
         }
 
         template <typename ARCHIVE>
         void load(ARCHIVE& ar, unsigned)
         {
-#if !defined(__MIC)
             int size = 0;
             ar & size;
-            QByteArray ba(size, 0);
-            ar & boost::serialization::make_array(ba.data(), size);
-            QBuffer buffer(&ba);
-            buffer.open(QIODevice::ReadOnly);
-            image.reset(new QImage);
-            image->load(&buffer, "PNG");
-            ar & clear;
+            if(size > 0)
+            {
+#if !defined(__MIC)
+                QByteArray ba(size, 0);
+                ar & boost::serialization::make_array(ba.data(), size);
+                QBuffer buffer(&ba);
+                buffer.open(QIODevice::ReadOnly);
+                image.reset(new QImage);
+                image->load(&buffer, "PNG");
+#else
+                std::vector<char> data(size);
+                ar & boost::serialization::make_array(&data[0], size);
+                using boost::iostreams::basic_array_source;
+                using boost::iostreams::stream;
+                basic_array_source<char> input_source(&data[0], data.size());
+                stream<basic_array_source<char> > input_stream(input_source);
+                boost::gil::read_image(input_stream, image, boost::gil::png_tag());
 #endif
+            }
+            ar & clear;
         }
 
         BOOST_SERIALIZATION_SPLIT_MEMBER()
