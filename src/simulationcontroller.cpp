@@ -27,17 +27,18 @@
 namespace vandouken {
     SimulationController::SimulationController()
     {
-        //std::size_t retry = 0;
         while(thisId == hpx::naming::invalid_id)
         {
-            hpx::agas::resolve_name_sync(VANDOUKEN_SIMULATION_CONTROLLER_NAME, thisId);
-            /*
-            if(retry > 10) {
-                LOG("Could not connect to simulation");
-                throw std::logic_error("Could not connect to simulation");
+            hpx::naming::id_type id;
+            hpx::agas::resolve_name_sync(VANDOUKEN_SIMULATION_CONTROLLER_NAME, id);
+            if(!id)
+            {
+                hpx::this_thread::suspend(boost::posix_time::seconds(1));
+                continue;
             }
-            ++retry;
-            */
+            hpx::naming::gid_type gid = id.get_gid();
+            hpx::naming::detail::strip_credit_from_gid(gid);
+            thisId = hpx::id_type(gid, hpx::id_type::unmanaged);
         }
         LOG("resolved " << VANDOUKEN_SIMULATION_CONTROLLER_NAME << "\n");
     }

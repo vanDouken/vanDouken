@@ -20,18 +20,21 @@ namespace vandouken {
         region << boundingBox;
         for(std::size_t i = 0; i < numUpdateGroups; ++i)
         {
-            std::size_t retry = 0;
             std::string name(VANDOUKEN_GRIDCOLLECTOR_NAME);
             name += "/";
             name += boost::lexical_cast<std::string>(i);
             while(collectorIds[i] == hpx::naming::invalid_id)
             {
-                hpx::agas::resolve_name_sync(name, collectorIds[i]);
-                if(!collectorIds[i])
+                hpx::naming::id_type id;
+                hpx::agas::resolve_name_sync(name, id);
+                if(!id)
                 {
                     hpx::this_thread::suspend(boost::posix_time::seconds(1));
+                    continue;
                 }
-                ++retry;
+                hpx::naming::gid_type gid = id.get_gid();
+                hpx::naming::detail::strip_credit_from_gid(gid);
+                collectorIds[i] = hpx::id_type(gid, hpx::id_type::unmanaged);
             }
             std::cout << "resolved: " << name << "\n";
             consumerIds[i] = GridCollectorServer::AddGridConsumerAction()(collectorIds[i]);
