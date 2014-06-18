@@ -19,7 +19,7 @@
 
 namespace vandouken
 {
-    class ParticleSteerer;
+    struct ParticleSteerer;
 
     class ParticleSteererServer :
         public hpx::components::managed_component_base<ParticleSteererServer>

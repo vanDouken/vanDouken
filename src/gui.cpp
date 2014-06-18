@@ -29,7 +29,7 @@ int hpx_main(boost::program_options::variables_map& vm)
 {
     if(standalone) {
         vandouken::SimulationController simulation = vandouken::runSimulation(vm);
-        hpx::future<void> runFuture = simulation.run();
+        hpx::lcos::future<void> runFuture = simulation.run();
         std::cout << "simulation started\n";
         vandouken::GridProvider gridProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridBox());
         vandouken::SteeringProvider steererProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
@@ -37,7 +37,7 @@ int hpx_main(boost::program_options::variables_map& vm)
         vandouken::startGUI(vm, simulation, &gridProvider, &steererProvider, vandouken::MainWindow::control);
 #endif
         simulation.stop();
-        hpx::wait(runFuture);
+        runFuture.wait();
         return hpx::finalize();
     }
     else {

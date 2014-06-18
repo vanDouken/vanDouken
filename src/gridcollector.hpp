@@ -43,7 +43,7 @@ namespace vandouken {
         typedef hpx::lcos::local::spinlock Mutex;
         GridCollector(unsigned period);
 
-        LibGeoDecomp::ParallelWriter<Cell> *clone()
+        LibGeoDecomp::ParallelWriter<Cell> *clone() const
         {
             return new GridCollector(LibGeoDecomp::ParallelWriter<Cell>::period);
         }

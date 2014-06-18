@@ -10,6 +10,8 @@
 
 #include <hpx/lcos/broadcast.hpp>
 
+#include <utility>
+
 namespace vandouken {
     GridProvider::GridProvider(std::size_t numUpdateGroups, const LibGeoDecomp::CoordBox<2>& boundingBox) :
         //region(region),
@@ -33,7 +35,7 @@ namespace vandouken {
                     continue;
                 }
                 hpx::naming::gid_type gid = id.get_gid();
-                hpx::naming::detail::strip_credit_from_gid(gid);
+                hpx::naming::detail::strip_credits_from_gid(gid);
                 collectorIds[i] = hpx::id_type(gid, hpx::id_type::unmanaged);
             }
             std::cout << "resolved: " << name << "\n";
@@ -41,31 +43,48 @@ namespace vandouken {
         }
 
         timer.restart();
+        
+        // create list of futures
         std::vector<
-            hpx::future<std::pair<unsigned, RegionBuffer> >
+            hpx::lcos::shared_future<std::pair<unsigned, RegionBuffer> >
         > futures;
-        //std::vector<hpx::future<BufferType> > futures;
+
+        // add all futures to list
         futures.reserve(collectorIds.size());
         for(std::size_t i = 0; i < collectorIds.size(); ++i)
         {
             futures.push_back(
-                hpx::async<GridCollectorServer::GetNextBufferAction>(collectorIds[i], consumerIds[i])
+                hpx::async<GridCollectorServer::GetNextBufferAction>
+                                      (collectorIds[i], consumerIds[i]).share()
             );
         }
 
-        collectingFuture = hpx::when_all(futures).then(
+        // combine list of futures to one future
+        hpx::shared_future<
+            std::vector<
+                hpx::shared_future<std::pair<unsigned, RegionBuffer>>
+            >
+        > collectingContinuationFuture = hpx::when_all(futures).share();
+
+        // write future to class
+        collectingFuture = collectingContinuationFuture;
+
+        // add continuation to future
+        std::move(collectingContinuationFuture).then(
             HPX_STD_BIND(
                 &GridProvider::setNextGrid,
                 this,
                 HPX_STD_PLACEHOLDERS::_1
             )
         );
+
+
     }
 
     GridProvider::~GridProvider()
     {
         stopped = true;
-        hpx::wait(collectingFuture);
+        collectingFuture.wait();
         for(std::size_t i = 0; i < collectorIds.size(); ++i)
         {
             GridCollectorServer::RemoveGridConsumerAction()(collectorIds[i], consumerIds[i]);
@@ -73,20 +92,21 @@ namespace vandouken {
     }
 
     void GridProvider::setNextGrid(
-        hpx::future<
+        hpx::lcos::shared_future<
             std::vector<
-                hpx::future<std::pair<unsigned, RegionBuffer> >
+                hpx::lcos::shared_future<std::pair<unsigned, RegionBuffer> >
             >
-        >& buffersFuture)
+        > && buffersFuture)
     {
         typedef std::pair<unsigned, RegionBuffer> pair_type;
-        std::vector<hpx::future<pair_type> > buffers = buffersFuture.move();
+        std::vector<hpx::lcos::shared_future<pair_type> > buffers =
+                                                            buffersFuture.get();
         BufferType res;
 
 
-        BOOST_FOREACH(hpx::future<pair_type>& bufferFuture, buffers)
+        BOOST_FOREACH(hpx::lcos::shared_future<pair_type>& bufferFuture, buffers)
         {
-            std::pair<unsigned, RegionBuffer> regionBuffer = bufferFuture.move();
+            std::pair<unsigned, RegionBuffer> regionBuffer = bufferFuture.get();
             if(regionBuffer.second.region.empty())
             {
                 continue;
@@ -128,24 +148,41 @@ namespace vandouken {
         if(!stopped)
         {
             timer.restart();
+
+            // create list of futures
             std::vector<
-                hpx::future<std::pair<unsigned, RegionBuffer> >
+                hpx::lcos::shared_future<std::pair<unsigned, RegionBuffer> >
             > futures;
+
+            // add all futures to list
             futures.reserve(collectorIds.size());
             for(std::size_t i = 0; i < collectorIds.size(); ++i)
             {
                 futures.push_back(
-                    hpx::async<GridCollectorServer::GetNextBufferAction>(collectorIds[i], consumerIds[i])
+                    hpx::async<GridCollectorServer::GetNextBufferAction>
+                                      (collectorIds[i], consumerIds[i]).share()
                 );
             }
 
-            collectingFuture = hpx::when_all(futures).then(
+            // combine list of futures to one future
+            hpx::shared_future<
+                std::vector<
+                    hpx::shared_future<std::pair<unsigned, RegionBuffer>>
+                >
+            > collectingContinuationFuture = hpx::when_all(futures).share();
+
+            // write future to class
+            collectingFuture = collectingContinuationFuture;
+
+            // add continuation to future
+            std::move(collectingContinuationFuture).then(
                 HPX_STD_BIND(
                     &GridProvider::setNextGrid,
                     this,
                     HPX_STD_PLACEHOLDERS::_1
                 )
             );
+
         }
     }
 

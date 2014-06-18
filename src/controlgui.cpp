@@ -25,28 +25,15 @@
 #include <QDialog>
 #include "ui_startdialog.h"
 
-#ifndef LOG
-#if !defined(ANDROID)
-#define LOG(x,...) std::cout << x;
-#else
-#include <android/log.h>
-#define LOG(x,...)                                                               \
-{                                                                               \
-    std::stringstream sstr;                                                     \
-    sstr << x;                                                                  \
-    __android_log_print(ANDROID_LOG_INFO, "vandouken", "%s", sstr.str().c_str());            \
-}                                                                               \
-/**/
-#endif
-#endif
+#include "log.hpp"
 
 int hpx_main(boost::program_options::variables_map& vm)
 {
-    LOG("inside hpx_main\n")
+    MSG("inside hpx_main\n")
     vandouken::SimulationController simulation;
-    LOG("got " << simulation.numUpdateGroups());
+    MSG("got " << simulation.numUpdateGroups());
     LibGeoDecomp::Coord<2> dim = simulation.getInitializer()->gridDimensions();
-    LOG("got " << dim.x() << " " << dim.y());
+    MSG("got " << dim.x() << " " << dim.y());
     vandouken::SteeringProvider steererProvider(simulation.numUpdateGroups(), simulation.getInitializer()->gridDimensions());
     vandouken::startGUI(
         vm
@@ -55,7 +42,7 @@ int hpx_main(boost::program_options::variables_map& vm)
       , &steererProvider
       , vandouken::MainWindow::picturesOnly
     );
-    LOG("inside hpx_main done\n")
+    MSG("inside hpx_main done\n")
     return hpx::disconnect();
 }
 
@@ -82,7 +69,7 @@ void controlGUI(int argc, char **argv)
     std::string numThreads = "2";
 #endif
     
-    LOG("starting HPX ... " << agasHost << " " << agasPort << " " << numThreads << "\n")
+    MSG("starting HPX ... " << agasHost << " " << agasPort << " " << numThreads << "\n")
     std::vector<std::string> cfg;
     cfg.push_back("hpx.run_hpx_main!=1");
     cfg.push_back("hpx.os_threads=" + numThreads);

@@ -17,7 +17,7 @@ int hpx_main(boost::program_options::variables_map& vm)
     {
         vandouken::SimulationController sim = vandouken::runSimulation(vm);
 
-        hpx::wait(sim.run());
+        sim.run().wait();
     }
     return hpx::finalize();
 }

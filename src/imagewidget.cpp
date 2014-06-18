@@ -13,21 +13,6 @@
 
 #include <iostream>
 
-#ifndef LOG
-#if !defined(ANDROID)
-#define LOG(x,...) std::cout << x;
-#else
-#include <android/log.h>
-#define LOG(x,...)                                                               \
-{                                                                               \
-    std::stringstream sstr;                                                     \
-    sstr << x;                                                                  \
-    __android_log_print(ANDROID_LOG_INFO, "vandouken", "%s", sstr.str().c_str());            \
-}                                                                               \
-/**/
-#endif
-#endif
-
 namespace vandouken
 {
     ImageWidget::ImageWidget(QWidget *parent,
@@ -37,7 +22,7 @@ namespace vandouken
       , reset(false)
       , resetImage(false)
     {
-        LOG("constructed ...\n");
+        MSG("constructed ...\n");
     }
 
     void ImageWidget::mousePressEvent(QMouseEvent *event)

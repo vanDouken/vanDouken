@@ -21,14 +21,14 @@
 #include <QTimer>
 
 namespace vandouken {
-    class GridProvider;
-    class SteeringProvider;
-    class ParticleWidget;
-    class ImageWidget;
-    class MainControl;
-    class ForceControl;
-    class ForceView;
-    class CameraPreview;
+    class  GridProvider;
+    class  SteeringProvider;
+    class  ParticleWidget;
+    struct ImageWidget;
+    struct MainControl;
+    struct ForceControl;
+    struct ForceView;
+    class  CameraPreview;
 
     class MainWindow : public QWidget
     {

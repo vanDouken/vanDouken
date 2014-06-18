@@ -9,20 +9,7 @@
 
 #include <hpx/runtime/components/new.hpp>
 
-#ifndef LOG
-#if !defined(ANDROID)
-#define LOG(x,...) std::cout << x;
-#else
-#include <android/log.h>
-#define LOG(x,...)                                                               \
-{                                                                               \
-    std::stringstream sstr;                                                     \
-    sstr << x;                                                                  \
-    __android_log_print(ANDROID_LOG_INFO, "vandouken", "%s", sstr.str().c_str());\
-}                                                                               \
-/**/
-#endif
-#endif
+#include "log.hpp"
 
 namespace vandouken {
     SimulationController::SimulationController()
@@ -37,10 +24,10 @@ namespace vandouken {
                 continue;
             }
             hpx::naming::gid_type gid = id.get_gid();
-            hpx::naming::detail::strip_credit_from_gid(gid);
+            hpx::naming::detail::strip_credits_from_gid(gid);
             thisId = hpx::id_type(gid, hpx::id_type::unmanaged);
         }
-        LOG("resolved " << VANDOUKEN_SIMULATION_CONTROLLER_NAME << "\n");
+        MSG("resolved " << VANDOUKEN_SIMULATION_CONTROLLER_NAME << "\n");
     }
 
     SimulationController::SimulationController(const LibGeoDecomp::Coord<2>& simulationDim)
@@ -59,7 +46,7 @@ namespace vandouken {
         return ComponentType::GetInitializerAction()(thisId);
     }
 
-    hpx::future<void> SimulationController::run() const
+    hpx::lcos::future<void> SimulationController::run() const
     {
         return hpx::async<ComponentType::RunAction>(thisId);
     }

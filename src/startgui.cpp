@@ -14,20 +14,7 @@
 
 #include <QApplication>
 
-#ifndef LOG
-#if !defined(ANDROID)
-#define LOG(x,...) std::cout << x;
-#else
-#include <android/log.h>
-#define LOG(x,...)                                                               \
-{                                                                               \
-    std::stringstream sstr;                                                     \
-    sstr << x;                                                                  \
-    __android_log_print(ANDROID_LOG_INFO, "vandouken", "%s", sstr.str().c_str());            \
-}                                                                               \
-/**/
-#endif
-#endif
+#include "log.hpp"
 
 namespace {
     void runWidget(
@@ -39,17 +26,17 @@ namespace {
         vandouken::MainWindow::Mode guiMode)
     {
         QCoreApplication *app = QApplication::instance();
-        LOG("runWidget" << simulationDim << "\n");
+        MSG("runWidget" << simulationDim << "\n");
         vandouken::MainWindow
             *main = new vandouken::MainWindow(simulationDim, gridProvider, steererProvider, guiMode);
         mainWindowPromise->set_value(main);
-        LOG("main window created\n");
+        MSG("main window created\n");
 
         main->resize(1000, 500);
         main->show();
 
         app->exec();
-        LOG("finished ...\n");
+        MSG("finished ...\n");
         finishedPromise->set_value();
     }
 }
@@ -64,11 +51,11 @@ namespace vandouken {
     {
         boost::shared_ptr<hpx::lcos::local::promise<void> >
             finishedPromise(new hpx::lcos::local::promise<void>);
-        hpx::future<void> finished(finishedPromise->get_future());
+        hpx::lcos::future<void> finished(finishedPromise->get_future());
         
         boost::shared_ptr<hpx::lcos::local::promise<MainWindow*> >
             mainWindowPromise(new hpx::lcos::local::promise<MainWindow*>);
-        hpx::future<MainWindow *> mainWindowFuture(mainWindowPromise->get_future());
+        hpx::lcos::future<MainWindow *> mainWindowFuture(mainWindowPromise->get_future());
 
         hpx::util::io_service_pool *main_pool =
             hpx::get_runtime().get_thread_pool("main_pool");
@@ -92,7 +79,7 @@ namespace vandouken {
             std::string name(VANDOUKEN_MAIN_WINDOW_NAME);
             serverId = hpx::components::new_<MainWindowServer>(hpx::find_here(), mainWindow).get();
             hpx::agas::register_name_sync(name, serverId);
-            LOG("registered: " << name << "\n");
+            MSG("registered: " << name << "\n");
         }
         else
         {
@@ -107,23 +94,23 @@ namespace vandouken {
                     continue;
                 }
                 hpx::naming::gid_type gid = id.get_gid();
-                hpx::naming::detail::strip_credit_from_gid(gid);
+                hpx::naming::detail::strip_credits_from_gid(gid);
                 serverId = hpx::id_type(gid, hpx::id_type::unmanaged);
             }
-            LOG("resolved: " << name << "\n");
+            MSG("resolved: " << name << "\n");
         }
         mainWindow->setServerId(serverId);
 
         if(guiMode == MainWindow::Mode::picturesOnly)
         {
-            LOG("starting image retrival ...\n");
+            MSG("starting image retrival ...\n");
             while(!finished.is_ready())
             {
                 hpx::util::high_resolution_timer timer;
                 QImage image = MainWindowServer::GetImageAction()(serverId);
                 if(image.isNull()) continue;
 
-                LOG("got image\n");
+                MSG("got image\n");
 
                 QMetaObject::invokeMethod(
                     mainWindow,
@@ -141,7 +128,7 @@ namespace vandouken {
         }
         else
         {
-            hpx::wait(finished);
+            finished.wait();
         }
     }
 }

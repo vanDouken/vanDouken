@@ -23,20 +23,6 @@
 
 #include <QResizeEvent>
 
-#ifndef LOG
-#if !defined(ANDROID)
-#define LOG(x,...) std::cout << x;
-#else
-#include <android/log.h>
-#define LOG(x,...)                                                               \
-{                                                                               \
-    std::stringstream sstr;                                                     \
-    sstr << x;                                                                  \
-    __android_log_print(ANDROID_LOG_INFO, "vandouken", "%s", sstr.str().c_str());            \
-}                                                                               \
-/**/
-#endif
-#endif
 
 namespace vandouken {
     MainWindow::MainWindow(
@@ -57,7 +43,7 @@ namespace vandouken {
         guiMode(guiMode),
         state(MainControl::free)
     {
-        LOG("gridProvider " << gridProvider << "\n");
+        MSG("gridProvider " << gridProvider << "\n");
         if(gridProvider)
         {
             particleWidget =
@@ -75,23 +61,23 @@ namespace vandouken {
                     steeringProvider,
                     dim
                     );
-            LOG("imageWidget " << imageWidget << "\n");
+            MSG("imageWidget " << imageWidget << "\n");
 
             QObject::connect(
                 imageWidget, SIGNAL(stateChanged(int, bool))
               , this, SLOT(stateChanged(int, bool))
             );
-            LOG("imageWidget connected stateChanged\n");
+            MSG("imageWidget connected stateChanged\n");
         }
 
         if(guiMode != Mode::control)
         {
-            LOG("creating mainControl\n");
+            MSG("creating mainControl\n");
             mainControl = new MainControl(this);
-            LOG("creating forceControl\n");
+            MSG("creating forceControl\n");
             forceControl = new ForceControl(this);
             forceControl->hide();
-            LOG("creating forceView\n");
+            MSG("creating forceView\n");
             forceView =
                 new ForceView(
                     particleWidget
@@ -100,7 +86,7 @@ namespace vandouken {
 
             forceView->hide();
         }
-        LOG("creating camera preview\n");
+        MSG("creating camera preview\n");
         cameraPreview = new CameraPreview(steeringProvider, this);
         cameraPreview->hide();
         QObject::connect(&grabTimer, SIGNAL(timeout()), cameraPreview, SLOT(grabFrame()));
@@ -108,7 +94,7 @@ namespace vandouken {
         {
             QObject::connect(cameraPreview, SIGNAL(setImage(QImage)), this, SLOT(setImage(QImage)));
         }
-        LOG("creating camera preview done\n");
+        MSG("creating camera preview done\n");
 
         if(particleWidget)
         {
@@ -132,7 +118,7 @@ namespace vandouken {
 
         if(mainControl)
         {
-            LOG("connecting mainControl stateChanged\n");
+            MSG("connecting mainControl stateChanged\n");
             QObject::connect(
                 mainControl, SIGNAL(stateChanged(int, bool))
               , this, SLOT(stateChanged(int, bool))
@@ -141,28 +127,28 @@ namespace vandouken {
 
         if(cameraPreview)
         {
-            LOG("connecting cameraPreview stateChanged\n");
+            MSG("connecting cameraPreview stateChanged\n");
             QObject::connect(
                 cameraPreview, SIGNAL(stateChanged(int, bool))
               , this, SLOT(stateChanged(int, bool))
             );
         }
 
-        LOG("starting paint timer\n");
+        MSG("starting paint timer\n");
         paintTimer.start(20);
-        LOG("starting grab timer\n");
+        MSG("starting grab timer\n");
         grabTimer.start(20);
 
-        LOG("showing fullscreen\n");
+        MSG("showing fullscreen\n");
         showFullScreen();
-        LOG("resetting image\n");
+        MSG("resetting image\n");
         resetImage();
-        LOG("main window created\n");
+        MSG("main window created\n");
     }
 
     void MainWindow::stateChanged(int s, bool callResetImage)
     {
-        LOG("stateChanged " << s << " " << callResetImage);
+        MSG("stateChanged " << s << " " << callResetImage);
         if(!(guiMode & Mode::control) && serverId)
         {
             hpx::apply<MainWindowServer::StateChangedAction>(serverId, s, callResetImage);

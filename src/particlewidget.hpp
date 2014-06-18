@@ -27,21 +27,6 @@
 #include <QtOpenGL/QGLShaderProgram>
 
 
-#ifndef LOG
-#if !defined(ANDROID)
-#define LOG(x,...) std::cout << x;
-#else
-#include <android/log.h>
-#define LOG(x,...)                                                               \
-{                                                                               \
-    std::stringstream sstr;                                                     \
-    sstr << x;                                                                  \
-    __android_log_print(ANDROID_LOG_INFO, "vandouken", "%s", sstr.str().c_str());            \
-}                                                                               \
-/**/
-#endif
-#endif
-
 namespace vandouken {
     class GridProvider;
     class SteeringProvider;

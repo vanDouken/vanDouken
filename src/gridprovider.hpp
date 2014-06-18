@@ -41,11 +41,11 @@ namespace vandouken {
     private:
 
         void setNextGrid(
-            hpx::future<
+            hpx::lcos::shared_future<
                 std::vector<
-                    hpx::future<std::pair<unsigned, RegionBuffer> >
+                    hpx::lcos::shared_future<std::pair<unsigned, RegionBuffer> >
                 >
-            >& buffersFuture);
+            > && buffersFuture);
 
         typedef hpx::lcos::local::spinlock MutexType;
         MutexType mutex;
@@ -53,7 +53,7 @@ namespace vandouken {
 
         LibGeoDecomp::Region<2> region;
 
-        hpx::future<void> collectingFuture;
+        hpx::shared_future<void> collectingFuture;
         boost::atomic<bool> stopped;
         BufferType grid;
         BufferMap bufferMap;

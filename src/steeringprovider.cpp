@@ -21,7 +21,7 @@ namespace vandouken {
             name += "/";
             name += boost::lexical_cast<std::string>(i);
 
-            LOG("trying to resolve " << name << "\n");
+            MSG("trying to resolve " << name << "\n");
             
             while(serverIds[i] == hpx::naming::invalid_id)
             {
@@ -33,10 +33,10 @@ namespace vandouken {
                     continue;
                 }
                 hpx::naming::gid_type gid = id.get_gid();
-                hpx::naming::detail::strip_credit_from_gid(gid);
+                hpx::naming::detail::strip_credits_from_gid(gid);
                 serverIds[i] = hpx::id_type(gid, hpx::id_type::unmanaged);
             }
-            LOG("resolved: " << name << "\n");
+            MSG("resolved: " << name << "\n");
         }
     }
 
@@ -48,7 +48,7 @@ namespace vandouken {
     {
         for(std::size_t i = 0; i < serverIds.size(); ++i)
         {
-            LOG("steering ... " << serverIds[i] << "\n");
+            MSG("steering ... " << serverIds[i] << "\n");
             hpx::apply<ParticleSteererServer::SteerAction>(serverIds[i], f);
         }
     }

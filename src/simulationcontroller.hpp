@@ -31,7 +31,7 @@ namespace vandouken {
 
         boost::shared_ptr<LibGeoDecomp::Initializer<Cell> > getInitializer() const;
 
-        hpx::future<void> run() const;
+        hpx::lcos::future<void> run() const;
         void stop() const;
 
         std::size_t numUpdateGroups() const;

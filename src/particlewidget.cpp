@@ -52,7 +52,7 @@ namespace vandouken {
         program = createProgram();
         if(program == 0) return;
 
-        const double scale = 0.4f;
+        const float scale = 0.4f;
             // 0->1->2, 0->2->3
         /*
         static const float
@@ -322,7 +322,7 @@ namespace vandouken {
             glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
             if(linkStatus != GL_TRUE)
             {
-                LOG("Could not link program\n");
+                MSG("Could not link program\n");
                 glDeleteProgram(program);
                 program = 0;
             }
@@ -340,15 +340,15 @@ namespace vandouken {
             glCompileShader(shader);
             int compiled;
             glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-            LOG("Shader compile log:\n");
+            MSG("Shader compile log:\n");
             const int bufLen = 2048;
             char buf[bufLen] = {0};
             glGetShaderInfoLog(shader, 2048, &len, buf);
             std::string str(buf, buf + len);
-            LOG(str);
+            MSG(str);
 
             if (!compiled) {
-                LOG("Could not compile shader" << type << "!\n");
+                MSG("Could not compile shader" << type << "!\n");
                 glDeleteShader(shader);
                 shader = 0;
             }

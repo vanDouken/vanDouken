@@ -12,6 +12,7 @@
 #include "config.hpp"
 #include "steeringprovider.hpp"
 #include "forcesteerer.hpp"
+
 #include "log.hpp"
 
 #include <libgeodecomp/geometry/coord.h>
@@ -90,7 +91,7 @@ namespace vandouken {
     void WidgetBase<QBase>::mousePressEvent(QMouseEvent *event)
     {
         if (event->buttons() & Qt::LeftButton) {
-            LOG(event->pos().x() <<  " " << event->pos().y() << "\n");
+            MSG(event->pos().x() <<  " " << event->pos().y() << "\n");
             lastSweepPos = event->pos();// - QPoint(viewport[0], viewport[1]);
         }
         if (event->buttons() & Qt::RightButton) {
@@ -115,7 +116,7 @@ namespace vandouken {
                              delta.y() * zoomFactor * factorY);
 
         modelDelta.normalize();
-        LOG("add force (" << modelPos.x() << ", " << modelPos.y()
+        MSG("add force (" << modelPos.x() << ", " << modelPos.y()
                    << ") -> "       << modelDelta.x() << ", " << modelDelta.y() << "\n");
         steeringProvider->steer(ForceSteerer(modelPos, modelDelta));
         lastSweepPos = eventPos;
@@ -125,7 +126,7 @@ namespace vandouken {
     void WidgetBase<QBase>::mouseReleaseEvent(QMouseEvent *event)
     {
         if (event->buttons() & Qt::LeftButton) {
-            LOG("mouseRelease\n");
+            MSG("mouseRelease\n");
             addForce(event->pos());
         }
     }
@@ -135,7 +136,7 @@ namespace vandouken {
     {
         double zoomFactor = -globalOffset.z() * 0.01 + 1;
         if(event->buttons() & Qt::LeftButton) {
-            LOG("mouseMove\n");
+            MSG("mouseMove\n");
             addForce(event->pos());
         }
 
