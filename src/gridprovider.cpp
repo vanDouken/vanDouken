@@ -46,7 +46,7 @@ namespace vandouken {
         
         // create list of futures
         std::vector<
-            hpx::lcos::shared_future<std::pair<unsigned, RegionBuffer> >
+            hpx::lcos::future<std::pair<unsigned, RegionBuffer> >
         > futures;
 
         // add all futures to list
@@ -55,12 +55,12 @@ namespace vandouken {
         {
             futures.push_back(
                 hpx::async<GridCollectorServer::GetNextBufferAction>
-                                      (collectorIds[i], consumerIds[i]).share()
+                                      (collectorIds[i], consumerIds[i])
             );
         }
 
         // write future to class
-        collectingFuture = hpx::when_all(futures).share().then(
+        collectingFuture = hpx::when_all(futures).then(
             HPX_STD_BIND(
                 &GridProvider::setNextGrid,
                 this,
@@ -82,19 +82,19 @@ namespace vandouken {
     }
 
     void GridProvider::setNextGrid(
-        hpx::lcos::shared_future<
+        hpx::lcos::future<
             std::vector<
-                hpx::lcos::shared_future<std::pair<unsigned, RegionBuffer> >
+                hpx::lcos::future<std::pair<unsigned, RegionBuffer> >
             >
         > && buffersFuture)
     {
         typedef std::pair<unsigned, RegionBuffer> pair_type;
-        std::vector<hpx::lcos::shared_future<pair_type> > buffers =
+        std::vector<hpx::lcos::future<pair_type> > buffers =
                                                             buffersFuture.get();
         BufferType res;
 
 
-        BOOST_FOREACH(hpx::lcos::shared_future<pair_type>& bufferFuture, buffers)
+        BOOST_FOREACH(hpx::lcos::future<pair_type>& bufferFuture, buffers)
         {
             std::pair<unsigned, RegionBuffer> regionBuffer = bufferFuture.get();
             if(regionBuffer.second.region.empty())
@@ -141,7 +141,7 @@ namespace vandouken {
 
             // create list of futures
             std::vector<
-                hpx::lcos::shared_future<std::pair<unsigned, RegionBuffer> >
+                hpx::lcos::future<std::pair<unsigned, RegionBuffer> >
             > futures;
 
             // add all futures to list
@@ -150,12 +150,12 @@ namespace vandouken {
             {
                 futures.push_back(
                     hpx::async<GridCollectorServer::GetNextBufferAction>
-                                      (collectorIds[i], consumerIds[i]).share()
+                                      (collectorIds[i], consumerIds[i])
                 );
             }
 
             // combine list of futures to one future
-            collectingFuture = hpx::when_all(futures).share().then(
+            collectingFuture = hpx::when_all(futures).then(
                 HPX_STD_BIND(
                     &GridProvider::setNextGrid,
                     this,
