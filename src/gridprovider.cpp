@@ -59,18 +59,8 @@ namespace vandouken {
             );
         }
 
-        // combine list of futures to one future
-        hpx::shared_future<
-            std::vector<
-                hpx::shared_future<std::pair<unsigned, RegionBuffer>>
-            >
-        > collectingContinuationFuture = hpx::when_all(futures).share();
-
         // write future to class
-        collectingFuture = collectingContinuationFuture;
-
-        // add continuation to future
-        std::move(collectingContinuationFuture).then(
+        collectingFuture = hpx::when_all(futures).share().then(
             HPX_STD_BIND(
                 &GridProvider::setNextGrid,
                 this,
@@ -165,17 +155,7 @@ namespace vandouken {
             }
 
             // combine list of futures to one future
-            hpx::shared_future<
-                std::vector<
-                    hpx::shared_future<std::pair<unsigned, RegionBuffer>>
-                >
-            > collectingContinuationFuture = hpx::when_all(futures).share();
-
-            // write future to class
-            collectingFuture = collectingContinuationFuture;
-
-            // add continuation to future
-            std::move(collectingContinuationFuture).then(
+            collectingFuture = hpx::when_all(futures).share().then(
                 HPX_STD_BIND(
                     &GridProvider::setNextGrid,
                     this,
