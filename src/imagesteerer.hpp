@@ -156,8 +156,8 @@ namespace vandouken {
             }
             ar & clear;
         }
-
-        BOOST_SERIALIZATION_SPLIT_MEMBER()
+        //HPX_SERIALIZATION_SPLIT_MEMBER()
+        //BOOST_SERIALIZATION_SPLIT_MEMBER()
     };
 }
 

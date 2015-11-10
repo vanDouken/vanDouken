@@ -31,14 +31,14 @@ namespace vandouken
             BOOST_ASSERT(false);
         }
         typedef 
-            hpx::components::server::create_component_action1<
+            hpx::components::server::create_component_action<
                 vandouken::MainWindowServer
               , vandouken::MainWindow *
             >
             CreateAction;
 
         typedef 
-            hpx::components::server::create_component_action1<
+            hpx::components::server::create_component_action<
                 vandouken::MainWindowServer
               , vandouken::MainWindow * const
             >

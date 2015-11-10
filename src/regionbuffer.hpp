@@ -10,7 +10,7 @@
 #include "particle.hpp"
 
 #include <libgeodecomp/geometry/region.h>
-#include <libgeodecomp/communication/serialization.h>
+#include <libgeodecomp/communication/hpxserializationwrapper.h>
 
 #include <boost/shared_ptr.hpp>
 

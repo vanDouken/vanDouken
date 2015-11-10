@@ -123,7 +123,7 @@ namespace vandouken {
             ar & coord;
         }
 
-        BOOST_SERIALIZATION_SPLIT_MEMBER()
+        //BOOST_SERIALIZATION_SPLIT_MEMBER()
 
         QVector2D qOrigin;
         QVector2D qDelta;

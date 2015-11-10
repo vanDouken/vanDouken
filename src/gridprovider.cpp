@@ -155,6 +155,18 @@ namespace vandouken {
             }
 
             // combine list of futures to one future
+             
+            collectingFuture = hpx::when_all(futures).then(
+                hpx::util::bind(
+                    &GridProvider::setNextGrid,
+                    this
+                    )
+            );
+
+
+            
+           /* 
+            
             collectingFuture = hpx::when_all(futures).then(
                 HPX_STD_BIND(
                     &GridProvider::setNextGrid,
@@ -162,6 +174,8 @@ namespace vandouken {
                     HPX_STD_PLACEHOLDERS::_1
                 )
             );
+
+            */
 
         }
     }

@@ -31,14 +31,14 @@ namespace vandouken
         }
 
         typedef 
-            hpx::components::server::create_component_action1<
+            hpx::components::server::create_component_action<
                 vandouken::GridCollectorServer
               , vandouken::GridCollector *
             >
             CreateAction;
 
         typedef 
-            hpx::components::server::create_component_action1<
+            hpx::components::server::create_component_action<
                 vandouken::GridCollectorServer
               , vandouken::GridCollector * const
             >

@@ -10,12 +10,13 @@
 #include "gridcollectorserver.hpp"
 #include "particleconverter.hpp"
 
-#include <libgeodecomp/communication/serialization.h>
+#include <libgeodecomp/communication/hpxserializationwrapper.h>
 #include <boost/serialization/export.hpp>
 
 #include <hpx/hpx.hpp>
-#include <hpx/util/portable_binary_iarchive.hpp>
-#include <hpx/util/portable_binary_oarchive.hpp>
+ // #include <hpx/util/portable_binary_iarchive.hpp>
+ // #include <hpx/util/portable_binary_oarchive.hpp>
+#include <hpx/runtime/serialization/serialize.hpp>
 
 namespace vandouken {
     GridCollector::GridCollector(unsigned period) :
@@ -81,7 +82,7 @@ namespace vandouken {
 
             for (RegionType::StreakIterator i = validRegion.beginStreak();
                  i != validRegion.endStreak(); ++i) {
-                GridType::ConstIterator src = grid.at(i->origin);
+                GridType::Iterator src = grid.at(i->origin);
                 //it->second->resize(i->length());
                 for(int j = 0; j < i->length(); ++j)
                 {

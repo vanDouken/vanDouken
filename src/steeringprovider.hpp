@@ -40,7 +40,7 @@ namespace vandouken {
         void steer(const SteererFunctor& f);
 
     private:
-        std::vector<hpx::id_type> serverIds;
+        std::vector<hpx::naming::id_type> serverIds;
     };
 }
 

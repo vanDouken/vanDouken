@@ -12,11 +12,12 @@
 
 #include <libgeodecomp/storage/grid.h>
 #include <libgeodecomp/geometry/region.h>
-#include <libgeodecomp/communication/serialization.h>
+#include <libgeodecomp/communication/hpxserializationwrapper.h>
 
 #include <hpx/include/components.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+//#include <boost/serialization/shared_ptr.hpp>
 
+#include <hpx/runtime/serialization/shared_ptr.hpp>
 namespace vandouken
 {
     struct ParticleSteerer;
@@ -40,14 +41,14 @@ namespace vandouken
         }
 
         typedef 
-            hpx::components::server::create_component_action1<
+            hpx::components::server::create_component_action<
                 vandouken::ParticleSteererServer
               , vandouken::ParticleSteerer *
             >
             CreateAction;
 
         typedef 
-            hpx::components::server::create_component_action1<
+            hpx::components::server::create_component_action<
                 vandouken::ParticleSteererServer
               , vandouken::ParticleSteerer * const
             >

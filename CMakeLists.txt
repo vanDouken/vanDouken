@@ -3,18 +3,25 @@ project(vandouken)
 
 cmake_minimum_required(VERSION 2.8)
 
-if(NOT HPX_ROOT)
-    if(NOT $ENV{HPX_ROOT} STREQUAL "")
-        set(HPX_ROOT $ENV{HPX_ROOT})
-    else()
-        message(FATAL_ERROR "vandouken needs HPX. Please set HPX_ROOT.")
-    endif()
-endif()
+#if(NOT HPX_ROOT)
+#    if(NOT $ENV{HPX_ROOT} STREQUAL "")
+#        set(HPX_ROOT $ENV{HPX_ROOT})
+#    else()
+#        message(FATAL_ERROR "vandouken needs HPX. Please set HPX_ROOT.")
+#    endif()
+#endif()
 
+message("HPX ROOT IS " ${HPX_ROOT} )
 if(HPX_ROOT)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${HPX_ROOT}/share/cmake-2.8/Modules)
 endif()
 
+find_package( MPI REQUIRED )
+find_package( OpenCV REQUIRED )
+include_directories(${MPI_INCLUDE_PATH})
+
+
+find_package(HPX REQUIRED)
 ################################################################################
 # enable solution folders for MSVC
 if(MSVC)
@@ -22,7 +29,6 @@ if(MSVC)
 endif()
 ################################################################################
 
-find_package(HPX REQUIRED)
 
 if(NOT LIBGEODECOMP_INCLUDE_DIR)
     if(NOT $ENV{LIBGEODECOMP_INCLUDE_DIR} STREQUAL "")

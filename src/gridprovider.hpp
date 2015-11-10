@@ -58,7 +58,7 @@ namespace vandouken {
         BufferType grid;
         BufferMap bufferMap;
         std::vector<std::size_t> consumerIds;
-        std::vector<hpx::id_type> collectorIds;
+        std::vector<hpx::naming::id_type> collectorIds;
     };
 }
 

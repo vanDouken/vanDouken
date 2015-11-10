@@ -18,7 +18,7 @@
 
 #include <boost/serialization/access.hpp>
 #include <libgeodecomp/io/parallelwriter.h>
-#include <libgeodecomp/communication/serialization.h>
+#include <libgeodecomp/communication/hpxserializationwrapper.h>
 
 namespace vandouken {
     class GridCollector : public LibGeoDecomp::ParallelWriter<Cell>
